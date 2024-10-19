@@ -38,3 +38,6 @@ next-env.d.ts
 
 # packages
 package-lock.json
+
+# database
+prisma/dev.db
