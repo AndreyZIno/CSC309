@@ -1,0 +1,204 @@
+Java:
+
+1. 
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"public class Main { public static void main(String[] args) { System.out.println(\"Hello, World!\"); } }", "language":"java"}'
+
+    result: {
+    "output": "Hello, World!\n"
+    }
+
+2. 
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"public class Main { public static void main(String[] args) { for (int i = 1; i <= 5; i++) { System.out.println(i); } } }", "language":"java"}'
+
+    result: {
+    "output": "1\n2\n3\n4\n5\n"
+    }
+
+3. 
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"public class Main { public static void main(String[] args) { int x = 10; if (x > 5) { System.out.println(\"x is greater than 5\"); } else { System.out.println(\"x is not greater than 5\"); } } }", "language":"java"}'
+
+    result: 
+    {
+    "output": "x is greater than 5\n"
+    }
+
+4.  curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"public class Main { public static void main(String[] args) { int a = 5; int b = 3; int sum = a + b; System.out.println(\"Sum: \" + sum); } }", "language":"java"}'
+
+    result: {
+    "output": "Sum: 8\n"
+    }
+
+5. curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"public class Main { public static void main(String[] args) { System.out.println(\"Missing semicolon\") } }", "language":"java"}'
+
+    result: fail/error message
+
+6.  
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"public class Main { public static int add(int a, int b) { return a + b; } public static void main(String[] args) { int result = add(4, 5); System.out.println(\"Result: \" + result); } }", "language":"java"}'
+
+    result: {
+    "output": "Result: 9\n"
+    }
+
+
+C:
+
+1. 
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"#include <stdio.h>\nint main() { printf(\"Hello, World!\\n\"); return 0; }", "language":"c"}'
+
+    result: {
+    "output": "Hello, World!\n"
+    }
+
+2. 
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"#include <stdio.h>\nint main() { int a = 5, b = 3; int sum = a + b; printf(\"Sum: %d\\n\", sum); return 0; }", "language":"c"}'
+
+    result:
+        {
+    "output": "Sum: 8\n"
+    }
+
+3. 
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"#include <stdio.h>\nint main() { int x = 10; if (x > 5) { printf(\"x is greater than 5\\n\"); } else { printf(\"x is less than or equal to 5\\n\"); } return 0; }", "language":"c"}'
+
+    result: {
+    "output": "x is greater than 5\n"
+    }
+
+4. 
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"#include <stdio.h>\nint main() { printf(\"Hello, World!\\n\") return 0; }", "language":"c"}'
+
+    result: compilation error/failure (missing semicolon)
+
+5. Division by 0
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"#include <stdio.h>\nint main() { int x = 5 / 0; printf(\"Result: %d\\n\", x); return 0; }", "language":"c"}'
+
+    result: floating point exception (core dumped)
+
+CPP (with the help of ChatGPT):
+
+1. 
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"#include <iostream>\nint main() { std::cout << \"Hello, World!\" << std::endl; return 0; }", "language":"cpp"}'
+
+    result: "output": "Hello, World!\n"
+
+2. 
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"#include <iostream>\nint main() { int a = 5, b = 3; int sum = a + b; std::cout << \"Sum: \" << sum << std::endl; return 0; }", "language":"cpp"}'
+
+    result:  "output": "Sum: 8\n"
+
+3.
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"#include <iostream>\nint main() { int x = 10; if (x > 5) { std::cout << \"x is greater than 5\" << std::endl; } else { std::cout << \"x is less than or equal to 5\" << std::endl; } return 0; }", "language":"cpp"}'
+
+    result: "output": "x is greater than 5\n"
+
+4. Compilation error
+
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"#include <iostream>\nint main() { std::cout << \"Hello, World!\" << std::endl return 0; }", "language":"cpp"}'
+
+    result: error/failure, missing semicolon
+
+5. Division by 0, runtime error
+
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"#include <iostream>\nint main() { int x = 5 / 0; std::cout << x << std::endl; return 0; }", "language":"cpp"}'
+
+    result: "error": "Floating point exception (core dumped)"
+
+
+PYTHON:
+
+1. 
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"print(\"Hello, World!\")", "language":"python"}'
+
+    result: "output": "Hello, World!\n"
+
+2. 
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"a = 5\nb = 3\nsum = a + b\nprint(\"Sum:\", sum)", "language":"python"}'
+
+    result: {"output": "Sum: 8\n"}
+
+3.
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"x = 10\nif x > 5:\n    print(\"x is greater than 5\")\nelse:\n    print(\"x is less than or equal to 5\")", "language":"python"}'
+
+    result: {
+    "output": "x is greater than 5\n"
+    }
+
+4. Syntax error, missing bracket
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"print(\"Hello, World!\"", "language":"python"}'
+
+5.
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"x = 5 / 0\nprint(x)", "language":"python"}'
+
+    result: "error": "ZeroDivisionError: division by zero"
+
+JS
+
+1. 
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"console.log(\"Hello, World!\");", "language":"javascript"}'
+
+    result: {"output": "Hello, World!\n"}
+
+2.
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"let a = 5;\nlet b = 3;\nlet sum = a + b;\nconsole.log(\"Sum:\", sum);", "language":"javascript"}'
+
+    result: "output": "Sum: 8\n"
+
+3.
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"let x = 10;\nif (x > 5) {\nconsole.log(\"x is greater than 5\");\n} else {\nconsole.log(\"x is less than or equal to 5\");\n}", "language":"javascript"}'
+
+    result: "output": "x is greater than 5\n"
+
+4.
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{"code":"let x = 5 / 0;\nconsole.log(x);", "language":"javascript"}'
+
+    result: "output": "Infinity\n"
