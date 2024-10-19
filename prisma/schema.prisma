@@ -21,5 +21,50 @@ model User {
   password  String
   avatar    String
   phone     String
-  role      String
+  templates CodeTemplate[]
+  blogPosts BlogPost[]
+  comments  Comment[]
+}
+
+model Tag {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  templates   CodeTemplate[]  @relation("TemplateTags")
+  blogPosts   BlogPost[]  @relation("BlogPostTags")
+}
+
+model CodeTemplate {
+  id          Int      @id @default(autoincrement())
+  title       String
+  explanation String
+  tags        Tag[]    @relation("TemplateTags")
+  code        String
+  forked      Boolean @default(false)
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  blogPosts   BlogPost[]  @relation("BlogPostTemplates")
+}
+
+model BlogPost {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String
+  tags         Tag[]    @relation("BlogPostTags")
+  numUpvotes   Int      @default(0)
+  numDownvotes Int      @default(0)
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  comments     Comment[]
+  templates    CodeTemplate[] @relation("BlogPostTemplates")
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  content     String
+  numUpvotes   Int      @default(0)
+  numDownvotes Int      @default(0)
+  blogPostId  Int
+  userId      Int
+  blogPost    BlogPost @relation(fields: [blogPostId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
 }
