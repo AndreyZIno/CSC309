@@ -54,7 +54,7 @@ export default async function handler(req, res) {
         case 'c':
             fileName = `program_${uuidv4()}.c`;
             filePath = path.join('/tmp', fileName);
-            fs.writeFileSync(filePath, code);
+            fs.writeFileSync(filePath, finalCode);
             
             compiler = 'gcc';
             args = [filePath, '-o', '/tmp/program'];
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
         case 'cpp':
             fileName = `program_${uuidv4()}.cpp`;
             filePath = path.join('/tmp', fileName);
-            fs.writeFileSync(filePath, code);
+            fs.writeFileSync(filePath, finalCode);
             
             compiler = 'g++';
             args = [filePath, '-o', '/tmp/program'];
@@ -73,19 +73,19 @@ export default async function handler(req, res) {
             // From ChatGPT, how to compile then execute
             fileName = 'Main.java';
             filePath = path.join('/tmp', fileName);
-            fs.writeFileSync(filePath, code);
+            fs.writeFileSync(filePath, finalCode);
             compiler = 'javac';
             args = [filePath];
             break;
             
         case 'python':
             compiler = 'python3';
-            args = ['-c', code];
+            args = ['-c', finalCode];
             break;
 
         case 'javascript':
             compiler = 'node';
-            args = ['-e', code];
+            args = ['-e', finalCode];
             break;
 
         default:
@@ -103,8 +103,8 @@ export default async function handler(req, res) {
         });
 
         // When compilation finishes:
-        compilingProcess.on('exit', (code) => {
-            if (code !== 0) {
+        compilingProcess.on('exit', (finalCode) => {
+            if (finalCode !== 0) {
                 return res.status(400).json({ error: compileError || 'Compilation failed' });
             }
             
@@ -145,14 +145,14 @@ export default async function handler(req, res) {
                 runtimeError += `Signal error: ${err.message}`;
             });
 
-            runningProcess.on('exit', (code, signal) => {
+            runningProcess.on('exit', (finalCode, signal) => {
                 if (signal === 'SIGFPE') {
                     return res.status(400).json({ error: 'Floating point exception' });
                 } 
                 else if (signal === 'SIGSEGV') {
                     return res.status(400).json({ error: 'Segmentation fault' });
                 } 
-                else if (code !== 0) {
+                else if (finalCode !== 0) {
                     return res.status(400).json({ error: runtimeError || 'Runtime error occurred' });
                 } 
                 else {
@@ -184,8 +184,8 @@ export default async function handler(req, res) {
             runtimeError += data.toString();
         });
 
-        runningProcess.on('exit', (code) => {
-            if (code !== 0) {
+        runningProcess.on('exit', (finalCode) => {
+            if (finalCode !== 0) {
                 return res.status(400).json({ error: runtimeError || 'Runtime error' });
             } 
             else {
