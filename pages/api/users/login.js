@@ -23,7 +23,7 @@ export default async function handler(req, res) {
           }
 
           const tokenData = { email: user.email, role: user.role };
-          const accessToken = jwt.sign(tokenData, ACCESS_SECRET, { expiresIn: '5m' });
+          const accessToken = jwt.sign(tokenData, ACCESS_SECRET, { expiresIn: '20m' });
           const refreshToken = jwt.sign(tokenData, REFRESH_SECRET, { expiresIn: '1d' });
 
           return res.status(200).json({ accessToken, refreshToken });
