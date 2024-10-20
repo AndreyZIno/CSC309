@@ -97,8 +97,9 @@ export default async function handler(req, res) {
             const runningProcess = spawn(executionCommand, executionArgs);
 
             if (input) {
-                // Pipe input into the stdin of the running program
-                runningProcess.stdin.write(input + '\n');
+                // Pipe all input into the stdin of the running program at once, 
+                // as mentioned in a piazza post by the prof
+                runningProcess.stdin.write(input);
                 runningProcess.stdin.end();
             }
 
@@ -141,8 +142,7 @@ export default async function handler(req, res) {
         const runningProcess = spawn(compiler, args);
 
         if (input) {
-            // Pipe input into the stdin of the running program
-            runningProcess.stdin.write(input + '\n');
+            runningProcess.stdin.write(input);
             runningProcess.stdin.end();
         }
 
