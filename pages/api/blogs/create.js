@@ -16,7 +16,7 @@ export default async function handler(req, res) {
         if (!currUser) {
             return res.status(401).json({ message: 'Unauthorized' });
         }
-// TODO: CHECK FOR DUPLICATES SOMEHOW
+
         const data = {
             title,
             description,
