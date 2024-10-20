@@ -29,6 +29,7 @@ model Template {
   id          Int      @id @default(autoincrement())
   title       String
   explanation String
+  language    String
   code        String
   tags        String // Comma separated
   forked      Boolean  @default(false)

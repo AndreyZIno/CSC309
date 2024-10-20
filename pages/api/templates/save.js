@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export default authenticate(async function handler(req, res) {
     if (req.method === 'POST') {
-      const { title, explanation, code, tags } = req.body;
+      const { title, explanation, language, code, tags } = req.body;
       const userEmail = req.user.email;  // Extract user email from token
   
       if (!userEmail) {
@@ -26,6 +26,7 @@ export default authenticate(async function handler(req, res) {
           data: {
             title,
             explanation,
+            language,
             code,
             tags: tags.join(','),  // Convert array to comma-separated string
             userId: user.id,        // Use user ID obtained from the email lookup

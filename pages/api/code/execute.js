@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     let finalCode = code;
     let finalLanguage = language;
 
-    // Fetch the code from the template if templateId is provided
+    // Fetch the code and language from the template if templateId is provided
     if (templateId) {
         try {
             const template = await prisma.template.findUnique({
@@ -30,8 +30,13 @@ export default async function handler(req, res) {
             if (!template) {
                 return res.status(404).json({ error: 'Template not found' });
             }
-            finalCode = template.code;
-            finalLanguage = template.language || language;
+
+            // Log the fetched template to verify its data
+            console.log('Fetched template:', template);
+
+            finalCode = template.code;  // Use the code from the template
+            finalLanguage = template.language || language;  // Use template's language if it's available
+            console.log(finalLanguage);
         } catch (error) {
             return res.status(500).json({ error: 'Error fetching template' });
         }
@@ -45,7 +50,7 @@ export default async function handler(req, res) {
     let args = [];
     let filePath = '';
     let fileName = '';
-    switch (language) {
+    switch (finalLanguage) {
         case 'c':
             fileName = `program_${uuidv4()}.c`;
             filePath = path.join('/tmp', fileName);

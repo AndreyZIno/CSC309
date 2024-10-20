@@ -29,6 +29,7 @@ export default authenticate(async function handler(req, res) {
                 data: {
                     title: `Forked: ${originalTemplate.title}`,
                     explanation: originalTemplate.explanation,
+                    language: originalTemplate.language,
                     code: modifiedCode || originalTemplate.code,
                     tags: originalTemplate.tags,
                     forked: true,
