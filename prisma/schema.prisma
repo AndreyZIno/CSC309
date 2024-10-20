@@ -22,4 +22,16 @@ model User {
   avatar    String
   phone     String
   role      String
+  templates Template[] // One-to-many relationship with Template
+}
+
+model Template {
+  id          Int      @id @default(autoincrement())
+  title       String
+  explanation String
+  code        String
+  tags        String // Comma separated
+  forked      Boolean  @default(false)
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
 }

@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import { PrismaClient } from '@prisma/client';
 // ChatGPT suggested the use of this library ^
 // How it works: Node.js passes command to the OS, then OS runs it
 // This ^^ happens as a child process, so that main Node.js server isnt blocked
@@ -8,15 +9,35 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 // Use this package^^ to generate unique file names (from ChatGPT)
 
+const prisma = new PrismaClient();
+
 export default async function handler(req, res) {
 
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Only POST method is allowed' });
     }
 
-    const {code, language, input } = req.body;
+    const { code, language, input, templateId } = req.body;
+    let finalCode = code;
+    let finalLanguage = language;
 
-    if (!code || !language) {
+    // Fetch the code from the template if templateId is provided
+    if (templateId) {
+        try {
+            const template = await prisma.template.findUnique({
+                where: { id: templateId }
+            });
+            if (!template) {
+                return res.status(404).json({ error: 'Template not found' });
+            }
+            finalCode = template.code;
+            finalLanguage = template.language || language;
+        } catch (error) {
+            return res.status(500).json({ error: 'Error fetching template' });
+        }
+    }
+
+    if (!finalCode || !finalLanguage) {
         return res.status(400).json({ error: 'Missing code and/or language.' });
     }
 
@@ -66,7 +87,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Does not support this language. Only C, C++, Java, Python, and JavaScript.' });
     }
 
-    if (['c', 'cpp', 'java'].includes(language)) {
+    if (['c', 'cpp', 'java'].includes(finalLanguage)) {
         // Need to compile the code
         // Spawn a child process to compile the code:
         const compilingProcess = spawn(compiler, args);
