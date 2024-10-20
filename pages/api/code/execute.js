@@ -1,7 +1,8 @@
-import { exec } from 'child_process';
+import { spawn } from 'child_process';
 // ChatGPT suggested the use of this library ^
 // How it works: Node.js passes command to the OS, then OS runs it
 // This ^^ happens as a child process, so that main Node.js server isnt blocked
+// Used to have exec, but needed to switch to span for stdin
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,53 +14,157 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Only POST method is allowed' });
     }
 
-    const {code, language } = req.body;
+    const {code, language, input } = req.body;
 
     if (!code || !language) {
         return res.status(400).json({ error: 'Missing code and/or language.' });
     }
 
-    let command = '';
+    let compiler = '';
+    let args = [];
+    let filePath = '';
+    let fileName = '';
     switch (language) {
         case 'c':
-            const cFileName = `program_${uuidv4()}.c`;
-            const cFilePath = path.join('/tmp', cFileName);
+            fileName = `program_${uuidv4()}.c`;
+            filePath = path.join('/tmp', fileName);
+            fs.writeFileSync(filePath, code);
             
-            fs.writeFileSync(cFilePath, code);
-
-            command = `gcc ${cFilePath} -o /tmp/program && /tmp/program`;
+            compiler = 'gcc';
+            args = [filePath, '-o', '/tmp/program'];
             break;
+        
         case 'cpp':
-            const cppFileName = `program_${uuidv4()}.cpp`;
-            const cppFilePath = path.join('/tmp', cppFileName);
+            fileName = `program_${uuidv4()}.cpp`;
+            filePath = path.join('/tmp', fileName);
+            fs.writeFileSync(filePath, code);
             
-            fs.writeFileSync(cppFilePath, code);
-
-            command = `g++ ${cppFilePath} -o /tmp/program && /tmp/program`;
+            compiler = 'g++';
+            args = [filePath, '-o', '/tmp/program'];
             break;
+        
         case 'java':
             // From ChatGPT, how to compile then execute
-            const javaFileName = 'Main.java';
-            const javaFilePath = path.join('/tmp', javaFileName);
+            fileName = 'Main.java';
+            filePath = path.join('/tmp', fileName);
+            fs.writeFileSync(filePath, code);
+            compiler = 'javac';
+            args = [filePath];
+            break;
             
-            fs.writeFileSync(javaFilePath, code);   //write user's code to a file
-
-            command = `javac ${javaFilePath} && java -cp /tmp Main`; // Compile and run
-            break;
         case 'python':
-            command = `python3 -c "${code.replace(/"/g, '\\"')}"`;  // Escape quotes
+            compiler = 'python3';
+            args = ['-c', code];
             break;
+
         case 'javascript':
-            command = `node -e "${code.replace(/"/g, '\\"')}"`;     // Escape quotes
+            compiler = 'node';
+            args = ['-e', code];
             break;
+
         default:
             return res.status(400).json({ error: 'Does not support this language. Only C, C++, Java, Python, and JavaScript.' });
     }
 
-    exec(command, (error, stdout, stderr) => {
-        if (error) {
-            return res.status(400).json({ error: error.message || stderr });
+    if (['c', 'cpp', 'java'].includes(language)) {
+        // Need to compile the code
+        // Spawn a child process to compile the code:
+        const compilingProcess = spawn(compiler, args);
+
+        let compileError = '';
+        compilingProcess.stderr.on('data', (data) => {
+            compileError += data.toString();
+        });
+
+        // When compilation finishes:
+        compilingProcess.on('exit', (code) => {
+            if (code !== 0) {
+                return res.status(400).json({ error: compileError || 'Compilation failed' });
+            }
+            
+            // Run compiled program:
+            let executionCommand = '';
+            let executionArgs = [];
+
+            if (language === 'c' || language === 'cpp') {
+                executionCommand = '/tmp/program';
+            } 
+            else if (language === 'java') {
+                executionCommand = 'java';
+                executionArgs = ['-cp', '/tmp', 'Main'];
+            }
+
+            const runningProcess = spawn(executionCommand, executionArgs);
+
+            if (input) {
+                // Pipe input into the stdin of the running program
+                runningProcess.stdin.write(input + '\n');
+                runningProcess.stdin.end();
+            }
+
+            let output = '';
+            let runtimeError = '';  // exceptions, seg faults
+
+            runningProcess.stdout.on('data', (data) => {
+                // listens for any output produced by running program, like printf or System.out.println
+                output += data.toString();
+            });
+
+            runningProcess.stderr.on('data', (data) => {
+                runtimeError += data.toString();
+            });
+
+            // Capture signals like SIGFPE (Floating Point Exception)
+            runningProcess.on('error', (err) => {
+                runtimeError += `Signal error: ${err.message}`;
+            });
+
+            runningProcess.on('exit', (code, signal) => {
+                if (signal === 'SIGFPE') {
+                    return res.status(400).json({ error: 'Floating point exception' });
+                } 
+                else if (signal === 'SIGSEGV') {
+                    return res.status(400).json({ error: 'Segmentation fault' });
+                } 
+                else if (code !== 0) {
+                    return res.status(400).json({ error: runtimeError || 'Runtime error occurred' });
+                } 
+                else {
+                    return res.status(200).json({ output });
+                }
+            });
+        });
+
+    }
+    else {
+        //Don't need to compile for Python and JS, can just execute
+        const runningProcess = spawn(compiler, args);
+
+        if (input) {
+            // Pipe input into the stdin of the running program
+            runningProcess.stdin.write(input + '\n');
+            runningProcess.stdin.end();
         }
-        res.status(200).json({ output: stdout });
-    });
+
+        let output = '';
+        let runtimeError = '';
+
+        runningProcess.stdout.on('data', (data) => {
+            // listens for any output produced by running program, like printf or System.out.println
+            output += data.toString();
+        });
+
+        runningProcess.stderr.on('data', (data) => {
+            runtimeError += data.toString();
+        });
+
+        runningProcess.on('exit', (code) => {
+            if (code !== 0) {
+                return res.status(400).json({ error: runtimeError || 'Runtime error' });
+            } 
+            else {
+                return res.status(200).json({ output });
+            }
+        });
+    }
 }

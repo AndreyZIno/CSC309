@@ -40,7 +40,7 @@ Java:
     -H "Content-Type: application/json" \
     -d '{"code":"public class Main { public static void main(String[] args) { System.out.println(\"Missing semicolon\") } }", "language":"java"}'
 
-    result: fail/error message
+    result: fail/error message of missing semicolon
 
 6.  
     curl -X POST http://localhost:3000/api/code/execute \
@@ -50,7 +50,17 @@ Java:
     result: {
     "output": "Result: 9\n"
     }
+STDIN:
+    1.
+        curl -X POST http://localhost:3000/api/code/execute \
+        -H "Content-Type: application/json" \
+        -d '{
+            "code": "import java.util.Scanner; public class Main { public static void main(String[] args) { Scanner scanner = new Scanner(System.in); int num = scanner.nextInt(); System.out.println(num * num); } }",
+            "language": "java",
+            "input": "5"
+        }'
 
+        result: {"output":"25\n"}
 
 C:
 
@@ -94,7 +104,7 @@ C:
     -H "Content-Type: application/json" \
     -d '{"code":"#include <stdio.h>\nint main() { int x = 5 / 0; printf(\"Result: %d\\n\", x); return 0; }", "language":"c"}'
 
-    result: floating point exception (core dumped)
+    result: floating point exception
 
 CPP (with the help of ChatGPT):
 
@@ -135,6 +145,18 @@ CPP (with the help of ChatGPT):
 
     result: "error": "Floating point exception (core dumped)"
 
+STDIN:
+    1. 
+        curl -X POST http://localhost:3000/api/code/execute \
+        -H "Content-Type: application/json" \
+        -d '{
+            "code": "#include <iostream> \n using namespace std; \n int main() { int a, b; cin >> a >> b; cout << \"Sum: \" << a + b << endl; return 0; }",
+            "language": "cpp",
+            "input": "4 6"
+        }'
+
+        result: {"output":"Sum: 10\n"}
+
 
 PYTHON:
 
@@ -173,6 +195,17 @@ PYTHON:
 
     result: "error": "ZeroDivisionError: division by zero"
 
+STDIN
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d '{
+        "code": "number = input()\nprint(int(number) ** 2)",
+        "language": "python",
+        "input": "5"
+    }'
+
+    result: {"output":"25\n"}
+
 JS
 
 1. 
@@ -202,3 +235,14 @@ JS
     -d '{"code":"let x = 5 / 0;\nconsole.log(x);", "language":"javascript"}'
 
     result: "output": "Infinity\n"
+
+STDIN:
+    curl -X POST http://localhost:3000/api/code/execute \
+    -H "Content-Type: application/json" \
+    -d "{
+        \"code\": \"process.stdin.on('data', (data) => { const input = data.toString().trim(); console.log(input.toUpperCase()); });\",
+        \"language\": \"javascript\",
+        \"input\": \"hello\"
+    }"
+
+    result: {"output":"HELLO\n"}
