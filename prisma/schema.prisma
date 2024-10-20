@@ -22,7 +22,7 @@ model User {
   avatar    String
   phone     String
   role      String
-  templates Template[] // One-to-many relationship with Template
+  templates Template[]
 }
 
 model Template {

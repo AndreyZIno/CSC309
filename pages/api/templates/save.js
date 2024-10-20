@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export default authenticate(async function handler(req, res) {
     if (req.method === 'POST') {
       const { title, explanation, language, code, tags } = req.body;
-      const userEmail = req.user.email;  // Extract user email from token
+      const userEmail = req.user.email;
   
       if (!userEmail) {
         return res.status(401).json({ error: 'User email is missing' });
