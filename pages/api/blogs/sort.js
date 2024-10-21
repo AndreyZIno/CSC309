@@ -9,8 +9,11 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: 'Method not allowed' });
     }
 
-    try {   // TODO: Pagination
-        const { sortBy } = req.query;
+    try {
+        const { sortBy, page = 1, limit = 10 } = req.query;
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const take = parseInt(limit);
         let sortByField = '';
         if (sortBy === 'mostLiked') {
             sortByField = { numUpvotes: 'desc' };
@@ -23,6 +26,8 @@ export default async function handler(req, res) {
         }
 
         const blogPosts = await prisma.blogPost.findMany({
+            skip,
+            take,
             orderBy: sortByField,
             include: {
                 user: { select: { firstName: true, lastName: true } },
