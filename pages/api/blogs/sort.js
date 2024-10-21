@@ -1,5 +1,3 @@
-/* Visitors can sort by most liked (most upvotes) or most disliked (blogs with most downvotes) */
-
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -20,9 +18,12 @@ export default async function handler(req, res) {
         } 
         else if (sortBy === 'mostDisliked') {
             sortByField = { numDownvotes: 'desc' };
-        } 
+        }
+        else if (sortBy === 'mostRecent') {
+            sortByField = { createdAt: 'desc' };
+        }
         else {
-            return res.status(400).json({ message: 'Invalid sorting method. Use "mostLiked" or "mostDisliked"' });
+            return res.status(400).json({ message: 'Invalid sorting method. Use "mostLiked", "mostDisliked" or "mostRecent"' });
         }
 
         const blogPosts = await prisma.blogPost.findMany({
