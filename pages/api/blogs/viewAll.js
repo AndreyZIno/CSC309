@@ -27,6 +27,7 @@ export default async function handler(req, res) {
             include: {
                 user: { select: { firstName: true, lastName: true } },
                 templates: true,
+                comments: true,
             },
             orderBy: { createdAt: 'desc' },
         });

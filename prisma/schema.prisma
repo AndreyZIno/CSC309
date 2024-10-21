@@ -24,6 +24,8 @@ model User {
   role      String
   templates Template[]
   blogPosts BlogPost[]
+  comments  Comment[]
+  votes     Vote[]
 }
 
 model Template {
@@ -50,4 +52,37 @@ model BlogPost {
   userId      Int
   user        User         @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
+  comments  Comment[]
+  votes     Vote[]
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  content    String
+  createdAt  DateTime @default(now())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  blogPostId Int
+  blogPost   BlogPost @relation(fields: [blogPostId], references: [id])
+  parentId   Int?     // What comment we are replying to
+  parent     Comment? @relation("ReplyRelation", fields: [parentId], references: [id])
+  replies    Comment[] @relation("ReplyRelation")
+  numUpvotes    Int      @default(0)
+  numDownvotes  Int      @default(0)
+  votes     Vote[]
+}
+
+model Vote {
+  id        Int      @id @default(autoincrement())
+  voteType  String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  blogPostId Int?    // The blog post being voted on (optional for comment votes)
+  blogPost   BlogPost? @relation(fields: [blogPostId], references: [id])
+  commentId Int?     // The comment being voted on (optional for blog post votes)
+  comment   Comment? @relation(fields: [commentId], references: [id])
+
+  //these are taken from ChatGPT, ensures that each user can only vote once on a blog post or comment
+  @@unique([userId, blogPostId], name: "user_blogpost_unique") // Ensure unique votes for blog posts
+  @@unique([userId, commentId], name: "user_comment_unique")   // Ensure unique votes for comments
 }
