@@ -26,6 +26,7 @@ model User {
   blogPosts BlogPost[]
   comments  Comment[]
   votes     Vote[]
+  reports   Report[]
 }
 
 model Template {
@@ -54,6 +55,7 @@ model BlogPost {
   createdAt DateTime @default(now())
   comments  Comment[]
   votes     Vote[]
+  reports   Report[]
 }
 
 model Comment {
@@ -70,6 +72,7 @@ model Comment {
   numUpvotes    Int      @default(0)
   numDownvotes  Int      @default(0)
   votes     Vote[]
+  reports   Report[]
 }
 
 model Vote {
@@ -85,4 +88,15 @@ model Vote {
   //these are taken from ChatGPT, ensures that each user can only vote once on a blog post or comment
   @@unique([userId, blogPostId], name: "user_blogpost_unique") // Ensure unique votes for blog posts
   @@unique([userId, commentId], name: "user_comment_unique")   // Ensure unique votes for comments
+}
+
+model Report {
+  id          Int      @id @default(autoincrement())
+  reason      String
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  blogPostId  Int?
+  blogPost    BlogPost? @relation(fields: [blogPostId], references: [id])
+  commentId   Int?
+  comment     Comment?  @relation(fields: [commentId], references: [id])
 }
