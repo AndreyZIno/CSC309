@@ -7,6 +7,12 @@ export default authenticate(async function handler(req, res) {
     if (req.method === 'GET') {
         const userEmail = req.user.email;
 
+        const { page = 1, limit = 10 } = req.query;
+
+        const pageNumber = parseInt(page);
+        const limitNumber = parseInt(limit);
+        const skip = (pageNumber - 1) * limitNumber;
+
         try {
             const user = await prisma.user.findUnique({
                 where: { email: userEmail },
@@ -18,6 +24,8 @@ export default authenticate(async function handler(req, res) {
 
             const templates = await prisma.template.findMany({
                 where: { userId: user.id },
+                skip: skip,
+                take: limitNumber,
             });
 
             const processedTemplates = templates.map(template => ({
@@ -25,7 +33,16 @@ export default authenticate(async function handler(req, res) {
                 tags: template.tags.split(','),
             }));
 
-            return res.status(200).json(processedTemplates);
+            const totalTemplates = await prisma.template.count({
+                where: { userId: user.id },
+            });
+
+            return res.status(200).json({
+                templates: processedTemplates,
+                page: pageNumber,
+                limit: limitNumber,
+                totalTemplates,
+            });
         } catch (error) {
             return res.status(500).json({ error: 'Error retrieving templates' });
         }
