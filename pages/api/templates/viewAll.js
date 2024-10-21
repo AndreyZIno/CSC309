@@ -12,23 +12,23 @@ export default async function handler(req, res) {
         const skip = (page - 1) * pageSize;
         const take = parseInt(pageSize);
 
-        // Search condition based on title, tags, or code content
         const searchCondition = search ? {
                   OR: [
-                      { title: { contains: search} }, // Search in title
-                      { tags: { contains: search} }, // Search in tags (as string)
-                      { explanation: { contains: search} }, // Search in explanation content
+                      { title: { contains: search} },
+                      { tags: { contains: search} },
+                      { explanation: { contains: search} },
                   ],
               } : {};
 
-        // Fetch paginated templates with search functionality
         const templates = await prisma.template.findMany({
             skip,
             take,
             where: searchCondition,
+            include: {
+                blogPosts: true,
+            }
         });
 
-        // Convert the comma-separated tags back to arrays
         const processedTemplates = templates.map((template) => ({
             ...template,
             tags: template.tags.split(','),
