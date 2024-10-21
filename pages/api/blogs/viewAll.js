@@ -27,7 +27,17 @@ export default async function handler(req, res) {
             include: {
                 user: { select: { firstName: true, lastName: true } },
                 templates: true,
-                comments: true,
+                comments: {
+                    where: { parentId: null }, //main comments
+                    include: {
+                        user: { select: { firstName: true, lastName: true } },
+                        replies: {
+                            include: {
+                                user: { select: { firstName: true, lastName: true } },
+                            },
+                        },
+                    },
+                },
             },
             orderBy: { createdAt: 'desc' },
         });
