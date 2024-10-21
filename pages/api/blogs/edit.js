@@ -13,8 +13,8 @@ export default async function handler(req, res) {
 
         const currUser = await prisma.user.findUnique({
             where: { email: userEmail },
-          });
-        
+        });
+
         if (!currUser) {
             return res.status(401).json({ message: 'Unauthorized' });
         }
@@ -25,6 +25,10 @@ export default async function handler(req, res) {
 
         if (!blogPost) {
             return res.status(404).json({ message: 'Blog post not found' });
+        }
+
+        if (blogPost.hidden) {
+            return res.status(403).json({ message: 'You cannot edit a hidden blog post.' });
         }
 
         const data = {
@@ -41,10 +45,10 @@ export default async function handler(req, res) {
             where: { id: parseInt(blogID) },
             data,
         });
-    
+
         res.status(200).json(updatedBlogPost);
 
-    }catch(error) {
+    } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Could not edit blog post' });
     }

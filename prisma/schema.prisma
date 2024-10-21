@@ -56,6 +56,7 @@ model BlogPost {
   comments     Comment[]
   votes        Vote[]
   reports      Report[]
+  hidden       Boolean    @default(false)
 }
 
 model Comment {
@@ -73,6 +74,7 @@ model Comment {
   numDownvotes Int       @default(0)
   votes        Vote[]
   reports      Report[]
+  hidden       Boolean   @default(false)
 }
 
 model Vote {
