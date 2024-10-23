@@ -33,7 +33,6 @@ export default authenticate(async function handler(req, res) {
                 });
                 return res.status(201).json({ message: 'Template saved', newTemplate });
             } catch (error) {
-                console.error('Error saving template:', error);
                 return res.status(500).json({ error: 'Error saving template', details: error.message });
             }
         } else {

@@ -32,7 +32,6 @@ export default authorizeAdmin(async function handler(req, res) {
         return res.status(400).json({ message: 'Please provide a blogPostId or commentId' });
 
     } catch (error) {
-        console.error('Error hiding content:', error);
         return res.status(500).json({ message: 'Error hiding content' });
     }
 });

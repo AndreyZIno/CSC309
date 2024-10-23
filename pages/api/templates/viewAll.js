@@ -34,10 +34,8 @@ export default async function handler(req, res) {
             tags: template.tags.split(','),
         }));
 
-        console.log(processedTemplates);
         return res.status(200).json(processedTemplates);
     } catch (error) {
-        console.error('Error fetching templates:', error);
         return res.status(500).json({ error: 'Error fetching templates' });
     }
 }

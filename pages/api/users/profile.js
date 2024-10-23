@@ -38,7 +38,6 @@ export default async function handler(req, res) {
 
             return res.status(200).json({ message: "Profile updated", updatedUser });
         } catch (err) {
-            console.error("Error updating user:", err);
             return res.status(500).json({ error: "Error updating profile" });
         }
     } else {
