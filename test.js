@@ -106,16 +106,6 @@ describe("User API tests", () => {
       expect(response.body.updatedUser).toHaveProperty("phone", "updatedPhone");
       expect(response.body.updatedUser).toHaveProperty("avatar", "updatedAvatar");
     });
-  
-    // it("should return 401 for unauthorized profile update", async () => {
-    //   const response = await request(BASE_URL).put("/api/users/profile").send({
-    //     email: testEmail,
-    //     password: "wrongPass",
-    //   });
-
-    //   console.log("Response Body:", response.body); // Log the response body
-    //   expect(response.status).toBe(401);
-    // });
   });  
 
   describe("Refreshing JWT", () => {
