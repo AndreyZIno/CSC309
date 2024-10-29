@@ -5,12 +5,12 @@ const prisma = new PrismaClient();
 
 export default authenticate(async function handler(req, res) {
   if (req.method === 'GET') {
-    const userEmail = req.user.email;
+    const email = req.user.email;
 
     try {
       // Find the user by email
       const user = await prisma.user.findUnique({
-        where: { email: userEmail },
+        where: { email: email },
       });
 
       if (!user) {

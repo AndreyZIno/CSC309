@@ -6,11 +6,11 @@ const prisma = new PrismaClient();
 export default authenticate(async function handler(req, res) {
     if (req.method === 'POST') {
         const { templateId, modifiedCode } = req.body;
-        const userEmail = req.user.email;
+        const email = req.user.email;
 
         try {
             const user = await prisma.user.findUnique({
-                where: { email: userEmail }
+                where: { email: email }
             });
 
             if (!user) {

@@ -6,19 +6,17 @@ const prisma = new PrismaClient();
 export default authenticate(async function handler(req, res) {
   if (req.method === 'DELETE') {
     const { id } = req.body;
-    const userEmail = req.user.email;
+    const email = req.user.email;
 
     try {
-      // Find the user by email
       const user = await prisma.user.findUnique({
-        where: { email: userEmail },
+        where: { email: email },
       });
 
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
 
-      // Delete the template if it belongs to the user
       const deletedTemplate = await prisma.template.deleteMany({
         where: { id, userId: user.id },
       });

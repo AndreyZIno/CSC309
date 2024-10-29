@@ -6,16 +6,16 @@ const prisma = new PrismaClient();
 export default authenticate(async function handler(req, res) {
     if (req.method === 'POST') {
       const { title, explanation, language, code, tags } = req.body;
-      const userEmail = req.user.email;
+      const email = req.user.email;
   
-      if (!userEmail) {
+      if (!email) {
         return res.status(401).json({ error: 'User email is missing' });
       }
   
       try {
         // Find the user by email
         const user = await prisma.user.findUnique({
-          where: { email: userEmail },
+          where: { email: email },
         });
   
         if (!user) {
