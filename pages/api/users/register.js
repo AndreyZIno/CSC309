@@ -2,10 +2,11 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
+const defaultAvatarPath = '/images/default-avatar.png';
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-        const { firstName, lastName, email, password, avatar, phone, role } = req.body;
+        const { firstName, lastName, email, password, phone, role } = req.body;
 
         const existingUser = await prisma.user.findUnique({
             where: { email }
@@ -23,7 +24,7 @@ export default async function handler(req, res) {
                 lastName,
                 email,
                 password: hashedPassword,
-                avatar,
+                avatar: defaultAvatarPath,
                 phone,
                 role
             }
