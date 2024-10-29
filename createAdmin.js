@@ -1,11 +1,8 @@
-// createAdminUser.js
-
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-// Define admin credentials from environment variables or fallback values
 const adminData = {
     firstName: process.env.ADMIN_FIRST_NAME || "Test",
     lastName: process.env.ADMIN_LAST_NAME || "Admin",

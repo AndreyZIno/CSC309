@@ -5,7 +5,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 Before running the scripts, please set executable permissions:
 
 ```bash
-chmod +x startup.sh run.sh
+chmod +x startup.sh
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
