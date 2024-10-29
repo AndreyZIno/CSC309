@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import path from 'path';
 
 const prisma = new PrismaClient();
 const defaultAvatarPath = '/images/default-avatar.png';
