@@ -8,6 +8,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 datasource db {
   provider = "sqlite"
   url      = "file:./dev.db"
@@ -67,7 +71,7 @@ model Comment {
   user         User      @relation(fields: [userId], references: [id])
   blogPostId   Int
   blogPost     BlogPost  @relation(fields: [blogPostId], references: [id])
-  parentId     Int?     // What comment we are replying to
+  parentId     Int?
   parent       Comment?  @relation("ReplyRelation", fields: [parentId], references: [id])
   replies      Comment[] @relation("ReplyRelation")
   numUpvotes   Int       @default(0)
