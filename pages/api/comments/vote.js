@@ -11,8 +11,11 @@ export default authenticate(async function handler(req, res) {
     try {
         const { commentId, voteType, userEmail } = req.body;
 
+        if (!voteType || !userEmail) {
+            return res.status(400).json({ message: 'Please provide a vote type and userEmail.' });
+        }
         if (voteType !== 'upvote' && voteType !== 'downvote') {
-            return res.status(400).json({ message: 'Invalid rating type, either upvote or downvote it, you either like it or do not' });
+            return res.status(400).json({ message: 'Invalid rating type, either upvote or downvote it.' });
         }
 
         const currUser = await prisma.user.findUnique({

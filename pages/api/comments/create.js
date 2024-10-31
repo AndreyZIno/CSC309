@@ -10,6 +10,11 @@ export default authenticate(async function handler(req, res) {
 
     try {
         const { content, userEmail, blogPostId, parentId } = req.body;
+
+        if (!content || !userEmail || !blogPostId) {
+            return res.status(400).json({ message: 'Content, userEmail and blogPostId are required' });
+        }
+
         const currUser = await prisma.user.findUnique({
             where: { email: userEmail },
           });
