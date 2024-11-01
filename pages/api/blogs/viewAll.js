@@ -8,16 +8,19 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: 'Method not allowed' });
     }
 
-
     try {
         const { page = 1, limit = 10, search = '' } = req.query;
         const { userEmail } = req.body;
 
-        const currUser = await prisma.user.findUnique({
-            where: { email: userEmail },
-        });
+        let currUser = null;
+        let isAdmin = false;
 
-        const isAdmin = currUser.role === 'ADMIN';
+        if (userEmail) {
+            currUser = await prisma.user.findUnique({
+                where: { email: userEmail },
+            });
+            isAdmin = currUser?.role === 'ADMIN';
+        }
 
         const searchCondition = search ? {
             OR: [  // this block of code is from ChatGPT, how to search:
@@ -37,7 +40,7 @@ export default async function handler(req, res) {
                     {
                         OR: [
                             { hidden: false },
-                            { hidden: true, userId: currUser?.id},
+                            { hidden: true, userId: currUser?.id },
                             ...(isAdmin ? [{ hidden: true }] : []),
                         ],
                     },
@@ -64,6 +67,7 @@ export default async function handler(req, res) {
         res.status(200).json(blogPosts);
 
     } catch (error) {
+        console.log(error)
         res.status(500).json({ error: 'Could not fetch blog posts' });
     }
 }
