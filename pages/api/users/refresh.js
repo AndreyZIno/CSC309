@@ -4,6 +4,11 @@ const ACCESS_SECRET = process.env.ACCESS_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_SECRET;
 
 export default function handler(req, res) {
+
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Only POST method is allowed' });
+    }
+
     const refreshToken = req.body.refreshToken;
 
     if (!refreshToken) {

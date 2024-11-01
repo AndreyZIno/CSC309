@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export default authenticate(async function handler(req, res) {
     if (req.method === 'PUT') {
-        const { title, explanation, code, tags } = req.body;
+        const { templateId, title, explanation, code, tags } = req.body;
         const userEmail = req.user.email;
 
         try {
@@ -19,12 +19,13 @@ export default authenticate(async function handler(req, res) {
 
             const template = await prisma.template.findFirst({
                 where: {
+                    id: templateId,
                     userId: user.id,
                 },
             });
 
             if (!template) {
-                return res.status(404).json({ error: 'No template found for this user' });
+                return res.status(404).json({ error: 'Template not found' });
             }
 
             const updateData = {
