@@ -12,7 +12,7 @@ export default authenticate(async function handler(req, res) {
         const { blogPostId, voteType, userEmail } = req.body;
 
         if (voteType !== 'upvote' && voteType !== 'downvote') {
-            return res.status(400).json({ message: 'Invalid rating type, either upvote or downvote it, you either like it or do not' });
+            return res.status(400).json({ message: 'Invalid rating type, either upvote or downvote it.' });
         }
 
         const currUser = await prisma.user.findUnique({
@@ -42,7 +42,7 @@ export default authenticate(async function handler(req, res) {
 
         if (existingVote) {
             if (existingVote.voteType === voteType) {
-                return res.status(400).json({ message: `You already ${voteType}d this post. Either change your mind or stop voting` });
+                return res.status(400).json({ message: `You already ${voteType}d this post.` });
             }
 
             // Change to a different vote type
