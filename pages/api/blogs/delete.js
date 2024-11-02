@@ -10,6 +10,9 @@ export default async function handler(req, res) {
     try {
         const { blogID } = req.query;
         const { userEmail } = req.body;
+        if (!userEmail) {
+            return res.status(400).json({ message: 'userEmail is required' });
+        }
 
         const currUser = await prisma.user.findUnique({
             where: { email: userEmail },

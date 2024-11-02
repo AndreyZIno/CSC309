@@ -10,6 +10,10 @@ export default authenticate(async function handler(req, res) {
 
     try {
         const { title, description, tags, templateIds, userEmail } = req.body;
+        if (!title || !description || !tags || !userEmail) {
+            return res.status(400).json({ message: 'Title, description, tags, and userEmail are required' });
+        }
+
         const currUser = await prisma.user.findUnique({
             where: { email: userEmail },
           });

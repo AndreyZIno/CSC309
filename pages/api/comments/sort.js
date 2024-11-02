@@ -10,6 +10,9 @@ export default async function handler(req, res) {
     try {
         const { blogPostId, sortByMain = 'mostLiked', sortByReplies = 'mostRecent', page = 1, limit = 10 } = req.query;
         
+        if (!blogPostId) {
+            return res.status(401).json({ message: 'Please provide blog post ID.' });
+        }
         const blogPost = await prisma.blogPost.findUnique({
             where: { id: parseInt(blogPostId) },
         });

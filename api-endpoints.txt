@@ -1,5 +1,3 @@
-/api/admin/protected
-
 /api/blogs/create
 /api/blogs/delete
 /api/blogs/edit
@@ -31,5 +29,3 @@
 /api/users/profile
 /api/users/refresh
 /api/users/register
-
-/api/protected

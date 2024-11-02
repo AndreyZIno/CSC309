@@ -10,10 +10,14 @@ export default authenticate(async function handler(req, res) {
 
     try {
         const { blogPostId, commentId, reason, userEmail } = req.body;
+
+        if (!userEmail) {
+            return res.status(400).json({ message: 'userEmail is required' });
+        }
+
         const currUser = await prisma.user.findUnique({
             where: { email: userEmail },
           });
-        
         if (!currUser) {
             return res.status(401).json({ message: 'Unauthorized' });
         }
