@@ -40,6 +40,7 @@ export default authenticate(async function handler(req, res) {
         res.status(201).json(blogPost);
 
     }catch(error) {
+        console.log(error)
         res.status(500).json({ error: 'Could not create blog post' });
     }
 });
