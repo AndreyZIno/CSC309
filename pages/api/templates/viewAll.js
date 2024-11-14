@@ -8,9 +8,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { page = 1, pageSize = 10, search = '' } = req.query;
-        const skip = (page - 1) * pageSize;
-        const take = parseInt(pageSize);
+        const { page = 1, limit = 10, search = '' } = req.query;
 
         const searchCondition = search ? {
                   OR: [
@@ -21,8 +19,8 @@ export default async function handler(req, res) {
               } : {};
 
         const templates = await prisma.template.findMany({
-            skip,
-            take,
+            skip: (page - 1) * limit,
+            take: parseInt(limit),
             where: searchCondition,
             include: {
                 blogPosts: true,
