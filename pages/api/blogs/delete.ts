@@ -1,8 +1,18 @@
 import { PrismaClient } from '@prisma/client';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 const prisma = new PrismaClient();
 
-export default async function handler(req, res) {
+interface DeleteBlogRequest extends NextApiRequest {
+    body: {
+        userEmail: string;
+    };
+    query: {
+        blogID: string;
+    };
+}
+
+export default async function handler(req: DeleteBlogRequest, res: NextApiResponse) {
     if (req.method !== 'DELETE') {
         return res.status(405).json({ message: 'Method not allowed' });
     }
@@ -10,6 +20,7 @@ export default async function handler(req, res) {
     try {
         const { blogID } = req.query;
         const { userEmail } = req.body;
+    
         if (!userEmail) {
             return res.status(400).json({ message: 'userEmail is required' });
         }
