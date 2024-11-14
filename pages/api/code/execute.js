@@ -100,7 +100,7 @@ export default async function handler(req, res) {
         // When compilation finishes:
         compilingProcess.on('exit', (finalCode) => {
             if (finalCode !== 0) {
-                return res.status(400).json({ error: compileError || 'Compilation failed' });
+                return res.status(400).json({ stderr: compileError || 'Compilation failed', stdout: '' });
             }
             
             // Run compiled program:
@@ -143,13 +143,13 @@ export default async function handler(req, res) {
 
             runningProcess.on('exit', (finalCode, signal) => {
                 if (signal === 'SIGFPE') {
-                    return res.status(400).json({ error: 'Floating point exception' });
+                    return res.status(400).json({ stderr: 'Floating point exception', stdout: output });
                 } 
                 else if (signal === 'SIGSEGV') {
-                    return res.status(400).json({ error: 'Segmentation fault' });
+                    return res.status(400).json({ stderr: 'Segmentation fault', stdout: output });
                 } 
                 else if (finalCode !== 0) {
-                    return res.status(400).json({ error: runtimeError || 'Runtime error occurred' });
+                    return res.status(400).json({ stderr: runtimeError || 'Runtime error occurred', stdout: output });
                 } 
                 else {
                     return res.status(200).json({ output });
@@ -179,12 +179,15 @@ export default async function handler(req, res) {
             runtimeError += data.toString();
         });
 
-        runningProcess.on('exit', (finalCode) => {
-            if (finalCode !== 0) {
-                return res.status(400).json({ error: runtimeError || 'Runtime error' });
-            } 
-            else {
-                return res.status(200).json({ output });
+        runningProcess.on('exit', (finalCode, signal) => {
+            if (signal === 'SIGFPE') {
+                return res.status(400).json({ stderr: 'Floating point exception', stdout: output });
+            } else if (signal === 'SIGSEGV') {
+                return res.status(400).json({ stderr: 'Segmentation fault', stdout: output });
+            } else if (finalCode !== 0) {
+                return res.status(400).json({ stderr: runtimeError || 'Runtime error occurred', stdout: output });
+            } else {
+                return res.status(200).json({ stdout: output });
             }
         });
     }
