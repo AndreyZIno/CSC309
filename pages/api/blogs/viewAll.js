@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import { authenticate } from '../../../lib/authentication';
 
 const prisma = new PrismaClient();
 
-export default async function handler(req, res) {
+export default authenticate(async function handler(req, res) {
 
     if (req.method !== 'GET') {
         return res.status(405).json({ message: 'Method not allowed' });
@@ -70,4 +71,4 @@ export default async function handler(req, res) {
         console.log(error)
         res.status(500).json({ error: 'Could not fetch blog posts' });
     }
-}
+});
