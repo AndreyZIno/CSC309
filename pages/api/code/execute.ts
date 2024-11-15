@@ -2,17 +2,26 @@ import { spawn } from 'child_process';
 import { PrismaClient } from '@prisma/client';
 // ChatGPT suggested the use of this library ^
 // How it works: Node.js passes command to the OS, then OS runs it
-// This ^^ happens as a child process, so that main Node.js server isnt blocked
-// Used to have exec, but needed to switch to span for stdin
+// This ^^ happens as a child process, so that main Node.js server isn't blocked
+// Used to have exec, but needed to switch to spawn for stdin
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 // Use this package^^ to generate unique file names (from ChatGPT)
+import { NextApiRequest, NextApiResponse } from 'next';
 
 const prisma = new PrismaClient();
 
-export default async function handler(req, res) {
+interface ExecuteRequest extends NextApiRequest {
+    body: {
+        code?: string;
+        language?: string;
+        input?: string;
+        templateId?: number;
+    };
+}
 
+export default async function handler(req: ExecuteRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Only POST method is allowed' });
     }
@@ -24,7 +33,7 @@ export default async function handler(req, res) {
     if (templateId) {
         try {
             const template = await prisma.template.findUnique({
-                where: { id: templateId }
+                where: { id: templateId },
             });
             if (!template) {
                 return res.status(404).json({ error: 'Template not found' });
@@ -42,7 +51,7 @@ export default async function handler(req, res) {
     }
 
     let compiler = '';
-    let args = [];
+    let args: string[] = [];
     let filePath = '';
     let fileName = '';
     switch (finalLanguage) {
@@ -50,29 +59,30 @@ export default async function handler(req, res) {
             fileName = `program_${uuidv4()}.c`;
             filePath = path.join('/tmp', fileName);
             fs.writeFileSync(filePath, finalCode);
-            
+
             compiler = 'gcc';
             args = [filePath, '-o', '/tmp/program'];
             break;
-        
+
         case 'cpp':
             fileName = `program_${uuidv4()}.cpp`;
             filePath = path.join('/tmp', fileName);
             fs.writeFileSync(filePath, finalCode);
-            
+
             compiler = 'g++';
             args = [filePath, '-o', '/tmp/program'];
             break;
-        
+
         case 'java':
             // From ChatGPT, how to compile then execute
             fileName = 'Main.java';
             filePath = path.join('/tmp', fileName);
             fs.writeFileSync(filePath, finalCode);
+
             compiler = 'javac';
             args = [filePath];
             break;
-            
+
         case 'python':
             compiler = 'python3';
             args = ['-c', finalCode];
@@ -102,10 +112,10 @@ export default async function handler(req, res) {
             if (finalCode !== 0) {
                 return res.status(400).json({ stderr: compileError || 'Compilation failed', stdout: '' });
             }
-            
+
             // Run compiled program:
             let executionCommand = '';
-            let executionArgs = [];
+            let executionArgs: string[] = [];
 
             if (language === 'c' || language === 'cpp') {
                 executionCommand = '/tmp/program';
@@ -118,7 +128,7 @@ export default async function handler(req, res) {
             const runningProcess = spawn(executionCommand, executionArgs);
 
             if (input) {
-                // Pipe all input into the stdin of the running program at once, 
+                // Pipe all input into the stdin of the running program at once,
                 // as mentioned in a piazza post by the prof
                 runningProcess.stdin.write(input);
                 runningProcess.stdin.end();
@@ -156,8 +166,7 @@ export default async function handler(req, res) {
                 }
             });
         });
-
-    }
+    } 
     else {
         //Don't need to compile for Python and JS, can just execute
         const runningProcess = spawn(compiler, args);
