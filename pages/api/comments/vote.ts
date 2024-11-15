@@ -1,9 +1,18 @@
 import { PrismaClient } from '@prisma/client';
 import { authenticate } from '../../../lib/authentication';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 const prisma = new PrismaClient();
 
-export default authenticate(async function handler(req, res) {
+interface VoteCommentRequest extends NextApiRequest {
+    body: {
+        commentId: number;
+        voteType: 'upvote' | 'downvote';
+        userEmail: string;
+    };
+}
+
+export default authenticate(async function handler(req: VoteCommentRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method not allowed' });
     }
@@ -14,14 +23,11 @@ export default authenticate(async function handler(req, res) {
         if (!voteType || !userEmail) {
             return res.status(400).json({ message: 'Please provide a vote type and userEmail.' });
         }
-        if (voteType !== 'upvote' && voteType !== 'downvote') {
-            return res.status(400).json({ message: 'Invalid rating type, either upvote or downvote it.' });
-        }
 
         const currUser = await prisma.user.findUnique({
             where: { email: userEmail },
-          });
-        
+        });
+
         if (!currUser) {
             return res.status(401).json({ message: 'Unauthorized' });
         }
@@ -29,16 +35,16 @@ export default authenticate(async function handler(req, res) {
         const comment = await prisma.comment.findUnique({
             where: { id: commentId },
         });
+
         if (!comment) {
             return res.status(404).json({ message: 'Comment not found' });
         }
 
-        //Check if user already voted
         const existingVote = await prisma.vote.findUnique({
             where: {
                 user_comment_unique: {
                     userId: currUser.id,
-                    commentId: commentId,
+                    commentId,
                 },
             },
         });
@@ -48,11 +54,11 @@ export default authenticate(async function handler(req, res) {
                 return res.status(400).json({ message: `You already ${voteType}d this comment. Either change your mind or stop voting` });
             }
 
-            // Change to a different vote type
             await prisma.vote.update({
                 where: { id: existingVote.id },
                 data: { voteType },
             });
+
             const updatedComment = await prisma.comment.update({
                 where: { id: commentId },
                 data: {
@@ -68,7 +74,6 @@ export default authenticate(async function handler(req, res) {
             return res.status(200).json(updatedComment);
         }
 
-        // user didn't vote yet
         await prisma.vote.create({
             data: {
                 voteType,
@@ -77,25 +82,29 @@ export default authenticate(async function handler(req, res) {
             },
         });
 
-        const updatedComment  = await prisma.comment.update({
-            where: { id: commentId  },
+        const updatedComment = await prisma.comment.update({
+            where: { id: commentId },
             data: {
                 numUpvotes: voteType === 'upvote' ? { increment: 1 } : undefined,
                 numDownvotes: voteType === 'downvote' ? { increment: 1 } : undefined,
             },
         });
+
         res.status(200).json(updatedComment);
 
-    }catch(error) {
+    } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Could not rate a comment' });
     }
 });
-
-async function checkPositive(voteType, commentId) {
+//return type is Promise<boolean>, Promise since it's async (uses await to get stuff from db), and resolved value is a bool
+async function checkPositive(voteType: 'upvote' | 'downvote', commentId: number): Promise<boolean> {
     const comment = await prisma.comment.findUnique({
         where: { id: commentId },
         select: { numUpvotes: true, numDownvotes: true },
     });
+
+    if (!comment) return false;
 
     if (voteType === 'upvote') {
         return comment.numUpvotes > 0;
