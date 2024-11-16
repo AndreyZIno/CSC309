@@ -25,6 +25,7 @@ const ViewAllBlogs: React.FC = () => {
     const [userEmail, setUserEmail] = useState('JohnDoe@gmail.com'); // Hardcoded for now
     const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null); // Track blog being edited
     const [editError, setEditError] = useState<string | null>(null);
+    const [deleteNotification, setDeleteNotification] = useState(false);
 
     const fetchBlogs = async () => {
         setLoading(true);
@@ -79,6 +80,8 @@ const ViewAllBlogs: React.FC = () => {
             setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== blogID));
             setError(null); // Clear any error messages
             fetchBlogs();
+            setDeleteNotification(true);
+            setTimeout(() => setDeleteNotification(false), 3000);
         } catch (err) {
             console.error('Error deleting blog:', err);
             setError('An unexpected error occurred while deleting the blog.');
@@ -251,6 +254,11 @@ const ViewAllBlogs: React.FC = () => {
                             </button>
                         </div>
                     </div>
+                </div>
+            )}
+            {deleteNotification && (
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md shadow-md transition-opacity duration-300">
+                    Blog post deleted!
                 </div>
             )}
         </div>
