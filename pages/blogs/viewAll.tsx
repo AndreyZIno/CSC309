@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaTrash, FaEdit } from 'react-icons/fa';
+import Link from 'next/link';
 
 interface BlogPost {
     id: number;
@@ -12,6 +13,10 @@ interface BlogPost {
         email: string;
     };
     createdAt: string;
+    templates: {
+        id: number;
+        title: string;
+    }[];
 }
 
 const ViewAllBlogs: React.FC = () => {
@@ -23,7 +28,7 @@ const ViewAllBlogs: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const [userEmail, setUserEmail] = useState('JohnDoe@gmail.com'); // Hardcoded for now
-    const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null); // Track blog being edited
+    const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
     const [editError, setEditError] = useState<string | null>(null);
     const [deleteNotification, setDeleteNotification] = useState(false);
 
@@ -78,7 +83,7 @@ const ViewAllBlogs: React.FC = () => {
     
             // Remove the deleted blog post from the current state immediately
             setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== blogID));
-            setError(null); // Clear any error messages
+            setError(null);
             fetchBlogs();
             setDeleteNotification(true);
             setTimeout(() => setDeleteNotification(false), 3000);
@@ -97,6 +102,7 @@ const ViewAllBlogs: React.FC = () => {
                     title: updatedBlog.title,
                     description: updatedBlog.description,
                     tags: updatedBlog.tags,
+                    templates: updatedBlog.templates.map((template) => template.title),
                     userEmail,
                 }),
             });
@@ -149,7 +155,6 @@ const ViewAllBlogs: React.FC = () => {
                         <div className="space-y-4">
                             {blogs.map((blog) => (
                                 <div key={blog.id} className="p-4 border border-gray-300 rounded-md relative">
-                                    {/* Trash can for blogs authored by the logged-in user */}
                                     {blog.user.email === userEmail && (
                                          <>
                                          <button
@@ -173,6 +178,20 @@ const ViewAllBlogs: React.FC = () => {
                                     <p className="text-sm text-gray-500">
                                         Tags: <span className="italic">{blog.tags}</span>
                                     </p>
+                                    {blog.templates.length > 0 && (
+                                        <div className="mt-4">
+                                            <h3 className="text-sm font-semibold text-gray-600">Templates:</h3>
+                                            <ul className="list-disc list-inside text-gray-700">
+                                                {blog.templates.map((template) => (
+                                                    <li key={template.id}>
+                                                        <Link href={`/templates/${template.id}`} className="text-blue-500 hover:underline">
+                                                            {template.title}
+                                                        </Link>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
                                     <p className="text-sm text-gray-500">
                                         By: {blog.user.firstName} {blog.user.lastName} |{' '}
                                         {new Date(blog.createdAt).toLocaleDateString()}
@@ -183,7 +202,6 @@ const ViewAllBlogs: React.FC = () => {
                     ) : (
                         <p className="text-center text-gray-500">No blogs found.</p>
                     )}
-                    {/* Pagination Controls */}
                     <div className="flex justify-between mt-6">
                         <button
                             onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
@@ -237,6 +255,21 @@ const ViewAllBlogs: React.FC = () => {
                                 setEditingBlog({ ...editingBlog, tags: e.target.value })
                             }
                             placeholder="Tags"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md mb-4 text-black"
+                        />
+                        <input
+                            type="text"
+                            value={editingBlog.templates.map((t) => t.title).join(', ')}
+                            onChange={(e) =>
+                                setEditingBlog({
+                                    ...editingBlog,
+                                    templates: e.target.value.split(',').map((title, idx) => ({
+                                        id: idx + 1, // Temporary ID
+                                        title: title.trim(),
+                                    })),
+                                })
+                            }
+                            placeholder="Templates (comma-separated)"
                             className="w-full px-4 py-2 border border-gray-300 rounded-md mb-4 text-black"
                         />
                         <div className="flex justify-end gap-4">
