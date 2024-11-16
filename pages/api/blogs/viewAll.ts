@@ -15,7 +15,7 @@ interface ViewAllRequest extends NextApiRequest {
     };
 }
 
-export default authenticate(async function handler(req: ViewAllRequest, res: NextApiResponse) {
+export default async function handler(req: ViewAllRequest, res: NextApiResponse) {
 
     if (req.method !== 'GET') {
         return res.status(405).json({ message: 'Method not allowed' });
@@ -86,4 +86,4 @@ export default authenticate(async function handler(req: ViewAllRequest, res: Nex
         console.error(error);
         res.status(500).json({ error: 'Could not fetch blog posts' });
     }
-});
+}
