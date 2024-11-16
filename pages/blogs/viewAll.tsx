@@ -81,7 +81,6 @@ const ViewAllBlogs: React.FC = () => {
             const successData = await response.json();
             console.log(successData.message);
     
-            // Remove the deleted blog post from the current state immediately
             setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== blogID));
             setError(null);
             fetchBlogs();
@@ -264,7 +263,7 @@ const ViewAllBlogs: React.FC = () => {
                                 setEditingBlog({
                                     ...editingBlog,
                                     templates: e.target.value.split(',').map((title, idx) => ({
-                                        id: idx + 1, // Temporary ID
+                                        id: idx + 1, // Temporary ID    TODO: search for existing templates when editing 
                                         title: title.trim(),
                                     })),
                                 })
