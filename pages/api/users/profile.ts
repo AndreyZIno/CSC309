@@ -18,18 +18,18 @@ const storage: StorageEngine = multer.diskStorage({
 const upload = multer({ storage });
 
 const runMulter = (req: NextApiRequest & Request): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      upload.single('avatar')(req, {} as any, (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
+  return new Promise((resolve, reject) => {
+    upload.single('avatar')(req, {} as any, (err) => {
+      if (err) reject(err);
+      else resolve();
     });
-  };
+  });
+};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'PUT') {
     try {
-        await runMulter(req as NextApiRequest & Request);
+      await runMulter(req as NextApiRequest & Request);
     } catch (err) {
       return res.status(500).json({ error: 'Error uploading avatar' });
     }
