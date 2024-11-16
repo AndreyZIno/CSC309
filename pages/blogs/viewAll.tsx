@@ -26,6 +26,7 @@ const ViewAllBlogs: React.FC = () => {
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
     const [search, setSearch] = useState('');
+    const [searchField, setSearchField] = useState<'title' | 'description' | 'tags' | 'templates'>('title'); // Default to searching by title
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
@@ -42,7 +43,7 @@ const ViewAllBlogs: React.FC = () => {
         try {
             console.log("Logged-in user email:", userEmail);
             console.log("Blogs data:", blogs);
-            const response = await fetch(`/api/blogs/sort?sortBy=${sortBy}&page=${page}&limit=${limit}&search=${search}`);
+            const response = await fetch(`/api/blogs/sort?sortBy=${sortBy}&page=${page}&limit=${limit}&search=${search}&searchField=${searchField}`);
             if (!response.ok) {
                 const errorData = await response.json();
                 setError(errorData.error || 'Something went wrong while fetching blogs.');
@@ -156,7 +157,7 @@ const ViewAllBlogs: React.FC = () => {
 
     useEffect(() => {
         fetchBlogs();
-    }, [page, search, sortBy]);
+    }, [page, search, sortBy, searchField]);
 
     return (
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
@@ -167,9 +168,19 @@ const ViewAllBlogs: React.FC = () => {
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search blogs by title, description, or tags..."
+                    placeholder="Search blogs..."
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                 />
+                <select
+                    value={searchField}
+                    onChange={(e) => setSearchField(e.target.value as 'title' | 'description' | 'tags' | 'templates')}
+                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                >
+                    <option value="title">By Title</option>
+                    <option value="description">By Description</option>
+                    <option value="tags">By Tags</option>
+                    <option value="templates">By Templates</option>
+                </select>
                 <button
                     onClick={() => setPage(1)}
                     className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
