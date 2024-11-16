@@ -1,9 +1,19 @@
+import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 import { authenticate } from '../../../lib/authentication';
 
 const prisma = new PrismaClient();
 
-export default authenticate(async function handler(req, res) {
+interface CreateCommentRequest extends NextApiRequest {
+    body: {
+        content: string;
+        userEmail: string;
+        blogPostId: number;
+        parentId?: number;
+    };
+}
+
+export default authenticate(async function handler(req: CreateCommentRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method not allowed' });
     }
@@ -12,13 +22,13 @@ export default authenticate(async function handler(req, res) {
         const { content, userEmail, blogPostId, parentId } = req.body;
 
         if (!content || !userEmail || !blogPostId) {
-            return res.status(400).json({ message: 'Content, userEmail and blogPostId are required' });
+            return res.status(400).json({ message: 'Content, userEmail, and blogPostId are required' });
         }
 
         const currUser = await prisma.user.findUnique({
             where: { email: userEmail },
-          });
-        
+        });
+
         if (!currUser) {
             return res.status(401).json({ message: 'Unauthorized' });
         }
@@ -34,7 +44,8 @@ export default authenticate(async function handler(req, res) {
 
         res.status(201).json(comment);
 
-    }catch(error) {
+    } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Could not create comment' });
     }
 });

@@ -1,9 +1,20 @@
 import { PrismaClient } from '@prisma/client';
 import { authenticate } from '../../../lib/authentication';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 const prisma = new PrismaClient();
 
-export default authenticate(async function handler(req, res) {
+interface CreateBlogRequest extends NextApiRequest {
+    body: {
+        title: string;
+        description: string;
+        tags: string;
+        templateIds?: number[];
+        userEmail: string;
+    };
+}
+
+export default authenticate(async function handler(req: CreateBlogRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method not allowed' });
     }
@@ -27,15 +38,10 @@ export default authenticate(async function handler(req, res) {
             description,
             tags,
             user: { connect: { id: currUser.id } },
+            templates: templateIds?.length ? { connect: templateIds.map(id => ({ id })) } : undefined,
         };
 
-        if (templateIds && templateIds.length > 0) {
-            data.templates = { connect: templateIds.map(id => ({ id })) };
-        }
-
-        const blogPost = await prisma.blogPost.create({
-            data,
-        });
+        const blogPost = await prisma.blogPost.create({ data });
 
         res.status(201).json(blogPost);
 

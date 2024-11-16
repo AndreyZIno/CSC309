@@ -1,9 +1,18 @@
+import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 import { authenticate } from '../../../lib/authentication';
 
 const prisma = new PrismaClient();
 
-export default authenticate(async function handler(req, res) {
+interface VoteRequest extends NextApiRequest {
+    body: {
+        blogPostId: number;
+        voteType: 'upvote' | 'downvote';
+        userEmail: string;
+    };
+}
+
+export default authenticate(async function handler(req: VoteRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method not allowed' });
     }
@@ -14,14 +23,11 @@ export default authenticate(async function handler(req, res) {
         if (!voteType || !userEmail) {
             return res.status(400).json({ message: 'Please provide a vote type and userEmail.' });
         }
-        if (voteType !== 'upvote' && voteType !== 'downvote') {
-            return res.status(400).json({ message: 'Invalid rating type, either upvote or downvote it.' });
-        }
 
         const currUser = await prisma.user.findUnique({
             where: { email: userEmail },
-          });
-        
+        });
+
         if (!currUser) {
             return res.status(401).json({ message: 'Unauthorized' });
         }
@@ -29,16 +35,16 @@ export default authenticate(async function handler(req, res) {
         const blogPost = await prisma.blogPost.findUnique({
             where: { id: blogPostId },
         });
+
         if (!blogPost) {
             return res.status(404).json({ message: 'Blog post not found' });
         }
 
-        //Check if user already voted
         const existingVote = await prisma.vote.findUnique({
             where: {
                 user_blogpost_unique: {
                     userId: currUser.id,
-                    blogPostId: blogPostId,
+                    blogPostId,
                 },
             },
         });
@@ -48,7 +54,6 @@ export default authenticate(async function handler(req, res) {
                 return res.status(400).json({ message: `You already ${voteType}d this post.` });
             }
 
-            // Change to a different vote type
             await prisma.vote.update({
                 where: { id: existingVote.id },
                 data: { voteType },
@@ -67,7 +72,6 @@ export default authenticate(async function handler(req, res) {
 
             return res.status(200).json(updatedBlogPost);
         }
-
         // user didn't vote yet
         await prisma.vote.create({
             data: {
@@ -84,18 +88,22 @@ export default authenticate(async function handler(req, res) {
                 numDownvotes: voteType === 'downvote' ? { increment: 1 } : undefined,
             },
         });
+
         res.status(200).json(updatedBlogPost);
 
-    }catch(error) {
+    } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Could not rate a blog post' });
     }
 });
 
-async function checkPositive(voteType, blogPostId) {
+async function checkPositive(voteType: 'upvote' | 'downvote', blogPostId: number): Promise<boolean> {
     const blogPost = await prisma.blogPost.findUnique({
         where: { id: blogPostId },
         select: { numUpvotes: true, numDownvotes: true },
     });
+
+    if (!blogPost) return false;
 
     if (voteType === 'upvote') {
         return blogPost.numUpvotes > 0;

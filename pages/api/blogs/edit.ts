@@ -1,8 +1,22 @@
+import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export default async function handler(req, res) {
+interface EditBlogRequest extends NextApiRequest {
+    body: {
+        title?: string;
+        description?: string;
+        tags?: string;
+        templateIds?: number[];
+        userEmail: string;
+    };
+    query: {
+        blogID: string;
+    };
+}
+
+export default async function handler(req: EditBlogRequest, res: NextApiResponse) {
     if (req.method !== 'PUT') {
         return res.status(405).json({ message: 'Method not allowed' });
     }
@@ -31,11 +45,12 @@ export default async function handler(req, res) {
             return res.status(403).json({ message: 'You cannot edit a hidden blog post.' });
         }
 
-        const data = {
-            title,
-            description,
-            tags,
-        };
+        const data: {
+            title?: string;
+            description?: string;
+            tags?: string;
+            templates?: { set: []; connect: { id: number }[] } | undefined;
+        } = { title, description, tags };
 
         if (templateIds && templateIds.length > 0) {
             data.templates = { set: [], connect: templateIds.map(id => ({ id })) };
@@ -49,6 +64,7 @@ export default async function handler(req, res) {
         res.status(200).json(updatedBlogPost);
 
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Could not edit blog post' });
     }
 }

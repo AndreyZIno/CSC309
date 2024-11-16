@@ -1,9 +1,19 @@
 import { PrismaClient } from '@prisma/client';
 import { authenticate } from '../../../lib/authentication';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 const prisma = new PrismaClient();
 
-export default authenticate(async function handler(req, res) {
+interface CreateReportRequest extends NextApiRequest {
+    body: {
+        blogPostId?: number;
+        commentId?: number;
+        reason: string;
+        userEmail: string;
+    };
+}
+
+export default authenticate(async function handler(req: CreateReportRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method not allowed' });
     }
@@ -17,7 +27,7 @@ export default authenticate(async function handler(req, res) {
 
         const currUser = await prisma.user.findUnique({
             where: { email: userEmail },
-          });
+        });
         if (!currUser) {
             return res.status(401).json({ message: 'Unauthorized' });
         }
@@ -54,7 +64,8 @@ export default authenticate(async function handler(req, res) {
 
         res.status(201).json(report);
 
-    }catch(error) {
+    } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Could not create report' });
     }
 });
