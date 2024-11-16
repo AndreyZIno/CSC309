@@ -8,6 +8,7 @@ interface SortBlogRequest extends NextApiRequest {
         sortBy: 'mostLiked' | 'mostDisliked' | 'mostRecent';
         page?: string;
         limit?: string;
+        search?: string; 
     };
 }
 
@@ -17,7 +18,7 @@ export default async function handler(req: SortBlogRequest, res: NextApiResponse
     }
 
     try {
-        const { sortBy, page = '1', limit = '10' } = req.query;
+        const { sortBy, page = '1', limit = '10', search = '' } = req.query;
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
         const take = parseInt(limit);
@@ -37,10 +38,20 @@ export default async function handler(req: SortBlogRequest, res: NextApiResponse
                 return res.status(400).json({ message: 'Invalid sorting method. Use "mostLiked", "mostDisliked" or "mostRecent"' });
         }
 
+        const searchCondition = search ? {
+            OR: [  // this block of code is from ChatGPT, how to search:
+                { title: { contains: search } },
+                { description: { contains: search } },
+                { tags: { contains: search } },
+                { templates: { some: { title: { contains: search } } } },
+            ],
+        } : {};
+
         const blogPosts = await prisma.blogPost.findMany({
             skip,
             take,
             orderBy: sortByField,
+            where: searchCondition,
             include: {
                 user: { select: { firstName: true, lastName: true, email: true } },
                 templates: true,

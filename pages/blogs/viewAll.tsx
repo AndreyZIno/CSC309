@@ -42,7 +42,7 @@ const ViewAllBlogs: React.FC = () => {
         try {
             console.log("Logged-in user email:", userEmail);
             console.log("Blogs data:", blogs);
-            const response = await fetch(`/api/blogs/sort?sortBy=${sortBy}&page=${page}&limit=${limit}`);
+            const response = await fetch(`/api/blogs/sort?sortBy=${sortBy}&page=${page}&limit=${limit}&search=${search}`);
             if (!response.ok) {
                 const errorData = await response.json();
                 setError(errorData.error || 'Something went wrong while fetching blogs.');
