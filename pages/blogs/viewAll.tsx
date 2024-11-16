@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaTrash, FaEdit } from 'react-icons/fa';
+import { FaTrash, FaEdit, FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
 import Link from 'next/link';
 
 interface BlogPost {
@@ -7,6 +7,8 @@ interface BlogPost {
     title: string;
     description: string;
     tags: string;
+    numUpvotes: number;
+    numDownvotes: number;
     user: {
         firstName: string;
         lastName: string;
@@ -123,6 +125,34 @@ const ViewAllBlogs: React.FC = () => {
         }
     };
 
+    const handleVote = async (blogPostId: number, voteType: 'upvote' | 'downvote') => {
+        try {
+            const response = await fetch(`/api/blogs/vote`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ blogPostId, voteType, userEmail }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.error || `Could not ${voteType} the post.`);
+                return;
+            }
+
+            const updatedBlogPost = await response.json();
+            setBlogs((prevBlogs) =>
+                prevBlogs.map((blog) =>
+                    blog.id === updatedBlogPost.id
+                        ? { ...blog, numUpvotes: updatedBlogPost.numUpvotes, numDownvotes: updatedBlogPost.numDownvotes }
+                        : blog
+                )
+            );
+        } catch (err) {
+            console.error(`Error during ${voteType}:`, err);
+            setError(`An unexpected error occurred while trying to ${voteType}.`);
+        }
+    };
+
     useEffect(() => {
         fetchBlogs();
     }, [page, search]);
@@ -195,6 +225,24 @@ const ViewAllBlogs: React.FC = () => {
                                         By: {blog.user.firstName} {blog.user.lastName} |{' '}
                                         {new Date(blog.createdAt).toLocaleDateString()}
                                     </p>
+                                    <div className="flex items-center gap-4 mt-4">
+                                        <button
+                                            onClick={() => handleVote(blog.id, 'upvote')}
+                                            className="text-green-500 flex items-center gap-1"
+                                            title="Upvote"
+                                        >
+                                            <FaThumbsUp size={16} />
+                                            {blog.numUpvotes}
+                                        </button>
+                                        <button
+                                            onClick={() => handleVote(blog.id, 'downvote')}
+                                            className="text-red-500 flex items-center gap-1"
+                                            title="Downvote"
+                                        >
+                                            <FaThumbsDown size={16} />
+                                            {blog.numDownvotes}
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
