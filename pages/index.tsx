@@ -13,7 +13,7 @@ export default function Home() {
   };
 
   const handleContinueAsGuest = () => {
-    router.push('/dashboard?guest=true'); // Redirect to the dashboard as a guest
+    router.push('/dashboard?guest=true');
   };
 
   return (

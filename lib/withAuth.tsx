@@ -18,7 +18,7 @@ export function withOptionalAuth<T>(
     }, []);
 
     if (loading) {
-      return <p>Loading...</p>; // Optional spinner can be added here
+      return <p>Loading...</p>;
     }
 
     return <WrappedComponent {...props} isGuest={isGuest} />;

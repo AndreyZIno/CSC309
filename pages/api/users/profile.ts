@@ -8,7 +8,6 @@ import { Request } from 'express';
 const prisma = new PrismaClient();
 const ACCESS_SECRET = process.env.ACCESS_SECRET as string;
 
-// Configure Multer storage
 const storage: StorageEngine = multer.diskStorage({
   destination: './public/avatars',
   filename: (req, file, cb) => {
