@@ -183,7 +183,7 @@ const ViewAllBlogs: React.FC = () => {
                 <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as 'mostLiked' | 'mostDisliked' | 'mostRecent')}
-                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                 >
                     <option value="mostRecent">Most Recent</option>
                     <option value="mostLiked">Most Liked</option>
