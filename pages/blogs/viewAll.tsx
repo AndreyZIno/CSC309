@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { FaTrash } from 'react-icons/fa';
 
 interface BlogPost {
     id: number;
@@ -8,6 +9,7 @@ interface BlogPost {
     user: {
         firstName: string;
         lastName: string;
+        email: string; // Added email to check ownership
     };
     createdAt: string;
 }
@@ -19,13 +21,16 @@ const ViewAllBlogs: React.FC = () => {
     const [search, setSearch] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true); // New state to track if more blogs exist
+    const [hasMore, setHasMore] = useState(true);
+    const [userEmail, setUserEmail] = useState('JohnDoe@gmail.com'); // Hardcoded for now
 
     const fetchBlogs = async () => {
         setLoading(true);
         setError(null);
 
         try {
+            console.log("Logged-in user email:", userEmail);
+            console.log("Blogs data:", blogs);
             const response = await fetch(`/api/blogs/viewAll?page=${page}&limit=${limit}&search=${search}`);
             if (!response.ok) {
                 const errorData = await response.json();
@@ -36,9 +41,7 @@ const ViewAllBlogs: React.FC = () => {
 
             const data = await response.json();
 
-            // Update the hasMore state based on the number of blogs fetched
             setHasMore(data.length === limit);
-
             setBlogs(data);
         } catch (err) {
             console.error('Error fetching blogs:', err);
@@ -47,6 +50,38 @@ const ViewAllBlogs: React.FC = () => {
             setLoading(false);
         }
     };
+
+    const deleteBlog = async (blogID: number) => {
+        if (!userEmail) {
+            setError('You need to be logged in to delete blogs.');
+            return;
+        }
+    
+        try {
+            const response = await fetch(`/api/blogs/delete?blogID=${blogID}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userEmail }),
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.error || 'Something went wrong while deleting the blog.');
+                return;
+            }
+    
+            const successData = await response.json();
+            console.log(successData.message);
+    
+            // Remove the deleted blog post from the current state immediately
+            setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== blogID));
+            setError(null); // Clear any error messages
+            fetchBlogs();
+        } catch (err) {
+            console.error('Error deleting blog:', err);
+            setError('An unexpected error occurred while deleting the blog.');
+        }
+    };    
 
     useEffect(() => {
         fetchBlogs();
@@ -78,7 +113,17 @@ const ViewAllBlogs: React.FC = () => {
                     {blogs.length > 0 ? (
                         <div className="space-y-4">
                             {blogs.map((blog) => (
-                                <div key={blog.id} className="p-4 border border-gray-300 rounded-md">
+                                <div key={blog.id} className="p-4 border border-gray-300 rounded-md relative">
+                                    {/* Trash can for blogs authored by the logged-in user */}
+                                    {blog.user.email === userEmail && (
+                                        <button
+                                            onClick={() => deleteBlog(blog.id)}
+                                            className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                                            title="Delete this blog"
+                                        >
+                                            <FaTrash size={16} />
+                                        </button>
+                                    )}
                                     <h2 className="text-xl font-semibold text-blue-700">{blog.title}</h2>
                                     <p className="text-gray-700">{blog.description}</p>
                                     <p className="text-sm text-gray-500">

@@ -63,7 +63,7 @@ export default async function handler(req: ViewAllRequest, res: NextApiResponse)
                 ],
             },
             include: {
-                user: { select: { firstName: true, lastName: true } },
+                user: { select: { firstName: true, lastName: true, email: true } },
                 templates: true,
                 comments: {
                     where: { parentId: null }, //main comments
