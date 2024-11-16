@@ -92,7 +92,7 @@ export default authenticate(async function handler(req: VoteRequest, res: NextAp
         res.status(200).json(updatedBlogPost);
 
     } catch (error) {
-        console.error(error);
+        console.log(error);
         res.status(500).json({ error: 'Could not rate a blog post' });
     }
 });
