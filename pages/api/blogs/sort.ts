@@ -42,7 +42,7 @@ export default async function handler(req: SortBlogRequest, res: NextApiResponse
             take,
             orderBy: sortByField,
             include: {
-                user: { select: { firstName: true, lastName: true } },
+                user: { select: { firstName: true, lastName: true, email: true } },
                 templates: true,
                 comments: true,
             },

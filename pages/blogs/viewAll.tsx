@@ -33,6 +33,7 @@ const ViewAllBlogs: React.FC = () => {
     const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
     const [editError, setEditError] = useState<string | null>(null);
     const [deleteNotification, setDeleteNotification] = useState(false);
+    const [sortBy, setSortBy] = useState<'mostLiked' | 'mostDisliked' | 'mostRecent'>('mostRecent');
 
     const fetchBlogs = async () => {
         setLoading(true);
@@ -41,7 +42,7 @@ const ViewAllBlogs: React.FC = () => {
         try {
             console.log("Logged-in user email:", userEmail);
             console.log("Blogs data:", blogs);
-            const response = await fetch(`/api/blogs/viewAll?page=${page}&limit=${limit}&search=${search}`);
+            const response = await fetch(`/api/blogs/sort?sortBy=${sortBy}&page=${page}&limit=${limit}`);
             if (!response.ok) {
                 const errorData = await response.json();
                 setError(errorData.error || 'Something went wrong while fetching blogs.');
@@ -155,7 +156,7 @@ const ViewAllBlogs: React.FC = () => {
 
     useEffect(() => {
         fetchBlogs();
-    }, [page, search]);
+    }, [page, search, sortBy]);
 
     return (
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
@@ -176,6 +177,20 @@ const ViewAllBlogs: React.FC = () => {
                     Search
                 </button>
             </div>
+
+            {/* Sorting Dropdown */}
+            <div className="mb-4 flex justify-between items-center">
+                <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as 'mostLiked' | 'mostDisliked' | 'mostRecent')}
+                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                >
+                    <option value="mostRecent">Most Recent</option>
+                    <option value="mostLiked">Most Liked</option>
+                    <option value="mostDisliked">Most Disliked</option>
+                </select>
+            </div>
+
             {loading ? (
                 <p className="text-center">Loading blogs...</p>
             ) : (
