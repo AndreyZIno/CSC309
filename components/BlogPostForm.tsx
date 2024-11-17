@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 
 const BlogPostForm: React.FC = () => {
     const [title, setTitle] = useState('');
@@ -8,6 +9,7 @@ const BlogPostForm: React.FC = () => {
     const [userEmail, setuserEmail] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+    const router = useRouter();
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -46,15 +48,18 @@ const BlogPostForm: React.FC = () => {
             }            
 
             const data = await response.json();
-            setSuccess('Blog post created successfully!');
+            setSuccess('Blog post created successfully! Redirecting to all blogs...');
             console.log('Created blog post:', data);
 
-            // Reset form
             setTitle('');
             setDescription('');
             setTags('');
             setTemplateIds([]);
             setuserEmail('');
+
+            setTimeout(() => {
+                router.push('/blogs/viewAll');
+            }, 3000);
         } catch (err) {
             console.error('Unexpected error:', err);
             setError('An unexpected error occurred. Please try again.');
