@@ -9,10 +9,8 @@ export default function Dashboard() {
   });
   const router = useRouter();
 
-  // Check if the user is a guest
   const isGuest = router.query.guest === 'true';
 
-  // Fetch the user's details if not a guest
   useEffect(() => {
     const fetchUser = async () => {
       if (isGuest) return;
@@ -43,25 +41,26 @@ export default function Dashboard() {
     fetchUser();
   }, [isGuest]);
 
-  // Logout function
   const handleLogout = () => {
     if (!isGuest) {
-      localStorage.removeItem('accessToken'); // Clear access token
+      localStorage.removeItem('accessToken');
     }
-    router.push('/'); // Redirect to the homepage
+    router.push('/');
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Navigation Bar */}
       <nav className="bg-blue-600 text-white p-4 shadow">
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-xl font-bold">Scriptorium</h1>
           <ul className="flex space-x-6">
             <li>
-              <a href="#" className="hover:text-gray-200">
+              <button
+                onClick={() => router.push('/templates')}
+                className="hover:text-gray-200"
+              >
                 Templates
-              </a>
+              </button>
             </li>
             <li>
               <a href="#" className="hover:text-gray-200">
@@ -69,47 +68,50 @@ export default function Dashboard() {
               </a>
             </li>
           </ul>
-          {/* Avatar and Dropdown for all users */}
-          <div className="relative">
-            <img
-              src={user.avatar} // Use user's avatar
-              alt="User Avatar"
-              className="w-10 h-10 rounded-full cursor-pointer"
-              onClick={() => setMenuOpen(!menuOpen)}
-            />
-            {menuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
-                <ul>
-                  <li
-                    className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer"
-                    onClick={() => alert('Dark Mode Toggle Coming Soon!')}
-                  >
-                    Dark Mode
-                  </li>
-                  <li
-                    className={`px-4 py-2 text-black ${
-                      isGuest ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'
-                    }`}
-                    onClick={() => {
-                      if (!isGuest) router.push('/profile');
-                    }}
-                  >
-                    Edit Profile
-                  </li>
-                  <li
-                    className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </li>
-                </ul>
-              </div>
-            )}
-          </div>
+          {!isGuest && (
+            <div className="relative">
+              <img
+                src={user.avatar}
+                alt="User Avatar"
+                className="w-10 h-10 rounded-full cursor-pointer"
+                onClick={() => setMenuOpen(!menuOpen)}
+              />
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
+                  <ul>
+                    <li
+                      className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer"
+                      onClick={() => alert('Dark Mode Toggle Coming Soon!')}
+                    >
+                      Dark Mode
+                    </li>
+                    <li
+                      className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer"
+                      onClick={() => router.push('/profile')}
+                    >
+                      Edit Profile
+                    </li>
+                    <li
+                      className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+          {isGuest && (
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+            >
+              Logout
+            </button>
+          )}
         </div>
       </nav>
-
-      {/* Main Content */}
       <div className="flex flex-grow">
         <main className="flex-grow flex flex-col items-center justify-center">
           <div className="w-11/12 max-w-4xl bg-white border rounded-lg shadow-lg p-4">

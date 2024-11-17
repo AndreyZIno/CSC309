@@ -26,9 +26,11 @@ export default authenticate(async function handler(req: NextApiRequest, res: Nex
         return res.status(404).json({ error: 'Template not found' });
       }
 
+      const forkedTitle = `Forked by ${user.firstName}: ${originalTemplate.title}`;
+
       const forkedTemplate = await prisma.template.create({
         data: {
-          title: `Forked: ${originalTemplate.title}`,
+          title: forkedTitle,
           explanation: originalTemplate.explanation,
           language: originalTemplate.language,
           code: modifiedCode || originalTemplate.code,
