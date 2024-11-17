@@ -17,12 +17,12 @@ export default function Templates() {
   const [allTemplates, setAllTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTemplates = async () => {
       const token = localStorage.getItem('accessToken');
-      setIsLoggedIn(!!token);
+      setAccessToken(token);
       setLoading(true);
       setError('');
 
@@ -51,9 +51,16 @@ export default function Templates() {
     fetchTemplates();
   }, []);
 
-  const handleCreateTemplate = () => router.push('/templates/new');
+  const handleCreateTemplate = () => {
+    if (!accessToken) {
+      alert('You must be logged in to create a template.');
+      return;
+    }
+    router.push('/templates/create');
+  };
+
   const handleForkTemplate = async (templateId: number) => {
-    if (!isLoggedIn) {
+    if (!accessToken) {
       alert('You must be logged in to fork a template.');
       return;
     }
@@ -62,7 +69,7 @@ export default function Templates() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ templateId }),
       });
@@ -87,7 +94,7 @@ export default function Templates() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ id: templateId }),
       });
@@ -148,11 +155,10 @@ export default function Templates() {
               >
                 Fork
               </button>
-              {/* Show "Edit" button only for user's own templates or forked templates */}
               {ownTemplates.some(
                 (t) =>
-                  t.id === template.id || // User owns the template
-                  (t.forked && t.title === template.title) // User forked the template
+                  t.id === template.id ||
+                  (t.forked && t.title === template.title)
               ) && (
                 <button
                   onClick={() => handleEditTemplate(template.id)}

@@ -30,6 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       where: searchCondition,
       include: {
         blogPosts: true,
+        user: true,
       },
     });
 

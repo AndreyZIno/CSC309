@@ -56,7 +56,7 @@ export default function Dashboard() {
           <ul className="flex space-x-6">
             <li>
               <button
-                onClick={() => router.push('/templates')}
+                onClick={() => router.push('/templates/viewAll')}
                 className="hover:text-gray-200"
               >
                 Templates
@@ -107,7 +107,7 @@ export default function Dashboard() {
               onClick={handleLogout}
               className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
             >
-              Logout
+              Exit
             </button>
           )}
         </div>
