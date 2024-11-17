@@ -51,7 +51,7 @@ export default async function handler(req: VoteCommentRequest, res: NextApiRespo
 
         if (existingVote) {
             if (existingVote.voteType === voteType) {
-                return res.status(400).json({ error: `You already ${voteType}d this comment. Either change your mind or stop voting` });
+                return res.status(400).json({ error: `You already ${voteType}d this comment.` });
             }
 
             await prisma.vote.update({
