@@ -89,8 +89,29 @@ const BlogDetails: React.FC = () => {
                 return;
             }
 
+            const newCommentData = await response.json();
+            setBlog((prevBlog) => {
+                if (!prevBlog) return prevBlog;
+
+                return {
+                    ...prevBlog,
+                    comments: [
+                        ...prevBlog.comments,
+                        {
+                            id: newCommentData.id,
+                            content: newCommentData.content,
+                            numUpvotes: 0,
+                            numDownvotes: 0,
+                            user: {
+                                firstName: newCommentData.user.firstName,
+                                lastName: newCommentData.user.lastName,
+                            },
+                            replies: [],
+                        },
+                    ],
+                };
+            });
             setNewComment('');
-            fetchBlog();
         } catch (err) {
             console.error(err);
             setError('Could not add the comment.');
@@ -118,15 +139,44 @@ const BlogDetails: React.FC = () => {
                 return;
             }
 
+            const newReplyData = await response.json();
+
+            setBlog((prevBlog) => {
+                if (!prevBlog) return prevBlog;
+
+                const updatedComments = prevBlog.comments.map((comment) => {
+                    if (comment.id === parentId) {
+                        return {
+                            ...comment,
+                            replies: [
+                                ...comment.replies,
+                                {
+                                    id: newReplyData.id,
+                                    content: newReplyData.content,
+                                    numUpvotes: 0,
+                                    numDownvotes: 0,
+                                    user: {
+                                        firstName: newReplyData.user.firstName,
+                                        lastName: newReplyData.user.lastName,
+                                    },
+                                },
+                            ],
+                        };
+                    }
+                    return comment;
+                });
+
+                return { ...prevBlog, comments: updatedComments };
+            });
+            // this line is from chatGPT:
             setReplyComment((prev) => ({ ...prev, [parentId]: '' }));
-            fetchBlog();
         } catch (err) {
             console.error(err);
             setError('Could not add the reply.');
         }
     };
 
-    const handleVote = async (commentId: number, voteType: 'upvote' | 'downvote') => {
+    const handleVote = async (commentId: number, voteType: 'upvote' | 'downvote', isReply = false, parentId?: number) => {
         try {
             const response = await fetch('/api/comments/vote', {
                 method: 'POST',
@@ -140,7 +190,40 @@ const BlogDetails: React.FC = () => {
                 return;
             }
 
-            fetchBlog();
+            const updatedVoteData = await response.json();
+
+            setBlog((prevBlog) => { // prevBlog: curr state value of blog (before update)
+                if (!prevBlog) return prevBlog;
+                    const updatedComments = prevBlog.comments.map((comment) => {
+                        // ChatGPT code: >>
+                        if (comment.id === commentId && !isReply) {
+                            return {
+                                ...comment,
+                                numUpvotes: updatedVoteData.numUpvotes,
+                                numDownvotes: updatedVoteData.numDownvotes,
+                            };
+                        }
+                        if (isReply && comment.id === parentId) {
+                            const updatedReplies = comment.replies.map((reply) =>
+                                reply.id === commentId
+                                    ? {
+                                        ...reply,
+                                        numUpvotes: updatedVoteData.numUpvotes,
+                                        numDownvotes: updatedVoteData.numDownvotes,
+                                    }
+                                    : reply
+                            );
+                            return {
+                                ...comment,
+                                replies: updatedReplies,
+                            };
+                        }
+                        return comment;
+                    });
+
+                    return { ...prevBlog, comments: updatedComments };  //<< until here
+                    //used to just have a fetchBlogs();, but that made the screen flicker
+            });
         } catch (err) {
             console.error('Error voting on comment:', err);
             setError('Could not vote on the comment.');
@@ -243,7 +326,7 @@ const BlogDetails: React.FC = () => {
                                                 </p>
                                                 <div className="flex items-center gap-4 mt-2">
                                                     <button
-                                                        onClick={() => handleVote(reply.id, 'upvote')}
+                                                        onClick={() => handleVote(reply.id, 'upvote', true, comment.id)}
                                                         className="text-green-500 flex items-center gap-1"
                                                         title="Upvote"
                                                     >
@@ -251,7 +334,7 @@ const BlogDetails: React.FC = () => {
                                                         {reply.numUpvotes}
                                                     </button>
                                                     <button
-                                                        onClick={() => handleVote(reply.id, 'downvote')}
+                                                        onClick={() => handleVote(reply.id, 'downvote', true, comment.id)}
                                                         className="text-red-500 flex items-center gap-1"
                                                         title="Downvote"
                                                     >

@@ -40,6 +40,14 @@ export default async function handler(req: CreateCommentRequest, res: NextApiRes
                 blogPost: { connect: { id: blogPostId } },
                 parent: parentId ? { connect: { id: parentId } } : undefined,
             },
+            include: {
+                user: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                    },
+                },
+            }
         });
 
         res.status(201).json(comment);
