@@ -16,13 +16,13 @@ interface CreateBlogRequest extends NextApiRequest {
 
 export default authenticate(async function handler(req: CreateBlogRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
-        return res.status(405).json({ message: 'Method not allowed' });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
         const { title, description, tags, templateIds, userEmail } = req.body;
         if (!title || !description || !tags || !userEmail) {
-            return res.status(400).json({ message: 'Title, description, tags, and userEmail are required' });
+            return res.status(400).json({ error: 'Title, description, tags, and userEmail are required' });
         }
 
         const currUser = await prisma.user.findUnique({
@@ -30,7 +30,7 @@ export default authenticate(async function handler(req: CreateBlogRequest, res: 
           });
         
         if (!currUser) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            return res.status(401).json({ error: 'Unauthorized' });
         }
 
         const data = {
