@@ -30,7 +30,7 @@ export default async function handler(req: DeleteBlogRequest, res: NextApiRespon
           });
         
         if (!currUser) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            return res.status(401).json({ error: 'Unauthorized' });
         }
 
         const blogPost = await prisma.blogPost.findUnique({

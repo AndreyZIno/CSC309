@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
 
 interface BlogPost {
     id: number;
@@ -39,6 +40,7 @@ const BlogDetails: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [newComment, setNewComment] = useState<string>('');
     const [replyComment, setReplyComment] = useState<{ [key: number]: string }>({});
+    const [userEmail, setUserEmail] = useState('JohnDoe@gmail.com'); // Hardcoded for now
 
     const fetchBlog = async () => {
         if (!id) return;
@@ -78,7 +80,9 @@ const BlogDetails: React.FC = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to add comment.');
+                const errorData = await response.json();
+                setError(errorData.error || `Could not add comment.`);
+                return;
             }
 
             setNewComment('');
@@ -105,7 +109,9 @@ const BlogDetails: React.FC = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to add reply.');
+                const errorData = await response.json();
+                setError(errorData.error || `Could not add comment.`);
+                return;
             }
 
             setReplyComment((prev) => ({ ...prev, [parentId]: '' }));
@@ -113,6 +119,27 @@ const BlogDetails: React.FC = () => {
         } catch (err) {
             console.error(err);
             setError('Could not add the reply.');
+        }
+    };
+
+    const handleVote = async (commentId: number, voteType: 'upvote' | 'downvote') => {
+        try {
+            const response = await fetch('/api/comments/vote', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ commentId, voteType, userEmail }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.error || 'Failed to vote on the comment.');
+                return;
+            }
+
+            fetchBlog();
+        } catch (err) {
+            console.error('Error voting on comment:', err);
+            setError('Could not vote on the comment.');
         }
     };
 
@@ -134,6 +161,7 @@ const BlogDetails: React.FC = () => {
 
     return (
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
+            {error && <div className="text-red-500 mb-4">{error}</div>}
             <h1 className="text-3xl font-semibold text-blue-700 mb-4">{blog.title}</h1>
             <p className="text-sm text-gray-500">
                 By {blog.user.firstName} {blog.user.lastName} | {new Date(blog.createdAt).toLocaleDateString()}
@@ -172,6 +200,24 @@ const BlogDetails: React.FC = () => {
                                 <p>
                                     <strong>{comment.user.firstName} {comment.user.lastName}:</strong> {comment.content}
                                 </p>
+                                <div className="flex items-center gap-4 mt-2">
+                                    <button
+                                        onClick={() => handleVote(comment.id, 'upvote')}
+                                        className="text-green-500 flex items-center gap-1"
+                                        title="Upvote"
+                                    >
+                                        <FaThumbsUp size={16} />
+                                        {comment.numUpvotes}
+                                    </button>
+                                    <button
+                                        onClick={() => handleVote(comment.id, 'downvote')}
+                                        className="text-red-500 flex items-center gap-1"
+                                        title="Downvote"
+                                    >
+                                        <FaThumbsDown size={16} /> 
+                                        {comment.numDownvotes}
+                                    </button>
+                                </div>
                                 <textarea
                                     className="w-full mt-2 p-2 border border-gray-300 rounded-md text-black"
                                     placeholder="Reply to this comment"
@@ -193,6 +239,24 @@ const BlogDetails: React.FC = () => {
                                                 <p>
                                                     <strong>{reply.user.firstName} {reply.user.lastName}:</strong> {reply.content}
                                                 </p>
+                                                <div className="flex items-center gap-4 mt-2">
+                                                    <button
+                                                        onClick={() => handleVote(reply.id, 'upvote')}
+                                                        className="text-green-500 flex items-center gap-1"
+                                                        title="Upvote"
+                                                    >
+                                                        <FaThumbsUp size={16} /> 
+                                                        {reply.numUpvotes}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleVote(reply.id, 'downvote')}
+                                                        className="text-red-500 flex items-center gap-1"
+                                                        title="Downvote"
+                                                    >
+                                                        <FaThumbsDown size={16} /> 
+                                                        {reply.numDownvotes}
+                                                    </button>
+                                                </div>
                                             </li>
                                         ))}
                                     </ul>

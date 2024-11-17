@@ -12,16 +12,16 @@ interface VoteRequest extends NextApiRequest {
     };
 }
 
-export default authenticate(async function handler(req: VoteRequest, res: NextApiResponse) {
+export default async function handler(req: VoteRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
-        return res.status(405).json({ message: 'Method not allowed' });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
         const { blogPostId, voteType, userEmail } = req.body;
 
         if (!voteType || !userEmail) {
-            return res.status(400).json({ message: 'Please provide a vote type and userEmail.' });
+            return res.status(400).json({ error: 'Please provide a vote type and userEmail.' });
         }
 
         const currUser = await prisma.user.findUnique({
@@ -29,7 +29,7 @@ export default authenticate(async function handler(req: VoteRequest, res: NextAp
         });
 
         if (!currUser) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            return res.status(401).json({ error: 'Unauthorized' });
         }
 
         const blogPost = await prisma.blogPost.findUnique({
@@ -37,7 +37,7 @@ export default authenticate(async function handler(req: VoteRequest, res: NextAp
         });
 
         if (!blogPost) {
-            return res.status(404).json({ message: 'Blog post not found' });
+            return res.status(404).json({ error: 'Blog post not found' });
         }
 
         const existingVote = await prisma.vote.findUnique({
@@ -51,7 +51,7 @@ export default authenticate(async function handler(req: VoteRequest, res: NextAp
 
         if (existingVote) {
             if (existingVote.voteType === voteType) {
-                return res.status(400).json({ message: `You already ${voteType}d this post.` });
+                return res.status(400).json({ error: `You already ${voteType}d this post.` });
             }
 
             await prisma.vote.update({
@@ -95,7 +95,7 @@ export default authenticate(async function handler(req: VoteRequest, res: NextAp
         console.log(error);
         res.status(500).json({ error: 'Could not rate a blog post' });
     }
-});
+}
 
 async function checkPositive(voteType: 'upvote' | 'downvote', blogPostId: number): Promise<boolean> {
     const blogPost = await prisma.blogPost.findUnique({
