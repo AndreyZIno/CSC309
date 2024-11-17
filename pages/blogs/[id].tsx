@@ -45,6 +45,11 @@ const BlogDetails: React.FC = () => {
     const [newComment, setNewComment] = useState<string>('');
     const [replyComment, setReplyComment] = useState<{ [key: number]: string }>({});
     const [userEmail, setUserEmail] = useState('JohnDoe@gmail.com'); // Hardcoded for now
+    const [sortByMain, setSortByMain] = useState<'mostLiked' | 'mostDisliked' | 'mostRecent'>('mostLiked');
+    const [replySortOptions, setReplySortOptions] = useState<{ [key: number]: 'mostLiked' | 'mostDisliked' | 'mostRecent' }>({});
+    const [commentsPage, setCommentsPage] = useState(1);
+    const [commentsLimit] = useState(5);
+    const [hasMoreComments, setHasMoreComments] = useState(true);
 
     const fetchBlog = async () => {
         if (!id) return;
@@ -52,7 +57,14 @@ const BlogDetails: React.FC = () => {
         setError(null);
 
         try {
-            const response = await fetch(`/api/blogs/${id}`);
+            const sortByRepliesParam = Object.keys(replySortOptions).length
+            ? Object.values(replySortOptions).join(',')
+            : 'mostRecent';
+    
+            const response = await fetch(
+                `/api/blogs/${id}?page=${commentsPage}&limit=${commentsLimit}&sortByMain=${sortByMain}&sortByReplies=${sortByRepliesParam}`
+            );
+
             if (!response.ok) {
                 const errorData = await response.json();
                 setError(errorData.message || 'Failed to fetch the blog post.');
@@ -60,12 +72,46 @@ const BlogDetails: React.FC = () => {
             }
 
             const data = await response.json();
-            setBlog(data);
+            if (commentsPage === 1) {
+                setBlog(data);
+            } 
+            else {
+                setBlog((prevBlog) =>
+                    prevBlog
+                        ? {
+                              ...prevBlog,
+                              comments: [...prevBlog.comments, ...data.comments],
+                          }
+                        : data
+                );
+            }
+            setHasMoreComments(data.comments.length === commentsLimit);
         } catch (err) {
             console.error('Error fetching blog:', err);
             setError('An unexpected error occurred.');
         } finally {
             setLoading(false);
+        }
+    };
+    const handleReplySortChange = async (commentId: number, sortOption: 'mostLiked' | 'mostDisliked' | 'mostRecent') => {
+        try {
+            const response = await fetch(
+                `/api/blogs/${id}?sortByMain=${sortByMain}&sortByReplies=${sortOption}`
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.message || 'Could not sort replies.');
+                return;
+            }
+
+            const updatedBlog = await response.json();
+
+            setBlog(updatedBlog);
+            setReplySortOptions((prevOptions) => ({ ...prevOptions, [commentId]: sortOption }));
+        } catch (err) {
+            console.error('Error sorting replies:', err);
+            setError('An unexpected error occurred while sorting replies.');
         }
     };
 
@@ -232,7 +278,7 @@ const BlogDetails: React.FC = () => {
 
     useEffect(() => {
         fetchBlog();
-    }, [id]);
+    }, [id, sortByMain, commentsPage]);
 
     if (loading) {
         return <p className="text-center">Loading...</p>;
@@ -276,6 +322,21 @@ const BlogDetails: React.FC = () => {
                 </div>
             )}
 
+            <div className="flex gap-4 mt-4">
+                <label>
+                    <span className="font-semibold text-black">Sort Main Comments:</span>
+                    <select
+                        className="ml-2 border border-gray-300 rounded-md text-black"
+                        value={sortByMain}
+                        onChange={(e) => setSortByMain(e.target.value as 'mostLiked' | 'mostDisliked' | 'mostRecent')}
+                    >
+                        <option value="mostLiked">Most Liked</option>
+                        <option value="mostDisliked">Most Disliked</option>
+                        <option value="mostRecent">Most Recent</option>
+                    </select>
+                </label>
+            </div>
+
             <div className="mt-6">
                 <h3 className="text-lg font-semibold text-black">Comments:</h3>
                 {blog.comments.length > 0 ? (
@@ -311,12 +372,31 @@ const BlogDetails: React.FC = () => {
                                         setReplyComment((prev) => ({ ...prev, [comment.id]: e.target.value }))
                                     }
                                 />
-                                <button
-                                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
-                                    onClick={() => handleAddReply(comment.id)}
-                                >
-                                    Reply
-                                </button>
+                                <div className="flex items-center mt-2 gap-2">
+                                    <button
+                                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+                                        onClick={() => handleAddReply(comment.id)}
+                                    >
+                                        Reply
+                                    </button>
+                                    <label>
+                                        <span>Sort Replies:</span>
+                                        <select
+                                            className="ml-2 border border-gray-300 rounded-md"
+                                            value={replySortOptions[comment.id] || 'mostRecent'}
+                                            onChange={(e) =>
+                                                handleReplySortChange(
+                                                    comment.id,
+                                                    e.target.value as 'mostLiked' | 'mostDisliked' | 'mostRecent'
+                                                )
+                                            }
+                                        >
+                                            <option value="mostLiked">Most Liked</option>
+                                            <option value="mostDisliked">Most Disliked</option>
+                                            <option value="mostRecent">Most Recent</option>
+                                        </select>
+                                    </label>
+                                </div>
                                 {comment.replies.length > 0 && (
                                     <ul className="mt-2 space-y-2 pl-4 border-l border-gray-300">
                                         {comment.replies.map((reply) => (
@@ -368,6 +448,40 @@ const BlogDetails: React.FC = () => {
                     Post My Comment!
                 </button>
             </div>
+            {/* Classes are ChatGPT Generated:*/}
+            <div className="flex justify-between mt-6">
+                <button
+                    onClick={() => {
+                        if (commentsPage > 1) {
+                            setCommentsPage((prev) => prev - 1);
+                        }
+                    }}
+                    disabled={commentsPage === 1}
+                    className={`px-4 py-2 rounded-md ${
+                        commentsPage === 1
+                            ? 'bg-gray-300 cursor-not-allowed'
+                            : 'bg-blue-500 text-white hover:bg-blue-600'
+                    }`}
+                >
+                    Show Less
+                </button>
+                <button
+                    onClick={() => {
+                        if (hasMoreComments) {
+                            setCommentsPage((prev) => prev + 1);
+                        }
+                    }}
+                    disabled={!hasMoreComments}
+                    className={`px-4 py-2 rounded-md ${
+                        !hasMoreComments
+                            ? 'bg-gray-300 cursor-not-allowed'
+                            : 'bg-blue-500 text-white hover:bg-blue-600'
+                    }`}
+                >
+                    Show More
+                </button>
+            </div>
+
         </div>
     );
 };
