@@ -9,7 +9,7 @@ interface SortBlogRequest extends NextApiRequest {
         page?: string;
         limit?: string;
         search?: string;
-        searchField?: 'title' | 'description' | 'tags' | 'templates';
+        searchField: 'title' | 'description' | 'tags' | 'templates';
     };
 }
 
@@ -19,7 +19,7 @@ export default async function handler(req: SortBlogRequest, res: NextApiResponse
     }
 
     try {
-        const { sortBy, page = '1', limit = '10', search = '', searchField = 'title' } = req.query;
+        const { sortBy, page = '1', limit = '10', search = '', searchField} = req.query;
         
         const skip = (parseInt(page) - 1) * parseInt(limit);
         const take = parseInt(limit);
@@ -39,14 +39,35 @@ export default async function handler(req: SortBlogRequest, res: NextApiResponse
                 return res.status(400).json({ message: 'Invalid sorting method. Use "mostLiked", "mostDisliked" or "mostRecent"' });
         }
 
-        const searchCondition = search ? {      // TO DO: Fix search by categories, right now searches all
-            OR: [  // this block of code is from ChatGPT, how to search:
-                { title: { contains: search } },
-                { description: { contains: search } },
-                { tags: { contains: search } },
-                { templates: { some: { title: { contains: search } } } },
-            ],
-        } : {};
+        let searchCondition = {};
+        if (searchField === 'title') {
+             searchCondition = search ? {
+                OR: [
+                    { title: { contains: search } },
+                ],
+            } : {};
+        }
+        else if (searchField === 'description') {
+            searchCondition = search ? {
+                OR: [
+                    { description: { contains: search } },
+                ],
+            } : {};
+        }
+        else if (searchField === 'tags') {
+            searchCondition = search ? {
+                OR: [
+                    { tags: { contains: search } },
+                ],
+            } : {};
+        }
+        else if (searchField === 'templates') {
+            searchCondition = search ? {
+                OR: [
+                    { templates: { some: { title: { contains: search } } } },
+                ],
+            } : {};
+        }
 
         const blogPosts = await prisma.blogPost.findMany({
             skip,
