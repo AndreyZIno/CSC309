@@ -37,6 +37,8 @@ const BlogDetails: React.FC = () => {
     const [blog, setBlog] = useState<BlogPost | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [newComment, setNewComment] = useState<string>('');
+    const [replyComment, setReplyComment] = useState<{ [key: number]: string }>({});
 
     const fetchBlog = async () => {
         if (!id) return;
@@ -58,6 +60,59 @@ const BlogDetails: React.FC = () => {
             setError('An unexpected error occurred.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleAddComment = async () => {
+        if (!newComment.trim() || !id) return;
+
+        try {
+            const response = await fetch(`/api/comments/create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    content: newComment,
+                    blogPostId: Number(id),
+                    userEmail: 'JohnDoe@gmail.com',
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to add comment.');
+            }
+
+            setNewComment('');
+            fetchBlog();
+        } catch (err) {
+            console.error(err);
+            setError('Could not add the comment.');
+        }
+    };
+
+    const handleAddReply = async (parentId: number) => {
+        if (!replyComment[parentId]?.trim() || !id) return;
+
+        try {
+            const response = await fetch(`/api/comments/create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    content: replyComment[parentId],
+                    blogPostId: Number(id),
+                    userEmail: 'JohnDoe@gmail.com',
+                    parentId,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to add reply.');
+            }
+
+            setReplyComment((prev) => ({ ...prev, [parentId]: '' }));
+            fetchBlog();
+        } catch (err) {
+            console.error(err);
+            setError('Could not add the reply.');
         }
     };
 
@@ -87,12 +142,12 @@ const BlogDetails: React.FC = () => {
             <p className="text-sm text-gray-500 mt-4">
                 Tags: <span className="italic">{blog.tags}</span>
             </p>
-            
+
             <div className="mt-4 flex items-center gap-4">
                 <p className="text-green-500 font-semibold">Upvotes: {blog.numUpvotes}</p>
                 <p className="text-red-500 font-semibold">Downvotes: {blog.numDownvotes}</p>
             </div>
-            
+
             {blog.templates.length > 0 && (
                 <div className="mt-4">
                     <h3 className="text-lg font-semibold text-black">Templates:</h3>
@@ -107,17 +162,32 @@ const BlogDetails: React.FC = () => {
                     </ul>
                 </div>
             )}
-            {blog.comments.length > 0 && (
-                <div className="mt-6">
-                    <h3 className="text-lg font-semibold">Comments:</h3>
+
+            <div className="mt-6">
+                <h3 className="text-lg font-semibold text-black">Comments:</h3>
+                {blog.comments.length > 0 ? (
                     <ul className="space-y-4">
                         {blog.comments.map((comment) => (
-                            <li key={comment.id}>
+                            <li key={comment.id} className="border border-gray-300 p-4 rounded-md text-black">
                                 <p>
                                     <strong>{comment.user.firstName} {comment.user.lastName}:</strong> {comment.content}
                                 </p>
+                                <textarea
+                                    className="w-full mt-2 p-2 border border-gray-300 rounded-md text-black"
+                                    placeholder="Reply to this comment"
+                                    value={replyComment[comment.id] || ''}
+                                    onChange={(e) =>
+                                        setReplyComment((prev) => ({ ...prev, [comment.id]: e.target.value }))
+                                    }
+                                />
+                                <button
+                                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+                                    onClick={() => handleAddReply(comment.id)}
+                                >
+                                    Reply
+                                </button>
                                 {comment.replies.length > 0 && (
-                                    <ul className="ml-4 list-disc">
+                                    <ul className="mt-2 space-y-2 pl-4 border-l border-gray-300">
                                         {comment.replies.map((reply) => (
                                             <li key={reply.id}>
                                                 <p>
@@ -130,8 +200,25 @@ const BlogDetails: React.FC = () => {
                             </li>
                         ))}
                     </ul>
-                </div>
-            )}
+                ) : (
+                    <p className="text-gray-500">No comments yet. Be the first to add a comment!</p>
+                )}
+            </div>
+
+            <div className="mt-6">
+                <textarea
+                    className="w-full p-2 border border-gray-300 rounded-md text-black"
+                    placeholder="Add a comment"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                />
+                <button
+                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+                    onClick={handleAddComment}
+                >
+                    Post My Comment!
+                </button>
+            </div>
         </div>
     );
 };
