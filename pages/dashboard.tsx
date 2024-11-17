@@ -7,9 +7,31 @@ export default function Dashboard() {
     avatar: '/avatars/default_avatar.png',
     firstName: 'Guest',
   });
+  const [language, setLanguage] = useState('javascript');
+  const [code, setCode] = useState('');
   const router = useRouter();
 
   const isGuest = router.query.guest === 'true';
+
+  useEffect(() => {
+    const { code: queryCode, language: queryLanguage } = router.query;
+    if (queryCode) {
+      setCode(queryCode as string);
+    } 
+    /*
+    else if (!isGuest) {
+      alert('Code is missing. Please select a valid template.');
+    }
+    */
+    if (queryLanguage) {
+      setLanguage(queryLanguage as string);
+    }
+    /*
+    else if (!isGuest) {
+      alert('Language is missing. Please select a valid template.');
+    }
+    */
+  }, [router.query]); // [router.query, isGuest]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -47,6 +69,7 @@ export default function Dashboard() {
     }
     router.push('/');
   };
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -116,10 +139,25 @@ export default function Dashboard() {
         <main className="flex-grow flex flex-col items-center justify-center">
           <div className="w-11/12 max-w-4xl bg-white border rounded-lg shadow-lg p-4">
             <div className="border-b pb-2 mb-4">
-              <h2 className="text-xl font-bold text-gray-800">Code Editor</h2>
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-800">Code Editor</h2>
+                <select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="border border-gray-300 rounded-lg p-2 text-black"
+                >
+                  <option value="javascript">JavaScript</option>
+                  <option value="python">Python</option>
+                  <option value="c">C</option>
+                  <option value="cpp">C++</option>
+                  <option value="java">Java</option>
+                </select>
+              </div>
               <p className="text-sm text-gray-500">Start writing your code below:</p>
             </div>
             <textarea
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
               placeholder="Write your code here..."
               className="w-full h-64 bg-gray-100 border border-gray-300 rounded-lg p-4 text-sm font-mono text-gray-800 focus:outline-none focus:ring focus:ring-blue-300"
             />
