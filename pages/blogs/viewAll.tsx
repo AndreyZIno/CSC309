@@ -228,7 +228,11 @@ const ViewAllBlogs: React.FC = () => {
                                          </button>
                                      </>
                                     )}
-                                    <h2 className="text-xl font-semibold text-blue-700">{blog.title}</h2>
+                                    <h2 className="text-xl font-semibold">
+                                        <Link href={`/blogs/${blog.id}`} className="text-blue-700 hover:underline">
+                                            {blog.title}
+                                        </Link>
+                                    </h2>
                                     <p className="text-gray-700">{blog.description}</p>
                                     <p className="text-sm text-gray-500">
                                         Tags: <span className="italic">{blog.tags}</span>
