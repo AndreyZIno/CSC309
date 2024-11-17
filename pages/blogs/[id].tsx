@@ -23,10 +23,14 @@ interface BlogPost {
     comments: {
         id: number;
         content: string;
+        numUpvotes: number;
+        numDownvotes: number;
         user: { firstName: string; lastName: string };
         replies: {
             id: number;
             content: string;
+            numUpvotes: number;
+            numDownvotes: number;
             user: { firstName: string; lastName: string };
         }[];
     }[];
@@ -151,9 +155,7 @@ const BlogDetails: React.FC = () => {
         return <p className="text-center">Loading...</p>;
     }
 
-    if (error) {
-        return <p className="text-center text-red-500">{error}</p>;
-    }
+    {error && <div className="text-red-500 mb-4">{error}</div>}
 
     if (!blog) {
         return null;
