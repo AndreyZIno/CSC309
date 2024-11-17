@@ -26,7 +26,7 @@ const ViewAllBlogs: React.FC = () => {
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
     const [search, setSearch] = useState('');
-    const [searchField, setSearchField] = useState<'title' | 'description' | 'tags' | 'templates'>('title'); // Default to searching by title
+    const [searchField, setSearchField] = useState<'title' | 'description' | 'tags' | 'templates'>('title');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
