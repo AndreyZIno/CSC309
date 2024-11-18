@@ -14,11 +14,13 @@ interface BlogPost {
         firstName: string;
         lastName: string;
         email: string;
+        id: number;
     };
     createdAt: string;
     templates: {
         id: number;
         title: string;
+        
     }[];
 }
 
@@ -31,20 +33,40 @@ const ViewAllBlogs: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
-    const [userEmail, setUserEmail] = useState('JohnDoe@gmail.com'); // Hardcoded for now
     const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
     const [editError, setEditError] = useState<string | null>(null);
     const [deleteNotification, setDeleteNotification] = useState(false);
     const [sortBy, setSortBy] = useState<'mostLiked' | 'mostDisliked' | 'mostRecent'>('mostRecent');
     const router = useRouter();
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+          try {
+            const response = await fetch('/api/users/me', {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              },
+            });
+            if (response.ok) {
+              const data = await response.json();
+              setCurrentUserId(data.id);
+            }
+          } catch (err) {
+            console.error('Error fetching current user:', err);
+          }
+        };
+        fetchCurrentUser();
+    }, []);
 
     const fetchBlogs = async () => {
         setLoading(true);
         setError(null);
 
         try {
-            console.log("Logged-in user email:", userEmail);
-            console.log("Blogs data:", blogs);
+            // console.log("Logged-in user email:", userEmail);
+            // console.log("Blogs data:", blogs);
             const response = await fetch(`/api/blogs/sort?sortBy=${sortBy}&page=${page}&limit=${limit}&search=${search}&searchField=${searchField}`);
             if (!response.ok) {
                 const errorData = await response.json();
@@ -66,15 +88,35 @@ const ViewAllBlogs: React.FC = () => {
     };
 
     const deleteBlog = async (blogID: number) => {
-        if (!userEmail) {
-            setError('You need to be logged in to delete blogs.');
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            alert('You need to be logged in to delete templates.');
             return;
         }
     
         try {
+
+            const userResponse = await fetch('/api/users/me', {
+                method: 'GET',
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!userResponse.ok) {
+                alert('Failed to fetch user data. Please log in again.');
+                return;
+            }
+
+            const user = await userResponse.json();
+            const userEmail = user.email;
+
             const response = await fetch(`/api/blogs/delete?blogID=${blogID}`, {
                 method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                 },
                 body: JSON.stringify({ userEmail }),
             });
     
@@ -99,16 +141,26 @@ const ViewAllBlogs: React.FC = () => {
     };
 
     const updateBlog = async (updatedBlog: BlogPost) => {
+
+    const token = localStorage.getItem('accessToken');
+        if (!token) {
+            alert('You need to be logged in to edit templates.');
+            return;
+        }
+
         try {
             const response = await fetch(`/api/blogs/edit?blogID=${updatedBlog.id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
                 body: JSON.stringify({
                     title: updatedBlog.title,
                     description: updatedBlog.description,
                     tags: updatedBlog.tags,
                     templates: updatedBlog.templates.map((template) => template.title),
-                    userEmail,
+                    
                 }),
             });
 
@@ -134,7 +186,7 @@ const ViewAllBlogs: React.FC = () => {
             const response = await fetch(`/api/blogs/vote`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ blogPostId, voteType, userEmail }),
+                body: JSON.stringify({ blogPostId, voteType }),
             });
 
             if (!response.ok) {
@@ -221,7 +273,11 @@ const ViewAllBlogs: React.FC = () => {
                         <div className="space-y-4">
                             {blogs.map((blog) => (
                                 <div key={blog.id} className="p-4 border border-gray-300 rounded-md relative">
-                                    {blog.user.email === userEmail && (
+                                    <>
+                                        {console.log(`Comparing currentUserId (${currentUserId}) with blog.user.id (${blog.user.id})`)}
+                                        {console.log(blog.user)}
+                                    </>
+                                    {currentUserId === blog.user.id && (
                                          <>
                                          <button
                                              onClick={() => setEditingBlog(blog)}

@@ -6,7 +6,7 @@ const BlogPostForm: React.FC = () => {
     const [description, setDescription] = useState('');
     const [tags, setTags] = useState('');
     const [templateIds, setTemplateIds] = useState<number[]>([]);
-    const [userEmail, setuserEmail] = useState('');
+    // const [userEmail, setuserEmail] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const router = useRouter();
@@ -22,19 +22,29 @@ const BlogPostForm: React.FC = () => {
         setError(null);
         setSuccess(null);
 
+        const token = localStorage.getItem('accessToken');
+
+        if (!token) {
+            setError('You must be logged in to create a blog.');
+            return;
+        }
+
         try {
             const response = await fetch('/api/blogs/create', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                 },
                 body: JSON.stringify({
                     title,
                     description,
-                    tags,
+                    tags: tags.split(',').map((tag) => tag.trim()),
                     templateIds,
-                    userEmail
+                    // userEmail
                 }),
             });
-            console.log('Sending userEmail:', userEmail);
+            // console.log('Sending userEmail:', userEmail);
             if (!response.ok) {
                 try {
                     const errorData = await response.json();
@@ -55,7 +65,7 @@ const BlogPostForm: React.FC = () => {
             setDescription('');
             setTags('');
             setTemplateIds([]);
-            setuserEmail('');
+            // setuserEmail('');
 
             setTimeout(() => {
                 router.push('/blogs/viewAll');
@@ -118,6 +128,7 @@ const BlogPostForm: React.FC = () => {
                         className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
+                {/*
                 <div>
                     <label className="block font-medium text-gray-700">User Email</label>
                     <textarea
@@ -127,6 +138,7 @@ const BlogPostForm: React.FC = () => {
                         className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
+                */}
                 <button
                     type="submit"
                     className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"

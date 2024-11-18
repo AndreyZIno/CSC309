@@ -63,10 +63,17 @@ export default async function handler(req: ViewAllRequest, res: NextApiResponse)
                 ],
             },
             include: {
-                user: { select: { firstName: true, lastName: true, email: true } },
+                user: { 
+                    select: { 
+                        firstName: true, 
+                        lastName: true, 
+                        email: true, 
+                        id: true
+                    } 
+                },
                 templates: true,
                 comments: {
-                    where: { parentId: null }, //main comments
+                    where: { parentId: null },
                     include: {
                         user: { select: { firstName: true, lastName: true } },
                         replies: {
@@ -78,7 +85,7 @@ export default async function handler(req: ViewAllRequest, res: NextApiResponse)
                 },
             },
             orderBy: { createdAt: 'desc' },
-        });
+        });        
 
         res.status(200).json(blogPosts);
 

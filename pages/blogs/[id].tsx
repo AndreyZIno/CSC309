@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
+import jwt from 'jsonwebtoken';
 
 interface BlogPost {
     id: number;
@@ -44,7 +45,7 @@ const BlogDetails: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [newComment, setNewComment] = useState<string>('');
     const [replyComment, setReplyComment] = useState<{ [key: number]: string }>({});
-    const [userEmail, setUserEmail] = useState('JohnDoe@gmail.com'); // Hardcoded for now
+    // const [userEmail, setUserEmail] = useState('JohnDoe@gmail.com'); // Hardcoded for now
     const [sortByMain, setSortByMain] = useState<'mostLiked' | 'mostDisliked' | 'mostRecent'>('mostLiked');
     const [replySortOptions, setReplySortOptions] = useState<{ [key: number]: 'mostLiked' | 'mostDisliked' | 'mostRecent' }>({});
     const [commentsPage, setCommentsPage] = useState(1);
@@ -57,6 +58,7 @@ const BlogDetails: React.FC = () => {
         setError(null);
 
         try {
+
             const sortByRepliesParam = Object.keys(replySortOptions).length
             ? Object.values(replySortOptions).join(',')
             : 'mostRecent';
@@ -116,16 +118,28 @@ const BlogDetails: React.FC = () => {
     };
 
     const handleAddComment = async () => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            alert('You need to be logged in to fork templates.');
+            return;
+        }
+
+        const ACCESS_SECRET = process.env.ACCESS_SECRET as string;
+        const decoded: any = jwt.verify(token, ACCESS_SECRET);
+
         if (!newComment.trim() || !id) return;
 
         try {
             const response = await fetch(`/api/comments/create`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
                 body: JSON.stringify({
                     content: newComment,
                     blogPostId: Number(id),
-                    userEmail: 'JohnDoe@gmail.com',
+                    userEmail: decoded.email,
                 }),
             });
 
@@ -165,16 +179,29 @@ const BlogDetails: React.FC = () => {
     };
 
     const handleAddReply = async (parentId: number) => {
+
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            alert('You need to be logged in to fork templates.');
+            return;
+        }
+
+        const ACCESS_SECRET = process.env.ACCESS_SECRET as string;
+        const decoded: any = jwt.verify(token, ACCESS_SECRET);
+
         if (!replyComment[parentId]?.trim() || !id) return;
 
         try {
             const response = await fetch(`/api/comments/create`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
                 body: JSON.stringify({
                     content: replyComment[parentId],
                     blogPostId: Number(id),
-                    userEmail: 'JohnDoe@gmail.com',
+                    userEmail: decoded.email,
                     parentId,
                 }),
             });
@@ -223,11 +250,28 @@ const BlogDetails: React.FC = () => {
     };
 
     const handleVote = async (commentId: number, voteType: 'upvote' | 'downvote', isReply = false, parentId?: number) => {
+        
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            alert('You need to be logged in to fork templates.');
+            return;
+        }
+
+        const ACCESS_SECRET = process.env.ACCESS_SECRET as string;
+        const decoded: any = jwt.verify(token, ACCESS_SECRET);
+        
         try {
             const response = await fetch('/api/comments/vote', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ commentId, voteType, userEmail }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    commentId,
+                    voteType,
+                    userEmail: decoded.email
+                }),
             });
 
             if (!response.ok) {

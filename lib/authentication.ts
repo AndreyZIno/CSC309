@@ -20,6 +20,7 @@ export function authenticate(handler: (req: NextApiRequest, res: NextApiResponse
       req.user = verifyJWT(req);
       return await handler(req, res);
     } catch (error) {
+      console.log(req.user)
       return res.status(401).json({ error: 'Unauthorized access' });
     }
   };
