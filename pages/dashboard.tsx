@@ -86,9 +86,12 @@ export default function Dashboard() {
               </button>
             </li>
             <li>
-              <a href="#" className="hover:text-gray-200">
+              <button
+                onClick={() => router.push('/blogs/viewAll')}
+                className="hover:text-gray-200"
+              >
                 Blogs
-              </a>
+              </button>
             </li>
           </ul>
           {!isGuest && (
