@@ -18,6 +18,20 @@ interface Template {
   };
   createdAt: string;
   forked: boolean;
+  blogs: BlogPost[];
+}
+
+interface BlogPost {
+  id: number;
+  title: string;
+  description: string;
+  tags: string;
+  createdAt: string;
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
 }
 
 const ViewAllTemplates: React.FC = () => {
@@ -212,6 +226,24 @@ const ViewAllTemplates: React.FC = () => {
                   <p className="text-sm text-gray-500">
                     By: {template.user.firstName} {template.user.lastName}
                   </p>
+                  {template.blogs && template.blogs.length > 0 && (
+                    <div className="mt-4">
+                      <h3 className="text-sm font-semibold text-gray-600">Associated Blogs:</h3>
+                      <ul className="list-disc list-inside text-gray-700">
+                        {template.blogs.map((blog) => (
+                          <li key={blog.id}>
+                            <Link href={`/blogs/${blog.id}`} className="text-blue-500 hover:underline">
+                              {blog.title}
+                            </Link>
+                            <p className="text-gray-600">{blog.description}</p>
+                            <p className="text-sm text-gray-500">
+                              By: {blog.user.firstName} {blog.user.lastName} | {new Date(blog.createdAt).toLocaleDateString()}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   <div className="flex items-center gap-4 mt-4">
                     {currentUserId === template.user.id && (
                       <>

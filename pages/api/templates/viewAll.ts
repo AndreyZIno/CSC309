@@ -29,7 +29,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       take: limitNumber,
       where: searchCondition,
       include: {
-        blogPosts: true,
+        blogPosts: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            tags: true,
+            createdAt: true,
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+        },
         user: true,
       },
     });
@@ -37,6 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const processedTemplates = templates.map((template) => ({
       ...template,
       tags: template.tags.split(','),
+      blogs: template.blogPosts,
     }));
 
     return res.status(200).json(processedTemplates);
