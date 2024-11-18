@@ -8,11 +8,13 @@ interface Template {
   title: string;
   explanation: string;
   tags: string[];
+  code: string;
+  language: string;
   user: {
     firstName: string;
     lastName: string;
     email: string;
-    id: number; // Add userId for ownership check
+    id: number;
   };
   createdAt: string;
   forked: boolean;
@@ -22,15 +24,14 @@ const ViewAllTemplates: React.FC = () => {
   const router = useRouter();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState<'mostRecent' | 'mostForked'>('mostRecent');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-/*
+  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
+
   useEffect(() => {
-    // Fetch current user data
     const fetchCurrentUser = async () => {
       try {
         const response = await fetch('/api/users/me', {
@@ -41,7 +42,7 @@ const ViewAllTemplates: React.FC = () => {
         });
         if (response.ok) {
           const data = await response.json();
-          setCurrentUserId(data.id); // Assume backend sends user ID
+          setCurrentUserId(data.id);
         }
       } catch (err) {
         console.error('Error fetching current user:', err);
@@ -49,13 +50,13 @@ const ViewAllTemplates: React.FC = () => {
     };
     fetchCurrentUser();
   }, []);
-*/
+
   const fetchTemplates = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(`/api/templates/viewAll?page=${page}&search=${search}&sortBy=${sortBy}`);
+      const response = await fetch(`/api/templates/viewAll?page=${page}&search=${search}`);
       if (!response.ok) {
         const errorData = await response.json();
         setError(errorData.error || 'Something went wrong while fetching templates.');
@@ -74,25 +75,40 @@ const ViewAllTemplates: React.FC = () => {
 
   useEffect(() => {
     fetchTemplates();
-  }, [page, search, sortBy]);
+  }, [page, search]);
 
   const handleDeleteTemplate = async (templateId: number) => {
-    const userEmail = localStorage.getItem('userEmail'); // Ensure userEmail is available
-    if (!userEmail) {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
       alert('You need to be logged in to delete templates.');
       return;
     }
-  
+
     try {
+      const userResponse = await fetch('/api/users/me', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!userResponse.ok) {
+        alert('Failed to fetch user data. Please log in again.');
+        return;
+      }
+
+      const user = await userResponse.json();
+      const userEmail = user.email;
+
       const response = await fetch(`/api/templates/delete?templateID=${templateId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          // Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ userEmail }), // Include the email in the request body
+        body: JSON.stringify({ userEmail }),
       });
-  
+
       if (response.ok) {
         setTemplates((prevTemplates) => prevTemplates.filter((template) => template.id !== templateId));
         alert('Template deleted successfully!');
@@ -101,10 +117,54 @@ const ViewAllTemplates: React.FC = () => {
         alert(errorData.error || 'Failed to delete template.');
       }
     } catch (err) {
+      console.error('Error during delete operation:', err);
       alert('An unexpected error occurred while deleting the template.');
     }
   };
-  
+
+  const handleUpdateTemplate = async (updatedTemplate: Template) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      alert('You need to be logged in to edit templates.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/templates/edit`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          templateId: updatedTemplate.id,
+          title: updatedTemplate.title,
+          explanation: updatedTemplate.explanation,
+          code: updatedTemplate.code,
+          tags: updatedTemplate.tags,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTemplates((prevTemplates) =>
+          prevTemplates.map((template) =>
+            template.id === data.updatedTemplate.id
+              ? { ...template, ...data.updatedTemplate }
+              : template
+          )
+        );
+        setEditingTemplate(null);
+        alert('Template updated successfully!');
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Failed to update template.');
+      }
+    } catch (err) {
+      console.error('Error during update operation:', err);
+      alert('An unexpected error occurred while updating the template.');
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
@@ -118,14 +178,6 @@ const ViewAllTemplates: React.FC = () => {
           placeholder="Search templates..."
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
         />
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as 'mostRecent' | 'mostForked')}
-          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-        >
-          <option value="mostRecent">Most Recent</option>
-          <option value="mostForked">Most Forked</option>
-        </select>
         <button
           onClick={() => setPage(1)}
           className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -146,34 +198,40 @@ const ViewAllTemplates: React.FC = () => {
           {templates.length > 0 ? (
             <div className="space-y-4">
               {templates.map((template) => (
-              <div key={template.id} className="p-4 border border-gray-300 rounded-md">
-                <Link href={`/templates/${template.id}`} className="text-xl font-semibold text-blue-700 hover:underline">
-                  {template.title}
-                </Link>
-                <p className="text-gray-700">{template.explanation}</p>
-                <p className="text-sm text-gray-500">
-                  Tags: <span className="italic">{template.tags.join(', ')}</span>
-                </p>
-                <p className="text-sm text-gray-500">
-                  By: {template.user.firstName} {template.user.lastName}
-                </p>
-                <div className="flex items-center gap-4 mt-4">
-                  {currentUserId === template.user.id && ( // Ownership check
-                    <>
-                      <Link href={`/templates/edit/${template.id}`} className="text-blue-500 flex items-center gap-1">
-                        <FaEdit size={16} /> Edit
-                      </Link>
-                      <button
-                        className="text-red-500 flex items-center gap-1"
-                        onClick={() => handleDeleteTemplate(template.id)}
-                      >
-                        <FaTrash size={16} /> Delete
-                      </button>
-                    </>
-                  )}
+                <div key={template.id} className="p-4 border border-gray-300 rounded-md">
+                  <Link href={`/templates/${template.id}`} className="text-xl font-semibold text-blue-700 hover:underline">
+                    {template.title}
+                  </Link>
+                  <p className="text-gray-700">{template.explanation}</p>
+                  <p className="text-sm text-gray-500">
+                    Tags: <span className="italic">{Array.isArray(template.tags) ? template.tags.join(', ') : template.tags}</span>
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Language: <span className="italic">{template.language}</span>
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    By: {template.user.firstName} {template.user.lastName}
+                  </p>
+                  <div className="flex items-center gap-4 mt-4">
+                    {currentUserId === template.user.id && (
+                      <>
+                        <button
+                          className="text-blue-500 flex items-center gap-1"
+                          onClick={() => setEditingTemplate(template)}
+                        >
+                          <FaEdit size={16} /> Edit
+                        </button>
+                        <button
+                          className="text-red-500 flex items-center gap-1"
+                          onClick={() => handleDeleteTemplate(template.id)}
+                        >
+                          <FaTrash size={16} /> Delete
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
             </div>
           ) : (
             <p className="text-center text-gray-500">No templates found.</p>
@@ -199,6 +257,86 @@ const ViewAllTemplates: React.FC = () => {
             >
               Next
             </button>
+          </div>
+        </div>
+      )}
+      {editingTemplate && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center">
+          <div className="bg-white p-8 rounded-md max-w-2xl w-full shadow-lg">
+            <h2 className="text-2xl font-bold text-blue-500 mb-6">Edit Template</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1">Title</label>
+                <input
+                  type="text"
+                  value={editingTemplate.title}
+                  onChange={(e) =>
+                    setEditingTemplate({ ...editingTemplate, title: e.target.value })
+                  }
+                  placeholder="Template Title"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-black"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1">Explanation</label>
+                <textarea
+                  value={editingTemplate.explanation}
+                  onChange={(e) =>
+                    setEditingTemplate({
+                      ...editingTemplate,
+                      explanation: e.target.value,
+                    })
+                  }
+                  placeholder="Template Explanation"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-black resize-none"
+                  rows={4}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1">Code</label>
+                <textarea
+                  value={editingTemplate.code}
+                  onChange={(e) =>
+                    setEditingTemplate({
+                      ...editingTemplate,
+                      code: e.target.value,
+                    })
+                  }
+                  placeholder="Template Code"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-black font-mono resize-none"
+                  rows={8}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1">Tags (Comma-Separated)</label>
+                <input
+                  type="text"
+                  value={editingTemplate.tags.join(', ')}
+                  onChange={(e) =>
+                    setEditingTemplate({
+                      ...editingTemplate,
+                      tags: e.target.value.split(',').map((tag) => tag.trim()),
+                    })
+                  }
+                  placeholder="e.g., tag1, tag2, tag3"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-black"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-4 mt-6">
+              <button
+                onClick={() => setEditingTemplate(null)}
+                className="px-6 py-2 bg-gray-300 rounded-md text-black hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleUpdateTemplate(editingTemplate)}
+                className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              >
+                Save
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -17,13 +17,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const decoded: any = jwt.verify(token, ACCESS_SECRET);
     const user = await prisma.user.findUnique({
       where: { email: decoded.email },
-      select: { firstName: true, avatar: true },
+      select: { id: true, email: true, firstName: true, avatar: true },
     });
 
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     res.status(200).json(user);
   } catch (err) {
+    console.error('Error verifying token:', err);
     res.status(401).json({ error: 'Invalid or expired token' });
   }
 }
