@@ -102,7 +102,7 @@ const BlogPostForm: React.FC = () => {
                     />
                 </div>
                 <div>
-                    <label className="block font-medium text-gray-700">Template IDs</label>
+                    <label className="block font-medium text-gray-700">Template(s)</label>
                     <input
                         type="text"
                         value={templateIds.join(',')}
