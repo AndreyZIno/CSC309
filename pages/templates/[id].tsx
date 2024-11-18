@@ -20,6 +20,7 @@ const ViewTemplate = () => {
   const [template, setTemplate] = useState<Template | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const isGuest = router.query.guest === 'true';
 
   useEffect(() => {
     if (!id) return;
@@ -80,14 +81,21 @@ const ViewTemplate = () => {
   };
 
   const handleRunCode = () => {
+    let path = '/dashboard';
+    const query: Record<string, string | undefined> = {
+      code: template?.code,
+      language: template?.language,
+    };
+  
+    if (isGuest) {
+      query.guest = 'true';
+    }
+  
     router.push({
-      pathname: '/dashboard',
-      query: {
-        code: template?.code,
-        language: template?.language,
-      },
+      pathname: path,
+      query,
     });
-  };
+  };  
 
   if (loading) {
     return <p className="text-center">Loading template...</p>;

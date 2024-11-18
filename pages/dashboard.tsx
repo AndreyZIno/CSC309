@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 export default function Dashboard() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState({
     avatar: '/avatars/default_avatar.png',
     firstName: 'Guest',
@@ -10,28 +9,13 @@ export default function Dashboard() {
   const [language, setLanguage] = useState('javascript');
   const [code, setCode] = useState('');
   const router = useRouter();
-
   const isGuest = router.query.guest === 'true';
 
   useEffect(() => {
     const { code: queryCode, language: queryLanguage } = router.query;
-    if (queryCode) {
-      setCode(queryCode as string);
-    } 
-    /*
-    else if (!isGuest) {
-      alert('Code is missing. Please select a valid template.');
-    }
-    */
-    if (queryLanguage) {
-      setLanguage(queryLanguage as string);
-    }
-    /*
-    else if (!isGuest) {
-      alert('Language is missing. Please select a valid template.');
-    }
-    */
-  }, [router.query]); // [router.query, isGuest]);
+    if (queryCode) setCode(queryCode as string);
+    if (queryLanguage) setLanguage(queryLanguage as string);
+  }, [router.query]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -48,8 +32,8 @@ export default function Dashboard() {
           },
         });
 
-        const data = await response.json();
         if (response.ok) {
+          const data = await response.json();
           setUser({
             avatar: data.avatar || '/avatars/default_avatar.png',
             firstName: data.firstName || 'User',
@@ -70,74 +54,8 @@ export default function Dashboard() {
     router.push('/');
   };
 
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <nav className="bg-blue-600 text-white p-4 shadow">
-        <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-xl font-bold">Scriptorium</h1>
-          <ul className="flex space-x-6">
-            <li>
-              <button
-                onClick={() => router.push('/templates/viewAll')}
-                className="hover:text-gray-200"
-              >
-                Templates
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => router.push('/blogs/viewAll')}
-                className="hover:text-gray-200"
-              >
-                Blogs
-              </button>
-            </li>
-          </ul>
-          {!isGuest && (
-            <div className="relative">
-              <img
-                src={user.avatar}
-                alt="User Avatar"
-                className="w-10 h-10 rounded-full cursor-pointer"
-                onClick={() => setMenuOpen(!menuOpen)}
-              />
-              {menuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
-                  <ul>
-                    <li
-                      className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer"
-                      onClick={() => alert('Dark Mode Toggle Coming Soon!')}
-                    >
-                      Dark Mode
-                    </li>
-                    <li
-                      className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer"
-                      onClick={() => router.push('/profile')}
-                    >
-                      Edit Profile
-                    </li>
-                    <li
-                      className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer"
-                      onClick={handleLogout}
-                    >
-                      Logout
-                    </li>
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-          {isGuest && (
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-            >
-              Exit
-            </button>
-          )}
-        </div>
-      </nav>
       <div className="flex flex-grow">
         <main className="flex-grow flex flex-col items-center justify-center">
           <div className="w-11/12 max-w-4xl bg-white border rounded-lg shadow-lg p-4">

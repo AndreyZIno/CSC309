@@ -44,6 +44,7 @@ const ViewAllTemplates: React.FC = () => {
   const [hasMore, setHasMore] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
+  const isGuest = router.query.guest === 'true';
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -213,7 +214,9 @@ const ViewAllTemplates: React.FC = () => {
             <div className="space-y-4">
               {templates.map((template) => (
                 <div key={template.id} className="p-4 border border-gray-300 rounded-md">
-                  <Link href={`/templates/${template.id}`} className="text-xl font-semibold text-blue-700 hover:underline">
+                  <Link href={isGuest ? `/templates/${template.id}?guest=true` : `/templates/${template.id}`} 
+                    className="text-xl font-semibold text-blue-700 hover:underline"
+                    >
                     {template.title}
                   </Link>
                   <p className="text-gray-700">{template.explanation}</p>
@@ -232,7 +235,9 @@ const ViewAllTemplates: React.FC = () => {
                       <ul className="list-disc list-inside text-gray-700">
                         {template.blogs.map((blog) => (
                           <li key={blog.id}>
-                            <Link href={`/blogs/${blog.id}`} className="text-blue-500 hover:underline">
+                            <Link href={isGuest ? `/blogs/${blog.id}?guest=true` : `/blogs/${blog.id}`} 
+                              className="text-blue-500 hover:underline"
+                              >
                               {blog.title}
                             </Link>
                             <p className="text-gray-600">{blog.description}</p>

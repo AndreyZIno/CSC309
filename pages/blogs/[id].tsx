@@ -50,6 +50,7 @@ const BlogDetails: React.FC = () => {
     const [commentsPage, setCommentsPage] = useState(1);
     const [commentsLimit] = useState(5);
     const [hasMoreComments, setHasMoreComments] = useState(true);
+    const isGuest = router.query.guest === 'true';
 
     const fetchBlog = async () => {
         if (!id) return;
@@ -313,7 +314,9 @@ const BlogDetails: React.FC = () => {
                     <ul className="list-disc list-inside">
                         {blog.templates.map((template) => (
                             <li key={template.id}>
-                                <Link href={`/templates/${template.id}`} className="text-blue-500 hover:underline">
+                                <Link href={isGuest ? `/templates/${template.id}?guest=true` : `/templates/${template.id}`} 
+                                    className="text-blue-500 hover:underline"
+                                    >
                                     {template.title}
                                 </Link>
                             </li>

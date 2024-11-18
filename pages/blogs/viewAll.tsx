@@ -37,6 +37,7 @@ const ViewAllBlogs: React.FC = () => {
     const [deleteNotification, setDeleteNotification] = useState(false);
     const [sortBy, setSortBy] = useState<'mostLiked' | 'mostDisliked' | 'mostRecent'>('mostRecent');
     const router = useRouter();
+    const isGuest = router.query.guest === 'true';
 
     const fetchBlogs = async () => {
         setLoading(true);
@@ -240,7 +241,9 @@ const ViewAllBlogs: React.FC = () => {
                                      </>
                                     )}
                                     <h2 className="text-xl font-semibold">
-                                        <Link href={`/blogs/${blog.id}`} className="text-blue-700 hover:underline">
+                                        <Link href={isGuest ? `/blogs/${blog.id}?guest=true` : `/blogs/${blog.id}`} 
+                                            className="text-blue-700 hover:underline"
+                                            >
                                             {blog.title}
                                         </Link>
                                     </h2>
@@ -254,7 +257,9 @@ const ViewAllBlogs: React.FC = () => {
                                             <ul className="list-disc list-inside text-gray-700">
                                                 {blog.templates.map((template) => (
                                                     <li key={template.id}>
-                                                        <Link href={`/templates/${template.id}`} className="text-blue-500 hover:underline">
+                                                        <Link href={isGuest ? `/templates/${template.id}?guest=true` : `/templates/${template.id}`}
+                                                            className="text-blue-500 hover:underline"
+                                                            >
                                                             {template.title}
                                                         </Link>
                                                     </li>
