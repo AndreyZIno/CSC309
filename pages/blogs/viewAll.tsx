@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaTrash, FaEdit, FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 interface BlogPost {
     id: number;
@@ -35,6 +36,7 @@ const ViewAllBlogs: React.FC = () => {
     const [editError, setEditError] = useState<string | null>(null);
     const [deleteNotification, setDeleteNotification] = useState(false);
     const [sortBy, setSortBy] = useState<'mostLiked' | 'mostDisliked' | 'mostRecent'>('mostRecent');
+    const router = useRouter();
 
     const fetchBlogs = async () => {
         setLoading(true);
@@ -161,8 +163,17 @@ const ViewAllBlogs: React.FC = () => {
 
     return (
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
-            <h1 className="text-2xl text-blue-500 font-semibold mb-4">View All Blogs</h1>
             {error && <div className="text-red-500 mb-4">{error}</div>}
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl text-blue-500 font-semibold">View All Blogs</h1>
+                <button
+                    onClick={() => router.push('/blogs/create')}
+                    className="flex items-center bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                    <span className="mr-2 text-lg font-semibold">+</span>
+                    Create
+                </button>
+            </div>
             <div className="mb-4 flex gap-4">
                 <input
                     type="text"
@@ -228,7 +239,11 @@ const ViewAllBlogs: React.FC = () => {
                                          </button>
                                      </>
                                     )}
-                                    <h2 className="text-xl font-semibold text-blue-700">{blog.title}</h2>
+                                    <h2 className="text-xl font-semibold">
+                                        <Link href={`/blogs/${blog.id}`} className="text-blue-700 hover:underline">
+                                            {blog.title}
+                                        </Link>
+                                    </h2>
                                     <p className="text-gray-700">{blog.description}</p>
                                     <p className="text-sm text-gray-500">
                                         Tags: <span className="italic">{blog.tags}</span>

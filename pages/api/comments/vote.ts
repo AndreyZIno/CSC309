@@ -12,7 +12,7 @@ interface VoteCommentRequest extends NextApiRequest {
     };
 }
 
-export default authenticate(async function handler(req: VoteCommentRequest, res: NextApiResponse) {
+export default async function handler(req: VoteCommentRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method not allowed' });
     }
@@ -21,7 +21,7 @@ export default authenticate(async function handler(req: VoteCommentRequest, res:
         const { commentId, voteType, userEmail } = req.body;
 
         if (!voteType || !userEmail) {
-            return res.status(400).json({ message: 'Please provide a vote type and userEmail.' });
+            return res.status(400).json({ error: 'Please provide a vote type and userEmail.' });
         }
 
         const currUser = await prisma.user.findUnique({
@@ -29,7 +29,7 @@ export default authenticate(async function handler(req: VoteCommentRequest, res:
         });
 
         if (!currUser) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            return res.status(401).json({ error: 'Unauthorized' });
         }
 
         const comment = await prisma.comment.findUnique({
@@ -51,7 +51,7 @@ export default authenticate(async function handler(req: VoteCommentRequest, res:
 
         if (existingVote) {
             if (existingVote.voteType === voteType) {
-                return res.status(400).json({ message: `You already ${voteType}d this comment. Either change your mind or stop voting` });
+                return res.status(400).json({ error: `You already ${voteType}d this comment.` });
             }
 
             await prisma.vote.update({
@@ -96,7 +96,7 @@ export default authenticate(async function handler(req: VoteCommentRequest, res:
         console.error(error);
         res.status(500).json({ error: 'Could not rate a comment' });
     }
-});
+}
 //return type is Promise<boolean>, Promise since it's async (uses await to get stuff from db), and resolved value is a bool
 async function checkPositive(voteType: 'upvote' | 'downvote', commentId: number): Promise<boolean> {
     const comment = await prisma.comment.findUnique({

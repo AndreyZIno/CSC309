@@ -13,7 +13,7 @@ interface CreateCommentRequest extends NextApiRequest {
     };
 }
 
-export default authenticate(async function handler(req: CreateCommentRequest, res: NextApiResponse) {
+export default async function handler(req: CreateCommentRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method not allowed' });
     }
@@ -40,6 +40,14 @@ export default authenticate(async function handler(req: CreateCommentRequest, re
                 blogPost: { connect: { id: blogPostId } },
                 parent: parentId ? { connect: { id: parentId } } : undefined,
             },
+            include: {
+                user: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                    },
+                },
+            }
         });
 
         res.status(201).json(comment);
@@ -48,4 +56,4 @@ export default authenticate(async function handler(req: CreateCommentRequest, re
         console.error(error);
         res.status(500).json({ error: 'Could not create comment' });
     }
-});
+}
