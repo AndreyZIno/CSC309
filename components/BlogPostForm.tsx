@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
+interface Template {
+    id: number;
+    title: string;
+}
+
 const BlogPostForm: React.FC = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [tags, setTags] = useState('');
     const [templateIds, setTemplateIds] = useState<number[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredTemplates, setFilteredTemplates] = useState<Template[]>([]);
+    const [templates, setTemplates] = useState<Template[]>([]);
     const [userEmail, setUserEmail] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
@@ -27,23 +35,23 @@ const BlogPostForm: React.FC = () => {
                 return;
             }
 
-        try {
-            const response = await fetch('/api/users/me', {
-                method: 'GET',
-                headers: {
-                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                },
-            });
+            try {
+                const response = await fetch('/api/users/me', {
+                    method: 'GET',
+                    headers: {
+                    Authorization: `Bearer ${token}`,
+                    },
+                });
 
-            if (response.ok) {
-                const data = await response.json();
-                setUserEmail(data.email);
-            } else {
-                console.error('Failed to fetch user details');
-            }
-        } catch (err) {
-            console.error('Error fetching current user:', err);
-            }
+                if (response.ok) {
+                    const data = await response.json();
+                    setUserEmail(data.email);
+                } else {
+                    console.error('Failed to fetch user details');
+                }
+            } catch (err) {
+                console.error('Error fetching current user:', err);
+                }
         };
 
         fetchCurrentUser();
@@ -102,6 +110,43 @@ const BlogPostForm: React.FC = () => {
             setError('An unexpected error occurred. Please try again.');
         }
     };
+    
+    useEffect(() => {
+        const fetchTemplates = async () => {
+          try {
+            const response = await fetch('/api/templates');
+            if (!response.ok) {
+              throw new Error('Failed to fetch templates');
+            }
+            const data = await response.json();
+            setTemplates(data);
+            setFilteredTemplates(data);
+          } catch (err) {
+            console.error('Error fetching templates:', err);
+            setError('Failed to load templates');
+          }
+        };
+    
+        fetchTemplates();
+    }, []);
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {  //<<<chatGPT code
+        const query = e.target.value.toLowerCase();
+        setSearchQuery(query);
+        setFilteredTemplates(
+          templates.filter((template) => template.title.toLowerCase().includes(query))
+        );
+    };
+
+    const handleTemplateSelect = (id: number) => {
+        if (templateIds.includes(id)) {
+          // Deselect, written by chatGPT
+          setTemplateIds((prev) => prev.filter((templateId) => templateId !== id));
+        } else {
+          // Add to selected templates
+          setTemplateIds((prev) => [...prev, id]);
+        }
+    };
 
     return (
         <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
@@ -139,21 +184,30 @@ const BlogPostForm: React.FC = () => {
                     />
                 </div>
                 <div>
-                    <label className="block font-medium text-gray-700">Template(s)</label>
+                    <label className="block font-medium text-gray-700">Search Templates</label>
                     <input
                         type="text"
-                        value={templateIds.join(',')}
-                        onChange={(e) =>
-                            setTemplateIds(
-                                e.target.value
-                                    .split(',')
-                                    .map((id) => parseInt(id.trim()))
-                                    .filter((id) => !isNaN(id))
-                            )
-                        }
-                        placeholder="TO DO"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        placeholder="Search templates by name"
                         className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
+                    </div>
+                    <div>
+                    <label className="block font-medium text-gray-700">Available Templates</label>
+                    <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-md">
+                        {filteredTemplates.map((template) => (
+                        <div key={template.id} className="flex items-center p-2">
+                            <input
+                            type="checkbox"
+                            checked={templateIds.includes(template.id)}
+                            onChange={() => handleTemplateSelect(template.id)}
+                            className="mr-2"
+                            />
+                            <label className="text-black">{template.title}</label>
+                        </div>
+                        ))}
+                    </div>
                 </div>
                 <button
                     type="submit"
