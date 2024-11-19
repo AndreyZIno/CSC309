@@ -12,6 +12,13 @@ const BlogPostForm: React.FC = () => {
     const router = useRouter();
 
     useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          router.push('/'); //non-logged in users shouldnt see this page
+        }
+      }, []);
+    
+    useEffect(() => {
         const fetchCurrentUser = async () => {
             const token = localStorage.getItem('accessToken');
             console.log('token:', token)
