@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 const BlogPostForm: React.FC = () => {
@@ -6,11 +6,42 @@ const BlogPostForm: React.FC = () => {
     const [description, setDescription] = useState('');
     const [tags, setTags] = useState('');
     const [templateIds, setTemplateIds] = useState<number[]>([]);
-    const [userEmail, setuserEmail] = useState('');
+    const [userEmail, setUserEmail] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const router = useRouter();
 
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            const token = localStorage.getItem('accessToken');
+            console.log('token:', token)
+            if (!token) {
+                setUserEmail(null);
+                return;
+            }
+
+        try {
+            const response = await fetch('/api/users/me', {
+                method: 'GET',
+                headers: {
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setUserEmail(data.email);
+            } else {
+                console.error('Failed to fetch user details');
+            }
+        } catch (err) {
+            console.error('Error fetching current user:', err);
+            }
+        };
+
+        fetchCurrentUser();
+      }, []);
+    
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
@@ -34,12 +65,11 @@ const BlogPostForm: React.FC = () => {
                     userEmail
                 }),
             });
-            console.log('Sending userEmail:', userEmail);
             if (!response.ok) {
                 try {
                     const errorData = await response.json();
                     console.log('Error response from server:', errorData);
-                    setError(errorData.error || 'Something went wrong on the server.');
+                    setError(errorData.error || 'Something went wrong.');
                 } catch (parseError) {
                     console.error('Error parsing JSON response:', parseError);
                     setError('Something went wrong, and we could not parse the server response.');
@@ -55,7 +85,7 @@ const BlogPostForm: React.FC = () => {
             setDescription('');
             setTags('');
             setTemplateIds([]);
-            setuserEmail('');
+            setUserEmail('');
 
             setTimeout(() => {
                 router.push('/blogs/viewAll');
@@ -115,15 +145,6 @@ const BlogPostForm: React.FC = () => {
                             )
                         }
                         placeholder="TO DO"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-                <div>
-                    <label className="block font-medium text-gray-700">User Email</label>
-                    <textarea
-                        value={userEmail}
-                        onChange={(e) => setuserEmail(e.target.value)}
-                        placeholder="example@coolUser.com"
                         className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>

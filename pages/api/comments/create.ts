@@ -21,6 +21,10 @@ export default async function handler(req: CreateCommentRequest, res: NextApiRes
     try {
         const { content, userEmail, blogPostId, parentId } = req.body;
 
+        if (userEmail === null) {
+            return res.status(400).json({ error: 'You need to be logged in to comment or reply' });
+        }
+
         if (!content || !userEmail || !blogPostId) {
             return res.status(400).json({ message: 'Content, userEmail, and blogPostId are required' });
         }

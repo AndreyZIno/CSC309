@@ -14,6 +14,7 @@ interface BlogPost {
         firstName: string;
         lastName: string;
         email: string;
+        id: number;
     };
     createdAt: string;
     templates: {
@@ -31,13 +32,52 @@ const ViewAllBlogs: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
-    const [userEmail, setUserEmail] = useState('JohnDoe@gmail.com'); // Hardcoded for now
+    const [userEmail, setUserEmail] = useState<string | null>(null);
     const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
     const [editError, setEditError] = useState<string | null>(null);
     const [deleteNotification, setDeleteNotification] = useState(false);
     const [sortBy, setSortBy] = useState<'mostLiked' | 'mostDisliked' | 'mostRecent'>('mostRecent');
     const router = useRouter();
     const isGuest = router.query.guest === 'true';
+
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+          if (isGuest) {
+            setUserEmail(null);
+            return;
+          }
+          
+          try {
+            const response = await fetch('/api/users/me', {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              },
+            });
+    
+            if (response.ok) {
+              const data = await response.json();
+              setUserEmail(data.email);
+              console.log('user email:', data.email)
+            } else {
+              console.error('Failed to fetch user details');
+            }
+          } catch (err) {
+            console.error('Error fetching current user:', err);
+          }
+        };
+    
+        fetchCurrentUser();
+    }, [isGuest]);
+
+    useEffect(() => {
+        if (error) {
+            const timer = setTimeout(() => {
+                setError(null);
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [error]);
 
     const fetchBlogs = async () => {
         setLoading(true);
@@ -164,11 +204,27 @@ const ViewAllBlogs: React.FC = () => {
 
     return (
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
-            {error && <div className="text-red-500 mb-4">{error}</div>}
+            {/*ChatGPT code to display the error popup*/}
+            {error && (
+                <div
+                    className="fixed top-0 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-8 py-4 shadow-lg rounded-lg z-50 text-lg font-bold flex items-center justify-center w-11/12 max-w-4xl"
+                    style={{
+                        animation: 'slideDown 0.5s ease-out',
+                    }}
+                >
+                    {error}
+                </div>
+            )}
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl text-blue-500 font-semibold">View All Blogs</h1>
                 <button
-                    onClick={() => router.push('/blogs/create')}
+                    onClick={() => {
+                        if (!userEmail) {
+                            setError('Only logged-in users can create blog posts.');
+                            return;
+                        }
+                        router.push('/blogs/create');
+                    }}
                     className="flex items-center bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
                     <span className="mr-2 text-lg font-semibold">+</span>
