@@ -1,6 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import ThemeToggleButton from './ThemeToggleButton'; 
 
 interface NavbarProps {
   user: {
@@ -14,6 +15,7 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ user, isGuest, onLogout }) => {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = React.useState(false);
+
   const handleNavigateHome = () => {
     if (isGuest) {
       router.push('/dashboard?guest=true');
@@ -43,6 +45,9 @@ const Navbar: React.FC<NavbarProps> = ({ user, isGuest, onLogout }) => {
                 </Link>
             </li>
         </ul>
+
+        <ThemeToggleButton />
+        
         {!isGuest ? (
           <div className="relative">
             <img

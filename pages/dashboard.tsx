@@ -55,17 +55,19 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <div className="flex flex-grow">
         <main className="flex-grow flex flex-col items-center justify-center">
-          <div className="w-11/12 max-w-4xl bg-white border rounded-lg shadow-lg p-4">
+          <div className="w-11/12 max-w-4xl bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-4">
             <div className="border-b pb-2 mb-4">
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-800">Code Editor</h2>
+                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+                  Code Editor
+                </h2>
                 <select
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
-                  className="border border-gray-300 rounded-lg p-2 text-black"
+                  className="border border-gray-300 dark:border-gray-700 rounded-lg p-2 text-black dark:text-white bg-white dark:bg-gray-700"
                 >
                   <option value="javascript">JavaScript</option>
                   <option value="python">Python</option>
@@ -74,13 +76,13 @@ export default function Dashboard() {
                   <option value="java">Java</option>
                 </select>
               </div>
-              <p className="text-sm text-gray-500">Start writing your code below:</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Start writing your code below:</p>
             </div>
             <textarea
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="Write your code here..."
-              className="w-full h-64 bg-gray-100 border border-gray-300 rounded-lg p-4 text-sm font-mono text-gray-800 focus:outline-none focus:ring focus:ring-blue-300"
+              className="w-full h-64 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 rounded-lg p-4 text-sm font-mono text-gray-800 dark:text-gray-200 focus:outline-none focus:ring focus:ring-blue-300"
             />
           </div>
         </main>
