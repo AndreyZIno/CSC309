@@ -20,6 +20,9 @@ export default async function handler(req: VoteCommentRequest, res: NextApiRespo
     try {
         const { commentId, voteType, userEmail } = req.body;
 
+        if (userEmail === null) {
+            return res.status(400).json({ error: 'Only logged in users are allowed to rate comments.' });
+        }
         if (!voteType || !userEmail) {
             return res.status(400).json({ error: 'Please provide a vote type and userEmail.' });
         }

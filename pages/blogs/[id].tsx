@@ -44,13 +44,44 @@ const BlogDetails: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [newComment, setNewComment] = useState<string>('');
     const [replyComment, setReplyComment] = useState<{ [key: number]: string }>({});
-    const [userEmail, setUserEmail] = useState('JohnDoe@gmail.com'); // Hardcoded for now
+    const [userEmail, setUserEmail] = useState<string | null>(null);
     const [sortByMain, setSortByMain] = useState<'mostLiked' | 'mostDisliked' | 'mostRecent'>('mostLiked');
     const [replySortOptions, setReplySortOptions] = useState<{ [key: number]: 'mostLiked' | 'mostDisliked' | 'mostRecent' }>({});
     const [commentsPage, setCommentsPage] = useState(1);
     const [commentsLimit] = useState(5);
     const [hasMoreComments, setHasMoreComments] = useState(true);
     const isGuest = router.query.guest === 'true';
+
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            const token = localStorage.getItem('accessToken');
+            console.log('token:', token)
+            if (isGuest || !token) {
+                setUserEmail(null);
+                return;
+            }
+
+            try {
+            const response = await fetch('/api/users/me', {
+                method: 'GET',
+                headers: {
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setUserEmail(data.email);
+            } else {
+                console.error('Failed to fetch user details');
+            }
+            } catch (err) {
+            console.error('Error fetching current user:', err);
+            }
+        };
+
+        fetchCurrentUser();
+      }, [isGuest]);
 
     const fetchBlog = async () => {
         if (!id) return;
@@ -126,7 +157,7 @@ const BlogDetails: React.FC = () => {
                 body: JSON.stringify({
                     content: newComment,
                     blogPostId: Number(id),
-                    userEmail: 'JohnDoe@gmail.com',
+                    userEmail: userEmail,
                 }),
             });
 
@@ -175,7 +206,7 @@ const BlogDetails: React.FC = () => {
                 body: JSON.stringify({
                     content: replyComment[parentId],
                     blogPostId: Number(id),
-                    userEmail: 'JohnDoe@gmail.com',
+                    userEmail: userEmail,
                     parentId,
                 }),
             });
@@ -281,11 +312,18 @@ const BlogDetails: React.FC = () => {
         fetchBlog();
     }, [id, sortByMain, commentsPage]);
 
+    useEffect(() => {
+        if (error) {
+            const timer = setTimeout(() => {
+                setError(null);
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [error]);
+
     if (loading) {
         return <p className="text-center">Loading...</p>;
     }
-
-    {error && <div className="text-red-500 mb-4">{error}</div>}
 
     if (!blog) {
         return null;
@@ -293,7 +331,17 @@ const BlogDetails: React.FC = () => {
 
     return (
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
-            {error && <div className="text-red-500 mb-4">{error}</div>}
+            {/*ChatGPT code to display the error popup*/}
+            {error && (
+                <div
+                    className="fixed top-0 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-8 py-4 shadow-lg rounded-lg z-50 text-lg font-bold flex items-center justify-center w-11/12 max-w-4xl"
+                    style={{
+                        animation: 'slideDown 0.5s ease-out',
+                    }}
+                >
+                    {error}
+                </div>
+            )}
             <h1 className="text-3xl font-semibold text-blue-700 mb-4">{blog.title}</h1>
             <p className="text-sm text-gray-500">
                 By {blog.user.firstName} {blog.user.lastName} | {new Date(blog.createdAt).toLocaleDateString()}
