@@ -39,6 +39,9 @@ const ViewAllBlogs: React.FC = () => {
     const [sortBy, setSortBy] = useState<'mostLiked' | 'mostDisliked' | 'mostRecent'>('mostRecent');
     const router = useRouter();
     const isGuest = router.query.guest === 'true';
+    const [templates, setTemplates] = useState<{ id: number; title: string }[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredTemplates, setFilteredTemplates] = useState<{ id: number; title: string }[]>([]);
 
     useEffect(() => {
         const fetchCurrentUser = async () => {
@@ -148,7 +151,7 @@ const ViewAllBlogs: React.FC = () => {
                     title: updatedBlog.title,
                     description: updatedBlog.description,
                     tags: updatedBlog.tags,
-                    templates: updatedBlog.templates.map((template) => template.title),
+                    templateIds: updatedBlog.templates.map((template) => template.id),
                     userEmail,
                 }),
             });
@@ -164,12 +167,55 @@ const ViewAllBlogs: React.FC = () => {
                 prevBlogs.map((blog) => (blog.id === data.id ? { ...blog, ...data } : blog))
             );
             setEditingBlog(null);
+            fetchBlogs();
         } catch (err) {
             console.error('Error updating blog:', err);
             setEditError('An unexpected error occurred while editing the blog.');
         }
     };
 
+    useEffect(() => {
+        const fetchTemplates = async () => {
+          try {
+            const response = await fetch('/api/templates');
+            if (!response.ok) throw new Error('Failed to fetch templates');
+            const data = await response.json();
+            setTemplates(data);
+            setFilteredTemplates(data);
+          } catch (err) {
+            console.error('Error fetching templates:', err);
+          }
+        };
+      
+        fetchTemplates();
+    }, []);
+
+    useEffect(() => {
+        setFilteredTemplates(
+          templates.filter((template) =>
+            template.title.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        );
+    }, [searchQuery, templates]);
+
+    const handleTemplateSelect = (template: { id: number; title: string }) => {
+        if (!editingBlog) {
+            console.error("Editing blog is null");
+            return;
+        }
+    
+        const isSelected = editingBlog.templates.some((t) => t.id === template.id);
+    
+        const updatedTemplates = isSelected
+            ? editingBlog.templates.filter((t) => t.id !== template.id)
+            : [...editingBlog.templates, template];
+        
+        setEditingBlog((prevBlog) => ({
+            ...prevBlog!,
+            templates: updatedTemplates,
+        }));
+    };       
+      
     const handleVote = async (blogPostId: number, voteType: 'upvote' | 'downvote') => {
         try {
             const response = await fetch(`/api/blogs/vote`, {
@@ -257,7 +303,6 @@ const ViewAllBlogs: React.FC = () => {
                 </button>
             </div>
 
-            {/* Sorting Dropdown */}
             <div className="mb-4 flex justify-between items-center">
                 <select
                     value={sortBy}
@@ -380,47 +425,64 @@ const ViewAllBlogs: React.FC = () => {
                     <div className="bg-white p-6 rounded-md max-w-md w-full">
                         <h2 className="text-xl font-semibold text-blue-500 mb-4">Edit Blog</h2>
                         {editError && <div className="text-red-500 mb-4">{editError}</div>}
-                        <input
+                        <div className="mb-4">
+                            <label className="block font-medium text-gray-700">Edit Title</label>
+                            <input
+                                type="text"
+                                value={editingBlog.title}
+                                onChange={(e) =>
+                                    setEditingBlog({ ...editingBlog, title: e.target.value })
+                                }
+                                placeholder="Title"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md text-black"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block font-medium text-gray-700">Edit Description</label>
+                            <textarea
+                                value={editingBlog.description}
+                                onChange={(e) =>
+                                    setEditingBlog({ ...editingBlog, description: e.target.value })
+                                }
+                                placeholder="Description"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md text-black"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block font-medium text-gray-700">Edit Tags</label>
+                            <input
+                                type="text"
+                                value={editingBlog.tags}
+                                onChange={(e) =>
+                                    setEditingBlog({ ...editingBlog, tags: e.target.value })
+                                }
+                                placeholder="Tags"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md text-black"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block font-medium text-gray-700">Search Templates</label>
+                            <input
                             type="text"
-                            value={editingBlog.title}
-                            onChange={(e) =>
-                                setEditingBlog({ ...editingBlog, title: e.target.value })
-                            }
-                            placeholder="Title"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md mb-4 text-black"
-                        />
-                        <textarea
-                            value={editingBlog.description}
-                            onChange={(e) =>
-                                setEditingBlog({ ...editingBlog, description: e.target.value })
-                            }
-                            placeholder="Description"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md mb-4 text-black"
-                        />
-                        <input
-                            type="text"
-                            value={editingBlog.tags}
-                            onChange={(e) =>
-                                setEditingBlog({ ...editingBlog, tags: e.target.value })
-                            }
-                            placeholder="Tags"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md mb-4 text-black"
-                        />
-                        <input
-                            type="text"
-                            value={editingBlog.templates.map((t) => t.title).join(', ')}
-                            onChange={(e) =>
-                                setEditingBlog({
-                                    ...editingBlog,
-                                    templates: e.target.value.split(',').map((title, idx) => ({
-                                        id: idx + 1, // Temporary ID    TODO: search for existing templates when editing 
-                                        title: title.trim(),
-                                    })),
-                                })
-                            }
-                            placeholder="Templates (comma-separated)"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md mb-4 text-black"
-                        />
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search templates..."
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md mb-2 text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-md">
+                            {filteredTemplates.map((template) => (
+                                <div key={template.id} className="flex items-center p-2">
+                                <input
+                                    type="checkbox"
+                                    checked={editingBlog?.templates.some((t) => t.id === template.id) || false}
+                                    onChange={() => handleTemplateSelect(template)}
+                                    className="mr-2"
+                                />
+                                <label className="text-black">{template.title}</label>
+                                </div>
+                            ))}
+                            </div>
+                        </div>
                         <div className="flex justify-end gap-4">
                             <button
                                 onClick={() => setEditingBlog(null)}
