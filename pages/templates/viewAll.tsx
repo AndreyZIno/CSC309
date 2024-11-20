@@ -182,27 +182,27 @@ const ViewAllTemplates: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
-      <h1 className="text-2xl text-blue-500 font-semibold mb-4">View All Templates</h1>
-      {error && <div className="text-red-500 mb-4">{error}</div>}
+    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md dark:bg-gray-800 dark:text-gray-200">
+      <h1 className="text-2xl text-blue-500 font-semibold mb-4 dark:text-blue-300">View All Templates</h1>
+      {error && <div className="text-red-500 mb-4 dark:text-red-400">{error}</div>}
       <div className="mb-4 flex gap-4">
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search templates..."
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400"
         />
         <button
           onClick={() => setPage(1)}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-blue-400 dark:hover:bg-blue-500 dark:focus:ring-blue-300"
         >
           Search
         </button>
       </div>
       <button
         onClick={() => router.push('/templates/create')}
-        className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+        className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-300"
       >
         Create Template
       </button>
@@ -213,35 +213,35 @@ const ViewAllTemplates: React.FC = () => {
           {templates.length > 0 ? (
             <div className="space-y-4">
               {templates.map((template) => (
-                <div key={template.id} className="p-4 border border-gray-300 rounded-md">
+                <div key={template.id} className="p-4 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
                   <Link href={isGuest ? `/templates/${template.id}?guest=true` : `/templates/${template.id}`} 
-                    className="text-xl font-semibold text-blue-700 hover:underline"
+                    className="text-xl font-semibold text-blue-700 hover:underline dark:text-blue-300 dark:hover:text-yellow-400"
                     >
                     {template.title}
                   </Link>
-                  <p className="text-gray-700">{template.explanation}</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-gray-700 dark:text-gray-300">{template.explanation}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Tags: <span className="italic">{Array.isArray(template.tags) ? template.tags.join(', ') : template.tags}</span>
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Language: <span className="italic">{template.language}</span>
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     By: {template.user.firstName} {template.user.lastName}
                   </p>
                   {template.blogs && template.blogs.length > 0 && (
                     <div className="mt-4">
-                      <h3 className="text-sm font-semibold text-gray-600">Associated Blogs:</h3>
-                      <ul className="list-disc list-inside text-gray-700">
+                      <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400">Associated Blogs:</h3>
+                      <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
                         {template.blogs.map((blog) => (
                           <li key={blog.id}>
                             <Link href={isGuest ? `/blogs/${blog.id}?guest=true` : `/blogs/${blog.id}`} 
-                              className="text-blue-500 hover:underline"
+                              className="text-blue-500 hover:underline dark:text-blue-300 dark:hover:text-yellow-400"
                               >
                               {blog.title}
                             </Link>
-                            <p className="text-gray-600">{blog.description}</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-gray-600 dark:text-gray-400">{blog.description}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                               By: {blog.user.firstName} {blog.user.lastName} | {new Date(blog.createdAt).toLocaleDateString()}
                             </p>
                           </li>
@@ -253,13 +253,13 @@ const ViewAllTemplates: React.FC = () => {
                     {currentUserId === template.user.id && (
                       <>
                         <button
-                          className="text-blue-500 flex items-center gap-1"
+                          className="text-blue-500 hover:text-blue-700 flex items-center gap-1 dark:text-blue-300 dark:hover:text-yellow-100"
                           onClick={() => setEditingTemplate(template)}
                         >
                           <FaEdit size={16} /> Edit
                         </button>
                         <button
-                          className="text-red-500 flex items-center gap-1"
+                          className="text-red-500 hover:text-red-700 flex items-center gap-1 dark:text-red-400 dark:hover:text-red-600"
                           onClick={() => handleDeleteTemplate(template.id)}
                         >
                           <FaTrash size={16} /> Delete
@@ -271,14 +271,14 @@ const ViewAllTemplates: React.FC = () => {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500">No templates found.</p>
+            <p className="text-center text-gray-500 dark:text-gray-400">No templates found.</p>
           )}
           <div className="flex justify-between mt-6">
             <button
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
               disabled={page === 1}
               className={`px-4 py-2 rounded-md ${
-                page === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
+                page === 1 ? 'bg-gray-300 cursor-not-allowed dark:bg-gray-600' : 'bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-400 dark:hover:bg-blue-500'
               }`}
             >
               Previous
@@ -288,8 +288,8 @@ const ViewAllTemplates: React.FC = () => {
               disabled={!hasMore}
               className={`px-4 py-2 rounded-md ${
                 !hasMore
-                  ? 'bg-gray-300 cursor-not-allowed'
-                  : 'bg-blue-500 text-white hover:bg-blue-600'
+                  ? 'bg-gray-300 cursor-not-allowed dark:bg-gray-600'
+                  : 'bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-400 dark:hover:bg-blue-500'
               }`}
             >
               Next
@@ -299,11 +299,11 @@ const ViewAllTemplates: React.FC = () => {
       )}
       {editingTemplate && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center">
-          <div className="bg-white p-8 rounded-md max-w-2xl w-full shadow-lg">
-            <h2 className="text-2xl font-bold text-blue-500 mb-6">Edit Template</h2>
+          <div className="bg-white p-8 rounded-md max-w-2xl w-full shadow-lg dark:bg-gray-700 dark:border-gray-600">
+            <h2 className="text-2xl font-bold text-blue-500 mb-6 dark:text-blue-300">Edit Template</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-gray-700 font-semibold mb-1">Title</label>
+                <label className="block text-gray-700 font-semibold mb-1 dark:text-gray-300">Title</label>
                 <input
                   type="text"
                   value={editingTemplate.title}
@@ -311,11 +311,11 @@ const ViewAllTemplates: React.FC = () => {
                     setEditingTemplate({ ...editingTemplate, title: e.target.value })
                   }
                   placeholder="Template Title"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-black"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-black dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-gray-700 font-semibold mb-1">Explanation</label>
+                <label className="block text-gray-700 font-semibold mb-1 dark:text-gray-300">Explanation</label>
                 <textarea
                   value={editingTemplate.explanation}
                   onChange={(e) =>
@@ -325,12 +325,12 @@ const ViewAllTemplates: React.FC = () => {
                     })
                   }
                   placeholder="Template Explanation"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-black resize-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-black dark:bg-gray-600 dark:border-gray-500 dark:text-white resize-none"
                   rows={4}
                 />
               </div>
               <div>
-                <label className="block text-gray-700 font-semibold mb-1">Code</label>
+                <label className="block text-gray-700 font-semibold mb-1 dark:text-gray-300">Code</label>
                 <textarea
                   value={editingTemplate.code}
                   onChange={(e) =>
@@ -340,12 +340,12 @@ const ViewAllTemplates: React.FC = () => {
                     })
                   }
                   placeholder="Template Code"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-black font-mono resize-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-black dark:bg-gray-600 dark:border-gray-500 dark:text-white font-mono resize-none"
                   rows={8}
                 />
               </div>
               <div>
-                <label className="block text-gray-700 font-semibold mb-1">Tags (Comma-Separated)</label>
+                <label className="block text-gray-700 font-semibold mb-1 dark:text-gray-300">Tags (Comma-Separated)</label>
                 <input
                   type="text"
                   value={editingTemplate.tags.join(', ')}
@@ -356,20 +356,20 @@ const ViewAllTemplates: React.FC = () => {
                     })
                   }
                   placeholder="e.g., tag1, tag2, tag3"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-black"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-black dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                 />
               </div>
             </div>
             <div className="flex justify-end gap-4 mt-6">
               <button
                 onClick={() => setEditingTemplate(null)}
-                className="px-6 py-2 bg-gray-300 rounded-md text-black hover:bg-gray-400"
+                className="px-6 py-2 bg-gray-300 rounded-md text-black hover:bg-gray-400 dark:bg-gray-400 dark:hover:bg-gray-500"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleUpdateTemplate(editingTemplate)}
-                className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 dark:bg-blue-400 dark:hover:bg-blue-500"
               >
                 Save
               </button>
