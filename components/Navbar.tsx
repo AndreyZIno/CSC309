@@ -25,22 +25,26 @@ const Navbar: React.FC<NavbarProps> = ({ user, isGuest, onLogout }) => {
   };
 
   return (
-    <nav className="bg-blue-600 text-white p-4 shadow">
+    <nav className="bg-blue-600 text-white p-4 shadow dark:bg-blue-900 dark:text-blue-200">
       <div className="container mx-auto flex justify-between items-center">
       <h1
-          className="text-xl font-bold cursor-pointer"
+          className="text-xl font-bold cursor-pointer hover:text-purple-200 dark:hover:text-yellow-500"
           onClick={handleNavigateHome}
         >
           Scriptorium
         </h1>
         <ul className="flex space-x-6">
             <li>
-                <Link href={isGuest ? "/templates/viewAll?guest=true" : "/templates/viewAll"}>
+                <Link href={isGuest ? "/templates/viewAll?guest=true" : "/templates/viewAll"}
+                  className="hover:underline dark:hover:text-yellow-500"
+                >
                 Templates
                 </Link>
             </li>
             <li>
-                <Link href={isGuest ? "/blogs/viewAll?guest=true" : "/blogs/viewAll"}>
+                <Link href={isGuest ? "/blogs/viewAll?guest=true" : "/blogs/viewAll"}
+                  className="hover:underline dark:hover:text-yellow-500"
+                >
                 Blogs
                 </Link>
             </li>
@@ -57,22 +61,16 @@ const Navbar: React.FC<NavbarProps> = ({ user, isGuest, onLogout }) => {
               onClick={() => setMenuOpen(!menuOpen)}
             />
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
+              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg dark:bg-gray-700 dark:border-gray-600">
                 <ul>
                   <li
-                    className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer"
-                    onClick={() => alert('Dark Mode Toggle Coming Soon!')}
-                  >
-                    Dark Mode
-                  </li>
-                  <li
-                    className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer"
+                    className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer dark:text-gray-200 dark:hover:bg-gray-600"
                     onClick={() => router.push('/profile')}
                   >
                     Edit Profile
                   </li>
                   <li
-                    className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer"
+                    className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer dark:text-gray-200 dark:hover:bg-gray-600"
                     onClick={onLogout}
                   >
                     Logout
@@ -84,7 +82,7 @@ const Navbar: React.FC<NavbarProps> = ({ user, isGuest, onLogout }) => {
         ) : (
           <button
             onClick={onLogout}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 dark:bg-red-400 dark:hover:bg-red-500"
           >
             Exit
           </button>
