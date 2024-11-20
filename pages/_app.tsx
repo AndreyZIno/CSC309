@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import { useRouter } from 'next/router';
 import Navbar from '../components/Navbar';
 import type { AppProps } from 'next/app';
+import { ThemeToggle } from "../components/ThemeToggle";
 
 export default function App({ Component, pageProps }: AppProps) {
   const [isGuest, setIsGuest] = useState(false);
@@ -59,11 +60,11 @@ export default function App({ Component, pageProps }: AppProps) {
   };
 
   return (
-    <>
+    <ThemeToggle>
       {showNavbar && (
         <Navbar isGuest={isGuest} user={user} onLogout={handleLogout} />
       )}
       <Component {...pageProps} />
-    </>
+    </ThemeToggle>
   );
 }
