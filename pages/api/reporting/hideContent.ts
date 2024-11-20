@@ -29,7 +29,6 @@ export default authorizeAdmin(async function handler(req: NextApiRequest, res: N
 
       return res.status(200).json({ message: 'Comment hidden successfully', comment });
     }
-
     return res.status(400).json({ message: 'Please provide a blogPostId or commentId' });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Error hiding content';

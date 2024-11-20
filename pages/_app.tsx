@@ -6,7 +6,11 @@ import type { AppProps } from 'next/app';
 
 export default function App({ Component, pageProps }: AppProps) {
   const [isGuest, setIsGuest] = useState(false);
-  const [user, setUser] = useState({ avatar: '/avatars/default_avatar.png', firstName: 'Guest' });
+  const [user, setUser] = useState({
+    avatar: '/avatars/default_avatar.png',
+    firstName: 'Guest',
+    isAdmin: false,
+  });
   const router = useRouter();
   const showNavbar = router.pathname !== "/";
 
@@ -27,7 +31,11 @@ export default function App({ Component, pageProps }: AppProps) {
 
           if (response.ok) {
             const data = await response.json();
-            setUser({ avatar: data.avatar || '/avatars/default_avatar.png', firstName: data.firstName || 'User' });
+            setUser({
+              avatar: data.avatar || '/avatars/default_avatar.png',
+              firstName: data.firstName || 'User',
+              isAdmin: data.role === 'ADMIN', // Set isAdmin based on user role
+            });
           }
         } catch (err) {
           console.error('Error fetching user:', err);
@@ -42,6 +50,11 @@ export default function App({ Component, pageProps }: AppProps) {
     if (!isGuest) {
       localStorage.removeItem('accessToken');
     }
+    setUser({
+      avatar: '/avatars/default_avatar.png',
+      firstName: 'Guest',
+      isAdmin: false, // Reset to default values
+    });
     router.push('/');
   };
 

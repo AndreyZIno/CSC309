@@ -5,6 +5,7 @@ export default function Dashboard() {
   const [user, setUser] = useState({
     avatar: '/avatars/default_avatar.png',
     firstName: 'Guest',
+    isAdmin: false
   });
   const [language, setLanguage] = useState('javascript');
   const [code, setCode] = useState('');
@@ -37,6 +38,7 @@ export default function Dashboard() {
           setUser({
             avatar: data.avatar || '/avatars/default_avatar.png',
             firstName: data.firstName || 'User',
+            isAdmin: data.role === 'ADMIN'
           });
         }
       } catch (err) {
@@ -46,13 +48,6 @@ export default function Dashboard() {
 
     fetchUser();
   }, [isGuest]);
-
-  const handleLogout = () => {
-    if (!isGuest) {
-      localStorage.removeItem('accessToken');
-    }
-    router.push('/');
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">

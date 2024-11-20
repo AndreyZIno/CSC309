@@ -6,6 +6,7 @@ interface NavbarProps {
   user: {
     avatar: string;
     firstName: string;
+    isAdmin: boolean; // Check if the user is an admin
   };
   isGuest: boolean;
   onLogout: () => void;
@@ -14,6 +15,7 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ user, isGuest, onLogout }) => {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = React.useState(false);
+
   const handleNavigateHome = () => {
     if (isGuest) {
       router.push('/dashboard?guest=true');
@@ -25,23 +27,30 @@ const Navbar: React.FC<NavbarProps> = ({ user, isGuest, onLogout }) => {
   return (
     <nav className="bg-blue-600 text-white p-4 shadow">
       <div className="container mx-auto flex justify-between items-center">
-      <h1
+        <h1
           className="text-xl font-bold cursor-pointer"
           onClick={handleNavigateHome}
         >
           Scriptorium
         </h1>
         <ul className="flex space-x-6">
+          <li>
+            <Link href={isGuest ? "/templates/viewAll?guest=true" : "/templates/viewAll"}>
+              Templates
+            </Link>
+          </li>
+          <li>
+            <Link href={isGuest ? "/blogs/viewAll?guest=true" : "/blogs/viewAll"}>
+              Blogs
+            </Link>
+          </li>
+          {user.isAdmin && ( // Only render if the user is an admin
             <li>
-                <Link href={isGuest ? "/templates/viewAll?guest=true" : "/templates/viewAll"}>
-                Templates
-                </Link>
+              <Link href="/admin/reports">
+                Reports
+              </Link>
             </li>
-            <li>
-                <Link href={isGuest ? "/blogs/viewAll?guest=true" : "/blogs/viewAll"}>
-                Blogs
-                </Link>
-            </li>
+          )}
         </ul>
         {!isGuest ? (
           <div className="relative">
