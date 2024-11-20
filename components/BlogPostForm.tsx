@@ -149,69 +149,69 @@ const BlogPostForm: React.FC = () => {
     };
 
     return (
-        <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
-            <h1 className="text-2xl text-blue-500 font-semibold mb-4">Create a Blog Post</h1>
-            {error && <div className="text-red-500 mb-4">{error}</div>}
-            {success && <div className="text-green-500 mb-4">{success}</div>}
+        <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-md rounded-md dark:bg-gray-800 dark:shadow-lg">
+            <h1 className="text-2xl text-blue-500 font-semibold mb-4 dark:text-blue-400">Create a Blog Post</h1>
+            {error && <div className="text-red-500 mb-4 dark:text-red-400">{error}</div>}
+            {success && <div className="text-green-500 mb-4 dark:text-green-400">{success}</div>}
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block font-medium text-gray-700">Title</label>
+                    <label className="block font-medium text-gray-700 dark:text-gray-300">Title</label>
                     <input
                         type="text"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Enter a cool title"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400"
                     />
                 </div>
                 <div>
-                    <label className="block font-medium text-gray-700">Description</label>
+                    <label className="block font-medium text-gray-700 dark:text-gray-300">Description</label>
                     <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         placeholder="Describe your interesting blog post"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400"
                     />
                 </div>
                 <div>
-                    <label className="block font-medium text-gray-700">Tags (comma-separated)</label>
+                    <label className="block font-medium text-gray-700 dark:text-gray-300">Tags (comma-separated)</label>
                     <input
                         type="text"
                         value={tags}
                         onChange={(e) => setTags(e.target.value)}
                         placeholder="For ex: Typescript,Javascript"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400"
                     />
                 </div>
                 <div>
-                    <label className="block font-medium text-gray-700">Search Templates</label>
+                    <label className="block font-medium text-gray-700 dark:text-gray-300">Search Templates</label>
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={handleSearchChange}
                         placeholder="Search templates by name"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400"
                     />
                     </div>
                     <div>
-                    <label className="block font-medium text-gray-700">Available Templates</label>
-                    <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-md">
+                    <label className="block font-medium text-gray-700 dark:text-gray-300">Available Templates</label>
+                    <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-md dark:border-gray-600">
                         {filteredTemplates.map((template) => (
-                        <div key={template.id} className="flex items-center p-2">
+                        <div key={template.id} className="flex items-center p-2 dark:text-white">
                             <input
                             type="checkbox"
                             checked={templateIds.includes(template.id)}
                             onChange={() => handleTemplateSelect(template.id)}
                             className="mr-2"
                             />
-                            <label className="text-black">{template.title}</label>
+                            <label className="text-black dark:text-white">{template.title}</label>
                         </div>
                         ))}
                     </div>
                 </div>
                 <button
                     type="submit"
-                    className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-blue-400 dark:hover:bg-blue-500 dark:focus:ring-blue-300"
                 >
                     Create!
                 </button>
