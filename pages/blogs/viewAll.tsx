@@ -110,7 +110,7 @@ const ViewAllBlogs: React.FC = () => {
           title: updatedBlog.title,
           description: updatedBlog.description,
           tags: updatedBlog.tags,
-          templates: updatedBlog.templates.map((template) => template.title),
+          templateIds: updatedBlog.templates.map((template) => template.id),
           userEmail,
         }),
       });
@@ -306,7 +306,7 @@ const ViewAllBlogs: React.FC = () => {
                                 href={isGuest ? `/templates/${template.id}?guest=true` : `/templates/${template.id}`}
                                 className="text-blue-500 hover:underline"
                               >
-                                {template.title}
+                                {template.id}
                               </Link>
                             </li>
                           ))}
