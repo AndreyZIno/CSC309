@@ -92,10 +92,10 @@ function Profile({ isGuest }: { isGuest: boolean }) {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
-      <h2 className="text-2xl font-bold mb-4 text-black">Edit Profile</h2>
-      {success && <p className="text-green-500 mb-4">{success}</p>}
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-md dark:bg-gray-800">
+      <h2 className="text-2xl font-bold mb-4 text-black dark:text-white">Edit Profile</h2>
+      {success && <p className="text-green-500 dark:text-green-400 mb-4">{success}</p>}
+      {error && <p className="text-red-500 dark:text-red-400 mb-4">{error}</p>}
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -103,29 +103,29 @@ function Profile({ isGuest }: { isGuest: boolean }) {
         }}
       >
         <div className="mb-4">
-          <label className="block text-black font-medium mb-2">Phone</label>
+          <label className="block text-black font-medium mb-2 dark:text-gray-300">Phone</label>
           <input
             type="tel"
             value={formData.phone}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, phone: e.target.value }))
             }
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300 focus:outline-none text-black"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400"
           />
         </div>
         <div className="mb-4">
-          <label className="block text-black font-medium mb-2">Password</label>
+          <label className="block text-black font-medium mb-2 dark:text-gray-300">Password</label>
           <input
             type="password"
             value={formData.password}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, password: e.target.value }))
             }
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300 focus:outline-none text-black"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400"
           />
         </div>
         <div className="mb-4">
-          <label className="block text-black font-medium mb-2">Avatar</label>
+          <label className="block text-black font-medium mb-2 dark:text-gray-300">Avatar</label>
           {formData.avatarUrl && (
             <img
               src={formData.avatarUrl}
@@ -140,12 +140,12 @@ function Profile({ isGuest }: { isGuest: boolean }) {
               const file = e.target.files?.[0] || null;
               setFormData((prev) => ({ ...prev, avatarFile: file }));
             }}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300 focus:outline-none text-black"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300 focus:outline-none text-black dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500"
           />
         </div>
         <button
           type="submit"
-          className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 dark:bg-blue-400 dark:hover:bg-blue-500 dark:focus:ring-blue-300"
         >
           Save
         </button>
