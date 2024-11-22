@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from 'react';
 
+interface Report {
+  reason: string;
+  user: {
+    firstName: string;
+    lastName: string;
+  };
+}
+
 interface ReportedItem {
   id: number;
   title?: string;
   content?: string;
   reportsCount: number;
-  hidden: boolean; // Ensure hidden field is included
+  hidden: boolean;
   type: 'blog' | 'comment';
+  reports: Report[];
 }
 
 const AdminReports: React.FC = () => {
@@ -34,16 +43,18 @@ const AdminReports: React.FC = () => {
           id: blog.id,
           title: blog.title,
           reportsCount: blog._count.reports,
-          hidden: blog.hidden, // Include hidden status
+          hidden: blog.hidden,
           type: 'blog',
+          reports: blog.reports,
         }));
 
         const formattedComments = comments.map((comment: any) => ({
           id: comment.id,
           content: comment.content,
           reportsCount: comment._count.reports,
-          hidden: comment.hidden, // Include hidden status
+          hidden: comment.hidden,
           type: 'comment',
+          reports: comment.reports,
         }));
 
         setReportedItems([...formattedBlogs, ...formattedComments]);
@@ -78,7 +89,7 @@ const AdminReports: React.FC = () => {
       setReportedItems((prev) =>
         prev.map((item) =>
           item.id === id
-            ? { ...item, hidden: true } // Update hidden status locally
+            ? { ...item, hidden: true }
             : item
         )
       );
@@ -115,6 +126,16 @@ const AdminReports: React.FC = () => {
               >
                 {item.hidden ? 'Hidden' : `Hide ${item.type === 'blog' ? 'Blog' : 'Comment'}`}
               </button>
+              <div className="mt-2">
+                <strong>Reasons for Reports:</strong>
+                <ul className="list-disc pl-5">
+                  {item.reports.map((report, index) => (
+                    <li key={index}>
+                      "{report.reason}" - Reported by {report.user.firstName} {report.user.lastName}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </li>
           ))}
         </ul>

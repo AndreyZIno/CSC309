@@ -18,13 +18,24 @@ export default authorizeAdmin(async function handler(req: NextApiRequest, res: N
     const comments = await prisma.comment.findMany({
       skip,
       take,
+      where: {
+        reports: {
+          some: {}, // Ensure comments have at least one report
+        },
+      },
       include: {
         _count: {
           select: { reports: true },
         },
+        reports: {
+          select: {
+            reason: true,
+            user: {
+              select: { firstName: true, lastName: true },
+            },
+          },
+        },
         user: { select: { firstName: true, lastName: true } },
-        blogPost: true,
-        replies: true,
       },
       orderBy: {
         reports: { _count: 'desc' },
