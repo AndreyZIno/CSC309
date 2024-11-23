@@ -27,11 +27,31 @@ export default authenticate(async function handler(req: NextApiRequest, res: Nex
         where: { userId: user.id },
         skip,
         take: limitNumber,
+        include: {
+          blogPosts: {
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              tags: true,
+              createdAt: true,
+              user: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                },
+              },
+            },
+          },
+          user: true, // Include user information
+        },
       });
 
       const processedTemplates = templates.map((template) => ({
         ...template,
         tags: template.tags.split(','),
+        blogs: template.blogPosts,
       }));
 
       const totalTemplates = await prisma.template.count({
@@ -45,6 +65,7 @@ export default authenticate(async function handler(req: NextApiRequest, res: Nex
         totalTemplates,
       });
     } catch (error) {
+      console.error('Error retrieving templates:', error);
       return res.status(500).json({ error: 'Error retrieving templates' });
     }
   } else {
