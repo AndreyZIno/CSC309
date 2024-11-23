@@ -15,41 +15,41 @@ interface CreateReportRequest extends NextApiRequest {
 
 export default async function handler(req: CreateReportRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
-        return res.status(405).json({ message: 'Method not allowed' });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
         const { blogPostId, commentId, reason, userEmail } = req.body;
 
         if (!userEmail) {
-            return res.status(400).json({ message: 'userEmail is required' });
+            return res.status(400).json({ error: 'You need to be a logged in user to report' });
         }
 
         const currUser = await prisma.user.findUnique({
             where: { email: userEmail },
         });
         if (!currUser) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            return res.status(401).json({ error: 'Unauthorized' });
         }
 
         if (!reason || reason.length < 3) {
-            return res.status(400).json({ message: 'Please provide a reason, and reason must be at least 3 characters.' });
+            return res.status(400).json({ error: 'Please provide a reason, and reason must be at least 3 characters.' });
         }
 
         if (!(blogPostId || commentId)) {
-            return res.status(400).json({ message: 'Please say which blogPostId or commentId you want to report.' });
+            return res.status(400).json({ error: 'Please say which blogPostId or commentId you want to report.' });
         }
 
         if (blogPostId) {
             const blogPost = await prisma.blogPost.findUnique({ where: { id: blogPostId } });
             if (!blogPost) {
-                return res.status(404).json({ message: 'Blog post not found.' });
+                return res.status(404).json({ error: 'Blog post not found.' });
             }
         } 
         else if (commentId) {
             const comment = await prisma.comment.findUnique({ where: { id: commentId } });
             if (!comment) {
-                return res.status(404).json({ message: 'Comment not found.' });
+                return res.status(404).json({ error: 'Comment not found.' });
             }
         }
 

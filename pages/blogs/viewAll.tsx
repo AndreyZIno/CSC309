@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from "react";
-import { FaTrash, FaEdit, FaThumbsUp, FaThumbsDown, FaExclamationTriangle } from "react-icons/fa";
-import Link from "next/link";
-import { useRouter } from "next/router";
+import React, { useEffect, useState } from 'react';
+import { FaTrash, FaEdit, FaThumbsUp, FaThumbsDown, FaExclamationTriangle } from 'react-icons/fa';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 interface BlogPost {
-  id: number;
-  title: string;
-  description: string;
-  tags: string;
-  numUpvotes: number;
-  numDownvotes: number;
-  hidden: boolean;
-  user: {
-    firstName: string;
-    lastName: string;
-    email: string;
-        id: number;
-  };
-  createdAt: string;
-  templates: {
     id: number;
     title: string;
-  }[];
+    description: string;
+    tags: string;
+    numUpvotes: number;
+    numDownvotes: number;
+    hidden: boolean;
+    user: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        id: number;
+    };
+    createdAt: string;
+    templates: {
+        id: number;
+        title: string;
+    }[];
 }
 
 const ViewAllBlogs: React.FC = () => {
@@ -47,33 +47,33 @@ const ViewAllBlogs: React.FC = () => {
     const [filteredTemplates, setFilteredTemplates] = useState<{ id: number; title: string }[]>([]);
 
     useEffect(() => {
-      const fetchCurrentUser = async () => {
-        if (isGuest) {
-          setUserEmail(null);
-          return;
-        }
-        
-        try {
-          const response = await fetch('/api/users/me', {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            },
-          });
-  
-          if (response.ok) {
-            const data = await response.json();
-            setUserEmail(data.email);
-            console.log('user email:', data.email)
-          } else {
-            console.error('Failed to fetch user details');
+        const fetchCurrentUser = async () => {
+          if (isGuest) {
+            setUserEmail(null);
+            return;
           }
-        } catch (err) {
-          console.error('Error fetching current user:', err);
-        }
-      };
-  
-      fetchCurrentUser();
+          
+          try {
+            const response = await fetch('/api/users/me', {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              },
+            });
+    
+            if (response.ok) {
+              const data = await response.json();
+              setUserEmail(data.email);
+              console.log('user email:', data.email)
+            } else {
+              console.error('Failed to fetch user details');
+            }
+          } catch (err) {
+            console.error('Error fetching current user:', err);
+          }
+        };
+    
+        fetchCurrentUser();
     }, [isGuest]);
 
     useEffect(() => {
@@ -85,84 +85,83 @@ const ViewAllBlogs: React.FC = () => {
         }
     }, [error]);
 
-  const fetchBlogs = async () => {
-    setLoading(true);
-    setError(null);
+    const fetchBlogs = async () => {
+        setLoading(true);
+        setError(null);
 
-    try {
-      const response = await fetch(
-        `/api/blogs/sort?sortBy=${sortBy}&page=${page}&limit=${limit}&search=${search}&searchField=${searchField}`
-      );
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.error || "Something went wrong while fetching blogs.");
-        setLoading(false);
-        return;
-      }
+        try {
+            const response = await fetch(`/api/blogs/sort?sortBy=${sortBy}&page=${page}&limit=${limit}&search=${search}&searchField=${searchField}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.error || 'Something went wrong while fetching blogs.');
+                setLoading(false);
+                return;
+            }
 
-      const data = await response.json();
-      setHasMore(data.length === limit);
-      setBlogs(data);
-    } catch (err) {
-      console.error("Error fetching blogs:", err);
-      setError("An unexpected error occurred.");
-    } finally {
-      setLoading(false);
-    }
-  };
+            const data = await response.json();
 
-  const deleteBlog = async (blogID: number) => {
-    if (!userEmail) {
-      setError("You need to be logged in to delete blogs.");
-      return;
-    }
+            setHasMore(data.length === limit);
+            setBlogs(data);
+        } catch (err) {
+            console.error('Error fetching blogs:', err);
+            setError('An unexpected error occurred.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    try {
-      const response = await fetch(`/api/blogs/delete?blogID=${blogID}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userEmail }),
-      });
+    const deleteBlog = async (blogID: number) => {
+        if (!userEmail) {
+            setError('You need to be logged in to delete blogs.');
+            return;
+        }
+    
+        try {
+            const response = await fetch(`/api/blogs/delete?blogID=${blogID}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userEmail }),
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.error || 'Something went wrong while deleting the blog.');
+                return;
+            }
+    
+            const successData = await response.json();
+            console.log(successData.message);
+    
+            setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== blogID));
+            setError(null);
+            fetchBlogs();
+            setDeleteNotification(true);
+            setTimeout(() => setDeleteNotification(false), 3000);
+        } catch (err) {
+            console.error('Error deleting blog:', err);
+            setError('An unexpected error occurred while deleting the blog.');
+        }
+    };
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.error || "Something went wrong while deleting the blog.");
-        return;
-      }
+    const updateBlog = async (updatedBlog: BlogPost) => {
+        try {
+            const response = await fetch(`/api/blogs/edit?blogID=${updatedBlog.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: updatedBlog.title,
+                    description: updatedBlog.description,
+                    tags: updatedBlog.tags,
+                    templateIds: updatedBlog.templates.map((template) => template.id),
+                    userEmail,
+                }),
+            });
 
-      const successData = await response.json();
-      console.log(successData.message);
-
-      setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== blogID));
-      setError(null);
-      fetchBlogs();
-      setDeleteNotification(true);
-      setTimeout(() => setDeleteNotification(false), 3000);
-    } catch (err) {
-      console.error("Error deleting blog:", err);
-      setError("An unexpected error occurred while deleting the blog.");
-    }
-  };
-
-  const updateBlog = async (updatedBlog: BlogPost) => {
-    try {
-      const response = await fetch(`/api/blogs/edit?blogID=${updatedBlog.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: updatedBlog.title,
-          description: updatedBlog.description,
-          tags: updatedBlog.tags,
-          templateIds: updatedBlog.templates.map((template) => template.id),
-          userEmail,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        setEditError(errorData.error || "Something went wrong while editing the blog.");
-        return;
-      }
+            if (!response.ok) {
+                const errorData = await response.json();
+                setEditError(errorData.error || 'Something went wrong while editing the blog.');
+                return;
+            }
 
             const data = await response.json();
             setBlogs((prevBlogs) =>
@@ -177,47 +176,47 @@ const ViewAllBlogs: React.FC = () => {
     };
 
     useEffect(() => {
-      const fetchTemplates = async () => {
-        try {
-          const response = await fetch('/api/templates');
-          if (!response.ok) throw new Error('Failed to fetch templates');
-          const data = await response.json();
-          setTemplates(data);
-          setFilteredTemplates(data);
-        } catch (err) {
-          console.error('Error fetching templates:', err);
-        }
-      };
-    
-      fetchTemplates();
-  }, []);
-
-  useEffect(() => {
-      setFilteredTemplates(
-        templates.filter((template) =>
-          template.title.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      );
-  }, [searchQuery, templates]);
-
-  const handleTemplateSelect = (template: { id: number; title: string }) => {
-      if (!editingBlog) {
-          console.error("Editing blog is null");
-          return;
-      }
-  
-      const isSelected = editingBlog.templates.some((t) => t.id === template.id);
-  
-      const updatedTemplates = isSelected
-          ? editingBlog.templates.filter((t) => t.id !== template.id)
-          : [...editingBlog.templates, template];
+        const fetchTemplates = async () => {
+          try {
+            const response = await fetch('/api/templates');
+            if (!response.ok) throw new Error('Failed to fetch templates');
+            const data = await response.json();
+            setTemplates(data);
+            setFilteredTemplates(data);
+          } catch (err) {
+            console.error('Error fetching templates:', err);
+          }
+        };
       
-      setEditingBlog((prevBlog) => ({
-          ...prevBlog!,
-          templates: updatedTemplates,
-      }));
-  };
+        fetchTemplates();
+    }, []);
 
+    useEffect(() => {
+        setFilteredTemplates(
+          templates.filter((template) =>
+            template.title.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        );
+    }, [searchQuery, templates]);
+
+    const handleTemplateSelect = (template: { id: number; title: string }) => {
+        if (!editingBlog) {
+            console.error("Editing blog is null");
+            return;
+        }
+    
+        const isSelected = editingBlog.templates.some((t) => t.id === template.id);
+    
+        const updatedTemplates = isSelected
+            ? editingBlog.templates.filter((t) => t.id !== template.id)
+            : [...editingBlog.templates, template];
+        
+        setEditingBlog((prevBlog) => ({
+            ...prevBlog!,
+            templates: updatedTemplates,
+        }));
+    };
+      
     const handleVote = async (blogPostId: number, voteType: 'upvote' | 'downvote') => {
         try {
             const response = await fetch(`/api/blogs/vote`, {
@@ -226,84 +225,88 @@ const ViewAllBlogs: React.FC = () => {
                 body: JSON.stringify({ blogPostId, voteType, userEmail }),
             });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.error || `Could not ${voteType} the post.`);
-        return;
-      }
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.error || `Could not ${voteType} the post.`);
+                return;
+            }
 
-      const updatedBlogPost = await response.json();
-      setBlogs((prevBlogs) =>
-        prevBlogs.map((blog) =>
-          blog.id === updatedBlogPost.id
-            ? { ...blog, numUpvotes: updatedBlogPost.numUpvotes, numDownvotes: updatedBlogPost.numDownvotes }
-            : blog
-        )
-      );
-    } catch (err) {
-      console.error(`Error during ${voteType}:`, err);
-      setError(`An unexpected error occurred while trying to ${voteType}.`);
-    }
-  };
-
-  const handleReportBlog = async (blogId: number) => {
-    const reason = prompt("Please provide a reason for reporting this blog:");
-
-    if (!reason || reason.trim().length < 3) {
-      alert("Reason must be at least 3 characters long.");
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/reporting/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ blogPostId: blogId, reason, userEmail }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to report the blog.");
-        return;
-      }
-
-      setReportSuccess("Blog reported successfully!");
-      setTimeout(() => setReportSuccess(null), 3000);
-    } catch (err) {
-      console.error("Error reporting blog:", err);
-      setError("An unexpected error occurred while reporting the blog.");
-    }
-  };
-
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      const token = localStorage.getItem("accessToken");
-      if (!token) return;
-
-      try {
-        const response = await fetch("/api/users/me", {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (response.ok) {
-          const userData = await response.json();
-          setUserEmail(userData.email);
-          setIsAdmin(userData.role === "ADMIN");
+            const updatedBlogPost = await response.json();
+            setBlogs((prevBlogs) =>
+                prevBlogs.map((blog) =>
+                    blog.id === updatedBlogPost.id
+                        ? { ...blog, numUpvotes: updatedBlogPost.numUpvotes, numDownvotes: updatedBlogPost.numDownvotes }
+                        : blog
+                )
+            );
+        } catch (err) {
+            console.error(`Error during ${voteType}:`, err);
+            setError(`An unexpected error occurred while trying to ${voteType}.`);
         }
-      } catch (err) {
-        console.error("Error fetching user info:", err);
-      }
     };
+    const handleReportBlog = async (blogId: number) => {
+        if (!userEmail) {
+            setError('Only logged-in users can report blog posts.');
+            return;
+        }
+        const reason = prompt("Please provide a reason for reporting this blog:");
 
-    fetchUserInfo();
-    fetchBlogs();
-  }, [page, search, sortBy, searchField]);
+        if (!reason || reason.trim().length < 3) {
+          alert("Reason must be at least 3 characters long.");
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/reporting/create", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ blogPostId: blogId, reason, userEmail }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            setError(errorData.error || "Failed to report the blog.");
+            return;
+          }
+
+          setReportSuccess("Blog reported successfully!");
+          setTimeout(() => setReportSuccess(null), 3000);
+        } catch (err) {
+          console.error("Error reporting blog:", err);
+          setError("An unexpected error occurred while reporting the blog.");
+        }
+      };
+
+      useEffect(() => {
+        const fetchUserInfo = async () => {
+          const token = localStorage.getItem("accessToken");
+          if (!token) return;
+
+          try {
+            const response = await fetch("/api/users/me", {
+              method: "GET",
+              headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (response.ok) {
+              const userData = await response.json();
+              setUserEmail(userData.email);
+              setIsAdmin(userData.role === "ADMIN");
+            }
+          } catch (err) {
+            console.error("Error fetching user info:", err);
+          }
+        };
+
+        fetchUserInfo();
+        fetchBlogs();
+      }, [page, search, sortBy, searchField]);
 
     return (
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
+            {/*ChatGPT code to display the error popup*/}
             {error && (
                 <div
                     className="fixed top-0 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-8 py-4 shadow-lg rounded-lg z-50 text-lg font-bold flex items-center justify-center w-11/12 max-w-4xl"
@@ -319,11 +322,11 @@ const ViewAllBlogs: React.FC = () => {
                 <h1 className="text-2xl text-blue-500 font-semibold">View All Blogs</h1>
                 <button
                     onClick={() => {
-                      if (!userEmail) {
-                          setError('Only logged-in users can create blog posts.');
-                          return;
-                      }
-                      router.push('/blogs/create');
+                        if (!userEmail) {
+                            setError('Only logged-in users can create blog posts.');
+                            return;
+                        }
+                        router.push('/blogs/create');
                     }}
                     className="flex items-center bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
@@ -357,7 +360,6 @@ const ViewAllBlogs: React.FC = () => {
                 </button>
             </div>
 
-            {/* Sorting Dropdown */}
             <div className="mb-4 flex justify-between items-center">
                 <select
                     value={sortBy}
@@ -376,7 +378,7 @@ const ViewAllBlogs: React.FC = () => {
                 <div>
                     {blogs.length > 0 ? (
                         <div className="space-y-4">
-                          {blogs
+                            {blogs
                             .filter(
                               (blog) =>
                                 !blog.hidden || blog.user.email === userEmail || isAdmin // Only show blogs if not hidden, created by user, or admin
@@ -384,20 +386,22 @@ const ViewAllBlogs: React.FC = () => {
                             .map((blog) => (
                                 <div key={blog.id} className="p-4 border border-gray-300 rounded-md relative">
                                     {blog.user.email === userEmail && (
-                                      <div className="absolute top-2 right-2">
-                                        <FaEdit
-                                          size={16}
-                                          className="text-blue-500 hover:text-blue-700 cursor-pointer mr-2"
-                                          title="Edit this blog"
-                                          onClick={() => setEditingBlog(blog)}
-                                        />
-                                        <FaTrash
-                                          size={16}
-                                          className="text-red-500 hover:text-red-700 cursor-pointer"
-                                          title="Delete this blog"
-                                          onClick={() => deleteBlog(blog.id)}
-                                        />
-                                      </div>
+                                         <>
+                                         <button
+                                             onClick={() => setEditingBlog(blog)}
+                                             className="absolute top-2 right-12 text-blue-500 hover:text-blue-700"
+                                             title="Edit this blog"
+                                         >
+                                             <FaEdit size={16} />
+                                         </button>
+                                         <button
+                                             onClick={() => deleteBlog(blog.id)}
+                                             className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                                             title="Delete this blog"
+                                         >
+                                             <FaTrash size={16} />
+                                         </button>
+                                     </>
                                     )}
                                     <h2 className="text-xl font-semibold">
                                         <Link href={isGuest ? `/blogs/${blog.id}?guest=true` : `/blogs/${blog.id}`} 
