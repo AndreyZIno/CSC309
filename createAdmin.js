@@ -8,7 +8,7 @@ const adminData = {
     lastName: process.env.ADMIN_LAST_NAME || "Admin",
     email: process.env.ADMIN_EMAIL || "adminUser@gmail.com",
     password: process.env.ADMIN_PASSWORD || "123",
-    avatar: process.env.ADMIN_AVATAR || "Test Avatar",
+    avatar: process.env.ADMIN_AVATAR || "/avatars/admin.jpg",
     phone: process.env.ADMIN_PHONE || "1234567890",
     role: process.env.ADMIN_ROLE || "ADMIN",
 };
