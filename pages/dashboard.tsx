@@ -8,6 +8,9 @@ export default function Dashboard() {
   });
   const [language, setLanguage] = useState('javascript');
   const [code, setCode] = useState('');
+  const [input, setInput] = useState('');
+  const [output, setOutput] = useState('');
+  const [error, setError] = useState('');
   const router = useRouter();
   const isGuest = router.query.guest === 'true';
 
@@ -54,6 +57,30 @@ export default function Dashboard() {
     router.push('/');
   };
 
+  const executeCode = async () => {
+    setOutput('');
+    setError('');
+    try {
+      const response = await fetch('/api/code/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, language, input }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        setOutput(result.stdout || '');
+        setError(result.stderr || '');
+      } else {
+        setOutput(result.stdout || '');
+        setError(result.stderr || 'Execution error.');
+      }
+    } catch (err) {
+      setError('Failed to execute code.');
+      console.error('Execution error:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <div className="flex flex-grow">
@@ -84,6 +111,30 @@ export default function Dashboard() {
               placeholder="Write your code here..."
               className="w-full h-64 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 rounded-lg p-4 text-sm font-mono text-gray-800 dark:text-gray-200 focus:outline-none focus:ring focus:ring-blue-300"
             />
+            <div className="mt-4">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Provide input here (if needed)..."
+                className="w-full h-24 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 rounded-lg p-4 text-sm font-mono text-gray-800 dark:text-gray-200 focus:outline-none focus:ring focus:ring-blue-300"
+              />
+            </div>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={executeCode}
+                className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
+              >
+                Run Code
+              </button>
+            </div>
+            <div className="mt-4">
+              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">Output</h3>
+              <pre className="mt-2 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg text-sm text-gray-800 dark:text-gray-200 overflow-x-auto">
+                {output ? `Stdout:\n${output}` : ''}
+                {error ? `\nStderr:\n${error}` : ''}
+                {!output && !error ? 'No output yet.' : ''}
+              </pre>
+            </div>
           </div>
         </main>
       </div>
