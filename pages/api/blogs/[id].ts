@@ -66,11 +66,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             take,
             orderBy: sortByMainField,
             include: {
-                user: { select: { firstName: true, lastName: true } },
+                user: { select: { firstName: true, lastName: true, email: true } },
                 replies: {
                     orderBy: sortByRepliesField,
                     include: {
-                        user: { select: { firstName: true, lastName: true } },
+                        user: { select: { firstName: true, lastName: true, email: true } },
                     },
                 },
             },

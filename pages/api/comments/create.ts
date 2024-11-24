@@ -49,6 +49,7 @@ export default async function handler(req: CreateCommentRequest, res: NextApiRes
                     select: {
                         firstName: true,
                         lastName: true,
+                        email: true,
                     },
                 },
             }

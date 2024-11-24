@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
+import { FaThumbsUp, FaThumbsDown, FaExclamationTriangle } from 'react-icons/fa';
 
 interface BlogPost {
     id: number;
@@ -25,13 +25,13 @@ interface BlogPost {
         content: string;
         numUpvotes: number;
         numDownvotes: number;
-        user: { firstName: string; lastName: string };
+        user: { firstName: string; lastName: string, email: string };
         replies: {
             id: number;
             content: string;
             numUpvotes: number;
             numDownvotes: number;
-            user: { firstName: string; lastName: string };
+            user: { firstName: string; lastName: string, email: string };
         }[];
     }[];
 }
@@ -45,6 +45,7 @@ const BlogDetails: React.FC = () => {
     const [newComment, setNewComment] = useState<string>('');
     const [replyComment, setReplyComment] = useState<{ [key: number]: string }>({});
     const [userEmail, setUserEmail] = useState<string | null>(null);
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
     const [sortByMain, setSortByMain] = useState<'mostLiked' | 'mostDisliked' | 'mostRecent'>('mostLiked');
     const [replySortOptions, setReplySortOptions] = useState<{ [key: number]: 'mostLiked' | 'mostDisliked' | 'mostRecent' }>({});
     const [commentsPage, setCommentsPage] = useState(1);
@@ -149,7 +150,7 @@ const BlogDetails: React.FC = () => {
 
     const handleAddComment = async () => {
         if (!newComment.trim() || !id) return;
-
+    
         try {
             const response = await fetch(`/api/comments/create`, {
                 method: 'POST',
@@ -160,17 +161,17 @@ const BlogDetails: React.FC = () => {
                     userEmail: userEmail,
                 }),
             });
-
+    
             if (!response.ok) {
                 const errorData = await response.json();
                 setError(errorData.error || `Could not add comment.`);
                 return;
             }
-
+    
             const newCommentData = await response.json();
             setBlog((prevBlog) => {
                 if (!prevBlog) return prevBlog;
-
+    
                 return {
                     ...prevBlog,
                     comments: [
@@ -183,6 +184,7 @@ const BlogDetails: React.FC = () => {
                             user: {
                                 firstName: newCommentData.user.firstName,
                                 lastName: newCommentData.user.lastName,
+                                email: newCommentData.user.email, // email
                             },
                             replies: [],
                         },
@@ -198,7 +200,7 @@ const BlogDetails: React.FC = () => {
 
     const handleAddReply = async (parentId: number) => {
         if (!replyComment[parentId]?.trim() || !id) return;
-
+    
         try {
             const response = await fetch(`/api/comments/create`, {
                 method: 'POST',
@@ -210,18 +212,18 @@ const BlogDetails: React.FC = () => {
                     parentId,
                 }),
             });
-
+    
             if (!response.ok) {
                 const errorData = await response.json();
-                setError(errorData.error || `Could not add comment.`);
+                setError(errorData.error || `Could not add reply.`);
                 return;
             }
-
+    
             const newReplyData = await response.json();
-
+    
             setBlog((prevBlog) => {
                 if (!prevBlog) return prevBlog;
-
+    
                 const updatedComments = prevBlog.comments.map((comment) => {
                     if (comment.id === parentId) {
                         return {
@@ -236,6 +238,7 @@ const BlogDetails: React.FC = () => {
                                     user: {
                                         firstName: newReplyData.user.firstName,
                                         lastName: newReplyData.user.lastName,
+                                        email: newReplyData.user.email, // email
                                     },
                                 },
                             ],
@@ -243,10 +246,10 @@ const BlogDetails: React.FC = () => {
                     }
                     return comment;
                 });
-
+    
                 return { ...prevBlog, comments: updatedComments };
             });
-            // this line is from chatGPT:
+    
             setReplyComment((prev) => ({ ...prev, [parentId]: '' }));
         } catch (err) {
             console.error(err);
@@ -308,6 +311,45 @@ const BlogDetails: React.FC = () => {
         }
     };
 
+    const handleReportComment = async (commentId: number) => {
+        if (!userEmail) {
+            setError('Only logged-in users can report comments.');
+            return;
+        }
+
+        const reason = prompt("Please provide a reason for reporting this comment:");
+
+        if (!reason || reason.trim().length < 3) {
+            alert("Reason must be at least 3 characters long.");
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/reporting/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    commentId,
+                    reason,
+                    userEmail,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.error || "Failed to report the comment.");
+                return;
+            }
+
+            alert("Comment reported successfully!");
+        } catch (err) {
+            console.error("Error reporting comment:", err);
+            setError("An unexpected error occurred while reporting the comment.");
+        }
+    };
+
     useEffect(() => {
         fetchBlog();
     }, [id, sortByMain, commentsPage]);
@@ -331,13 +373,9 @@ const BlogDetails: React.FC = () => {
 
     return (
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
-            {/*ChatGPT code to display the error popup*/}
             {error && (
                 <div
                     className="fixed top-0 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-8 py-4 shadow-lg rounded-lg z-50 text-lg font-bold flex items-center justify-center w-11/12 max-w-4xl"
-                    style={{
-                        animation: 'slideDown 0.5s ease-out',
-                    }}
                 >
                     {error}
                 </div>
@@ -362,9 +400,7 @@ const BlogDetails: React.FC = () => {
                     <ul className="list-disc list-inside">
                         {blog.templates.map((template) => (
                             <li key={template.id}>
-                                <Link href={isGuest ? `/templates/${template.id}?guest=true` : `/templates/${template.id}`} 
-                                    className="text-blue-500 hover:underline"
-                                    >
+                                <Link href={`/templates/${template.id}`} className="text-blue-500 hover:underline">
                                     {template.title}
                                 </Link>
                             </li>
@@ -411,9 +447,22 @@ const BlogDetails: React.FC = () => {
                                         className="text-red-500 flex items-center gap-1"
                                         title="Downvote"
                                     >
-                                        <FaThumbsDown size={16} /> 
+                                        <FaThumbsDown size={16} />
                                         {comment.numDownvotes}
                                     </button>
+                                    <>
+                                        {console.log(userEmail)}
+                                        {console.log(comment.user.email)}
+                                    </>
+                                    {!isAdmin && comment.user.email !== userEmail && (
+                                        <button
+                                            onClick={() => handleReportComment(comment.id)}
+                                            className="text-yellow-500 hover:text-yellow-700"
+                                            title="Report Comment"
+                                        >
+                                            <FaExclamationTriangle size={16} />
+                                        </button>
+                                    )}
                                 </div>
                                 <textarea
                                     className="w-full mt-2 p-2 border border-gray-300 rounded-md text-black"
@@ -436,10 +485,10 @@ const BlogDetails: React.FC = () => {
                                             className="ml-2 border border-gray-300 rounded-md"
                                             value={replySortOptions[comment.id] || 'mostRecent'}
                                             onChange={(e) =>
-                                                handleReplySortChange(
-                                                    comment.id,
-                                                    e.target.value as 'mostLiked' | 'mostDisliked' | 'mostRecent'
-                                                )
+                                                setReplySortOptions((prev) => ({
+                                                    ...prev,
+                                                    [comment.id]: e.target.value as 'mostLiked' | 'mostDisliked' | 'mostRecent',
+                                                }))
                                             }
                                         >
                                             <option value="mostLiked">Most Liked</option>
@@ -461,7 +510,7 @@ const BlogDetails: React.FC = () => {
                                                         className="text-green-500 flex items-center gap-1"
                                                         title="Upvote"
                                                     >
-                                                        <FaThumbsUp size={16} /> 
+                                                        <FaThumbsUp size={16} />
                                                         {reply.numUpvotes}
                                                     </button>
                                                     <button
@@ -469,9 +518,18 @@ const BlogDetails: React.FC = () => {
                                                         className="text-red-500 flex items-center gap-1"
                                                         title="Downvote"
                                                     >
-                                                        <FaThumbsDown size={16} /> 
+                                                        <FaThumbsDown size={16} />
                                                         {reply.numDownvotes}
                                                     </button>
+                                                    {!isAdmin && reply.user.email !== userEmail && (
+                                                        <button
+                                                            onClick={() => handleReportComment(reply.id)}
+                                                            className="text-yellow-500 hover:text-yellow-700"
+                                                            title="Report Reply"
+                                                        >
+                                                            <FaExclamationTriangle size={16} />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </li>
                                         ))}
@@ -499,7 +557,6 @@ const BlogDetails: React.FC = () => {
                     Post My Comment!
                 </button>
             </div>
-            {/* Classes are ChatGPT Generated:*/}
             <div className="flex justify-between mt-6">
                 <button
                     onClick={() => {
@@ -532,7 +589,6 @@ const BlogDetails: React.FC = () => {
                     Show More
                 </button>
             </div>
-
         </div>
     );
 };
