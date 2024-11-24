@@ -23,15 +23,17 @@ interface BlogPost {
     comments: {
         id: number;
         content: string;
+        hidden: boolean; // Include hidden field
         numUpvotes: number;
         numDownvotes: number;
-        user: { firstName: string; lastName: string, email: string };
+        user: { firstName: string; lastName: string; email: string };
         replies: {
             id: number;
             content: string;
+            hidden: boolean; // Include hidden field for replies
             numUpvotes: number;
             numDownvotes: number;
-            user: { firstName: string; lastName: string, email: string };
+            user: { firstName: string; lastName: string; email: string };
         }[];
     }[];
 }
@@ -181,6 +183,7 @@ const BlogDetails: React.FC = () => {
                             content: newCommentData.content,
                             numUpvotes: 0,
                             numDownvotes: 0,
+                            hidden: newCommentData.hidden,
                             user: {
                                 firstName: newCommentData.user.firstName,
                                 lastName: newCommentData.user.lastName,
@@ -233,6 +236,7 @@ const BlogDetails: React.FC = () => {
                                 {
                                     id: newReplyData.id,
                                     content: newReplyData.content,
+                                    hidden: newReplyData.hidden,
                                     numUpvotes: 0,
                                     numDownvotes: 0,
                                     user: {
@@ -431,7 +435,8 @@ const BlogDetails: React.FC = () => {
                         {blog.comments.map((comment) => (
                             <li key={comment.id} className="border border-gray-300 p-4 rounded-md text-black">
                                 <p>
-                                    <strong>{comment.user.firstName} {comment.user.lastName}:</strong> {comment.content}
+                                    <strong>{comment.user.firstName} {comment.user.lastName}:</strong>{' '}
+                                    {comment.hidden ? '[HIDDEN BY ADMIN]' : comment.content}
                                 </p>
                                 <div className="flex items-center gap-4 mt-2">
                                     <button
@@ -502,7 +507,8 @@ const BlogDetails: React.FC = () => {
                                         {comment.replies.map((reply) => (
                                             <li key={reply.id}>
                                                 <p>
-                                                    <strong>{reply.user.firstName} {reply.user.lastName}:</strong> {reply.content}
+                                                    <strong>{reply.user.firstName} {reply.user.lastName}:</strong>{' '}
+                                                    {reply.hidden ? '[HIDDEN BY ADMIN]' : reply.content}
                                                 </p>
                                                 <div className="flex items-center gap-4 mt-2">
                                                     <button

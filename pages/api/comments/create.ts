@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
-import { authenticate } from '../../../lib/authentication';
 
 const prisma = new PrismaClient();
 
@@ -52,10 +51,27 @@ export default async function handler(req: CreateCommentRequest, res: NextApiRes
                         email: true,
                     },
                 },
-            }
+            },
         });
 
-        res.status(201).json(comment);
+        // Fetch the `hidden` field explicitly
+        const commentWithHidden = await prisma.comment.findUnique({
+            where: { id: comment.id },
+            select: {
+                id: true,
+                content: true,
+                hidden: true,
+                user: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                        email: true,
+                    },
+                },
+            },
+        });
+
+        res.status(201).json(commentWithHidden);
 
     } catch (error) {
         console.error(error);
