@@ -386,28 +386,33 @@ const ViewAllBlogs: React.FC = () => {
                             .map((blog) => (
                                 <div key={blog.id} className="p-4 border border-gray-300 rounded-md relative">
                                     {blog.user.email === userEmail && (
-                                         <>
-                                         <button
-                                             onClick={() => setEditingBlog(blog)}
-                                             className="absolute top-2 right-12 text-blue-500 hover:text-blue-700"
-                                             title="Edit this blog"
-                                         >
-                                             <FaEdit size={16} />
-                                         </button>
-                                         <button
-                                             onClick={() => deleteBlog(blog.id)}
-                                             className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                                             title="Delete this blog"
-                                         >
-                                             <FaTrash size={16} />
-                                         </button>
-                                     </>
+                                        <>
+                                        {!blog.hidden && (
+                                            <button
+                                                onClick={() => setEditingBlog(blog)}
+                                                className="absolute top-2 right-12 text-blue-500 hover:text-blue-700"
+                                                title="Edit this blog"
+                                            >
+                                                <FaEdit size={16} />
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={() => deleteBlog(blog.id)}
+                                            className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                                            title="Delete this blog"
+                                        >
+                                            <FaTrash size={16} />
+                                        </button>
+                                    </>
                                     )}
                                     <h2 className="text-xl font-semibold">
                                         <Link href={isGuest ? `/blogs/${blog.id}?guest=true` : `/blogs/${blog.id}`} 
                                             className="text-blue-700 hover:underline"
                                             >
                                             {blog.title}
+                                            {blog.hidden && (
+                                                " [HIDDEN BY ADMIN]"
+                                            )}
                                         </Link>
                                     </h2>
                                     <p className="text-gray-700">{blog.description}</p>

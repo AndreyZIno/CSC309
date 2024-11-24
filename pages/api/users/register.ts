@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 const prisma = new PrismaClient();
-const defaultAvatarPath = '/images/default-avatar.png';
+const defaultAvatarPath = '/avatars/default_avatar.png';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {

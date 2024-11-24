@@ -53,6 +53,8 @@ const BlogDetails: React.FC = () => {
     const [commentsPage, setCommentsPage] = useState(1);
     const [commentsLimit] = useState(5);
     const [hasMoreComments, setHasMoreComments] = useState(true);
+    const [reportingCommentId, setReportingCommentId] = useState<number | null>(null);
+    const [reportReason, setReportReason] = useState('');
     const isGuest = router.query.guest === 'true';
 
     useEffect(() => {
@@ -75,6 +77,7 @@ const BlogDetails: React.FC = () => {
             if (response.ok) {
                 const data = await response.json();
                 setUserEmail(data.email);
+                setIsAdmin(data.role === "ADMIN");
             } else {
                 console.error('Failed to fetch user details');
             }
@@ -315,42 +318,35 @@ const BlogDetails: React.FC = () => {
         }
     };
 
-    const handleReportComment = async (commentId: number) => {
-        if (!userEmail) {
-            setError('Only logged-in users can report comments.');
-            return;
-        }
+    const handleReportComment = (commentId: number) => {
+        setReportingCommentId(commentId);
+    };
 
-        const reason = prompt("Please provide a reason for reporting this comment:");
-
-        if (!reason || reason.trim().length < 3) {
-            alert("Reason must be at least 3 characters long.");
+    const submitReport = async () => {
+        if (!reportReason.trim() || reportReason.length < 3) {
+            setError('Reason must be at least 3 characters long.');
             return;
         }
 
         try {
-            const response = await fetch("/api/reporting/create", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    commentId,
-                    reason,
-                    userEmail,
-                }),
+            const response = await fetch('/api/reporting/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ commentId: reportingCommentId, reason: reportReason, userEmail }),
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                setError(errorData.error || "Failed to report the comment.");
+                setError(errorData.error || 'Failed to report the comment.');
                 return;
             }
 
-            alert("Comment reported successfully!");
+            setReportingCommentId(null);
+            setReportReason('');
+            alert('Comment reported successfully!');
         } catch (err) {
-            console.error("Error reporting comment:", err);
-            setError("An unexpected error occurred while reporting the comment.");
+            console.error('Error reporting comment:', err);
+            setError('An unexpected error occurred while reporting the comment.');
         }
     };
 
@@ -435,8 +431,12 @@ const BlogDetails: React.FC = () => {
                         {blog.comments.map((comment) => (
                             <li key={comment.id} className="border border-gray-300 p-4 rounded-md text-black">
                                 <p>
-                                    <strong>{comment.user.firstName} {comment.user.lastName}:</strong>{' '}
-                                    {comment.hidden ? '[HIDDEN BY ADMIN]' : comment.content}
+                                    <strong>
+                                        {comment.user.firstName} {comment.user.lastName}:
+                                    </strong>{' '}
+                                    {comment.hidden && comment.user.email !== userEmail && !isAdmin
+                                        ? '[HIDDEN BY ADMIN]'
+                                        : `${comment.content} ${comment.hidden ? '[HIDDEN BY ADMIN]' : ''}`}
                                 </p>
                                 <div className="flex items-center gap-4 mt-2">
                                     <button
@@ -455,11 +455,7 @@ const BlogDetails: React.FC = () => {
                                         <FaThumbsDown size={16} />
                                         {comment.numDownvotes}
                                     </button>
-                                    <>
-                                        {console.log(userEmail)}
-                                        {console.log(comment.user.email)}
-                                    </>
-                                    {!isAdmin && comment.user.email !== userEmail && (
+                                    {!isAdmin && comment.user.email !== userEmail && !comment.hidden && (
                                         <button
                                             onClick={() => handleReportComment(comment.id)}
                                             className="text-yellow-500 hover:text-yellow-700"
@@ -507,8 +503,12 @@ const BlogDetails: React.FC = () => {
                                         {comment.replies.map((reply) => (
                                             <li key={reply.id}>
                                                 <p>
-                                                    <strong>{reply.user.firstName} {reply.user.lastName}:</strong>{' '}
-                                                    {reply.hidden ? '[HIDDEN BY ADMIN]' : reply.content}
+                                                    <strong>
+                                                        {reply.user.firstName} {reply.user.lastName}:
+                                                    </strong>{' '}
+                                                    {reply.hidden && reply.user.email !== userEmail && !isAdmin
+                                                        ? '[HIDDEN BY ADMIN]'
+                                                        : `${reply.content} ${reply.hidden ? '[HIDDEN BY ADMIN]' : ''}`}
                                                 </p>
                                                 <div className="flex items-center gap-4 mt-2">
                                                     <button
@@ -527,7 +527,7 @@ const BlogDetails: React.FC = () => {
                                                         <FaThumbsDown size={16} />
                                                         {reply.numDownvotes}
                                                     </button>
-                                                    {!isAdmin && reply.user.email !== userEmail && (
+                                                    {!isAdmin && reply.user.email !== userEmail && !reply.hidden && (
                                                         <button
                                                             onClick={() => handleReportComment(reply.id)}
                                                             className="text-yellow-500 hover:text-yellow-700"
@@ -563,6 +563,35 @@ const BlogDetails: React.FC = () => {
                     Post My Comment!
                 </button>
             </div>
+
+            {reportingCommentId && (
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
+                    <div className="bg-white p-6 rounded-md w-80">
+                        <h3 className="text-lg font-bold text-gray-700">Report Comment</h3>
+                        <textarea
+                            className="w-full mt-2 p-2 border border-gray-300 rounded-md text-black"
+                            placeholder="Enter reason for reporting"
+                            value={reportReason}
+                            onChange={(e) => setReportReason(e.target.value)}
+                        />
+                        <div className="flex justify-end mt-4 gap-2">
+                            <button
+                                className="bg-gray-300 px-4 py-2 rounded-md"
+                                onClick={() => setReportingCommentId(null)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                                onClick={submitReport}
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="flex justify-between mt-6">
                 <button
                     onClick={() => {
