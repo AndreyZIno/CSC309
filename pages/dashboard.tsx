@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Editor from "@monaco-editor/react";
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { useTheme } from '../components/ThemeToggle';
 
 export default function Dashboard() {
   const [user, setUser] = useState({
@@ -16,6 +17,7 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const router = useRouter();
   const isGuest = router.query.guest === 'true';
+  const { theme } = useTheme();
 
   useEffect(() => {
     const { code: queryCode, language: queryLanguage } = router.query;
@@ -123,7 +125,7 @@ export default function Dashboard() {
               language={language}
               value={code}
               onChange={(value: string | undefined) => setCode(value || "")}
-              theme="vs-dark"
+              theme={theme === 'dark' ? 'vs-dark' : 'light'}
               options={{
                 fontSize: 14,
                 minimap: { enabled: false },
