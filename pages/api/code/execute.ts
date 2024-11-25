@@ -24,6 +24,10 @@ export default async function handler(req: ExecuteRequest, res: NextApiResponse)
 
     const { code, language, input, templateId } = req.body;
 
+    if (!code) {
+        return res.status(400).json({error: 'Please provide code before running it.'})
+    }
+
     let finalCode = code;
     let finalLanguage = language;
 

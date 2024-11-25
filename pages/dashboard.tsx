@@ -78,7 +78,7 @@ export default function Dashboard() {
         setError(result.stderr || '');
       } else {
         setOutput(result.stdout || '');
-        setError(result.stderr || 'Execution error.');
+        setError(result.stderr || result.error || 'Execution error.');
       }
     } catch (err) {
       setError('Failed to execute code.');
