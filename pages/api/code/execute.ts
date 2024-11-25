@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Docker from 'dockerode';
 import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { Writable } from 'stream';
 
 const prisma = new PrismaClient();
 const docker = new Docker();
@@ -128,27 +129,37 @@ export default async function handler(req: ExecuteRequest, res: NextApiResponse)
         });
 
         const stream = await container.attach({ stream: true, stdout: true, stderr: true });
-        container.start();
 
         let stdout = '';
         let stderr = '';
 
-        stream.on('data', (chunk) => {
-            stdout += chunk.toString();
+        // Demux - to split stdout and stderr (from ChatGPT)
+        const stdoutStream = new Writable({
+            write(chunk, encoding, callback) {
+                stdout += chunk.toString();
+                callback();
+            },
         });
+
+        const stderrStream = new Writable({
+            write(chunk, encoding, callback) {
+                stderr += chunk.toString();
+                callback();
+            },
+        });
+
+        // Use Docker's demuxStream to separate stdout and stderr
+        docker.modem.demuxStream(stream, stdoutStream, stderrStream);
+
+        container.start();
 
         stream.on('end', async () => {
             try {
-                // Wait for the Docker container to finish
                 const containerData = await container.wait();
-        
-                console.log('Docker container finished with status:', containerData.StatusCode);
-                console.log('Captured stdout:', stdout);
-                console.log('Captured stderr:', stderr);
-        
+
                 const sanitizedStdout = stdout.replace(/[^\x20-\x7E\n]/g, '').trim();
                 const sanitizedStderr = stderr.replace(/[^\x20-\x7E\n]/g, '').trim();
-
+        
                 res.status(containerData.StatusCode === 0 ? 200 : 400).json({
                     stdout: sanitizedStdout,
                     stderr: sanitizedStderr,
@@ -157,19 +168,13 @@ export default async function handler(req: ExecuteRequest, res: NextApiResponse)
                 console.error('Docker execution error:', err);
                 res.status(500).json({ error: 'Error during code execution' });
             } finally {
-                // Ensure cleanup happens here
                 try {
                     if (fs.existsSync(codeFilePath)) fs.unlinkSync(codeFilePath);
                     if (fs.existsSync(inputFilePath)) fs.unlinkSync(inputFilePath);
                 } catch (cleanupErr) {
-                    console.error(`Failed to delete file:`);
+                    console.error('Failed to delete temporary files:', cleanupErr);
                 }
             }
-        });
-
-        stream.on('error', (err) => {
-            console.error('Stream error:', err);
-            res.status(500).json({ error: 'Docker stream error' });
         });
     } catch (err) {
         console.error('Docker error:', err);

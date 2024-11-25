@@ -149,15 +149,29 @@ export default function Dashboard() {
             <div className="mt-4">
               <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">Output</h3>
               <div className="mt-2 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg text-sm overflow-x-auto">
-              {output && (
-                <SyntaxHighlighter language={language} style={docco}>
-                  {output}
-                </SyntaxHighlighter>
+              {output && !error && (
+                <div className="mb-4">
+                  <h4 className="font-bold text-gray-800 dark:text-gray-200">Stdout:</h4>
+                  <SyntaxHighlighter language={language} style={docco}>
+                    {output}
+                  </SyntaxHighlighter>
+                </div>
               )}
               {error && (
-                <SyntaxHighlighter language="text" style={docco}>
-                  {error}
-                </SyntaxHighlighter>
+                <>
+                    <div className="mb-4">
+                      <h4 className="font-bold text-gray-800 dark:text-gray-200">Stdout:</h4>
+                      <SyntaxHighlighter language={language} style={docco}>
+                        {output}
+                      </SyntaxHighlighter>
+                    </div>
+                  <div>
+                    <h4 className="font-bold text-gray-800 dark:text-gray-200">Stderr:</h4>
+                    <SyntaxHighlighter language="text" style={docco}>
+                      {error}
+                    </SyntaxHighlighter>
+                  </div>
+                </>
               )}
               {!output && !error && <p>No output yet.</p>}
             </div>
