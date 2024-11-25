@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Editor from "@monaco-editor/react";
+import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 export default function Dashboard() {
   const [user, setUser] = useState({
@@ -96,30 +99,36 @@ export default function Dashboard() {
                   onChange={(e) => setLanguage(e.target.value)}
                   className="border border-gray-300 dark:border-gray-700 rounded-lg p-2 text-black dark:text-white bg-white dark:bg-gray-700"
                 >
-                  <option value="javascript">JavaScript</option>
-                  <option value="python">Python</option>
                   <option value="c">C</option>
                   <option value="cpp">C++</option>
-                  <option value="java">Java</option>
-                  <option value="ruby">Ruby</option>
-                  <option value="php">PHP</option>
                   <option value="go">Go</option>
-                  <option value="rust">Rust</option>
-                  <option value="swift">Swift</option>
-                  <option value="kotlin">Kotlin</option>
-                  <option value="typescript">TypeScript</option>
-                  <option value="perl">Perl</option>
-                  <option value="shell">Shell</option>
                   <option value="haskell">Haskell</option>
+                  <option value="java">Java</option>
+                  <option value="javascript">JavaScript</option>
+                  <option value="kotlin">Kotlin</option>
+                  <option value="perl">Perl</option>
+                  <option value="php">PHP</option>
+                  <option value="python">Python</option>
+                  <option value="ruby">Ruby</option>
+                  <option value="rust">Rust</option>
+                  <option value="shell">Shell</option>
+                  <option value="swift">Swift</option>
+                  <option value="typescript">TypeScript</option>
                 </select>
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Start writing your code below:</p>
             </div>
-            <textarea
+            <Editor
+              height="300px"
+              language={language}
               value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="Write your code here..."
-              className="w-full h-64 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 rounded-lg p-4 text-sm font-mono text-gray-800 dark:text-gray-200 focus:outline-none focus:ring focus:ring-blue-300"
+              onChange={(value: string | undefined) => setCode(value || "")}
+              theme="vs-dark"
+              options={{
+                fontSize: 14,
+                minimap: { enabled: false },
+                automaticLayout: true,
+              }}
             />
             <div className="mt-4">
               <textarea
@@ -139,11 +148,19 @@ export default function Dashboard() {
             </div>
             <div className="mt-4">
               <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">Output</h3>
-              <pre className="mt-2 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg text-sm text-gray-800 dark:text-gray-200 overflow-x-auto">
-                {output ? `Stdout:\n${output}` : ''}
-                {error ? `\nStderr:\n${error}` : ''}
-                {!output && !error ? 'No output yet.' : ''}
-              </pre>
+              <div className="mt-2 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg text-sm overflow-x-auto">
+              {output && (
+                <SyntaxHighlighter language={language} style={docco}>
+                  {output}
+                </SyntaxHighlighter>
+              )}
+              {error && (
+                <SyntaxHighlighter language="text" style={docco}>
+                  {error}
+                </SyntaxHighlighter>
+              )}
+              {!output && !error && <p>No output yet.</p>}
+            </div>
             </div>
           </div>
         </main>

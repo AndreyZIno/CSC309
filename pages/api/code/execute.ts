@@ -138,20 +138,33 @@ export default async function handler(req: ExecuteRequest, res: NextApiResponse)
         });
 
         stream.on('end', async () => {
-            const containerData = await container.wait();
+            try {
+                // Wait for the Docker container to finish
+                const containerData = await container.wait();
+        
+                console.log('Docker container finished with status:', containerData.StatusCode);
+                console.log('Captured stdout:', stdout);
+                console.log('Captured stderr:', stderr);
+        
+                const sanitizedStdout = stdout.replace(/[^\x20-\x7E\n]/g, '').trim();
+                const sanitizedStderr = stderr.replace(/[^\x20-\x7E\n]/g, '').trim();
 
-            console.log('Docker container finished with status:', containerData.StatusCode);
-            console.log('Captured stdout:', stdout);
-            console.log('Captured stderr:', stderr);
-
-            if (containerData.StatusCode === 0) {
-                res.status(200).json({ stdout });
-            } else {
-                res.status(400).json({ stderr, stdout });
+                res.status(containerData.StatusCode === 0 ? 200 : 400).json({
+                    stdout: sanitizedStdout,
+                    stderr: sanitizedStderr,
+                });
+            } catch (err) {
+                console.error('Docker execution error:', err);
+                res.status(500).json({ error: 'Error during code execution' });
+            } finally {
+                // Ensure cleanup happens here
+                try {
+                    if (fs.existsSync(codeFilePath)) fs.unlinkSync(codeFilePath);
+                    if (fs.existsSync(inputFilePath)) fs.unlinkSync(inputFilePath);
+                } catch (cleanupErr) {
+                    console.error(`Failed to delete file:`);
+                }
             }
-
-            fs.unlinkSync(codeFilePath);
-            fs.unlinkSync(inputFilePath);
         });
 
         stream.on('error', (err) => {

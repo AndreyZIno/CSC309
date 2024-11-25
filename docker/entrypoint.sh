@@ -43,7 +43,7 @@ case $LANGUAGE in
     perl $CODE_FILE < $INPUT_FILE
     ;;
   "go")
-    go run $CODE_FILE < $INPUT_FILE
+    go run "$CODE_FILE" < "$INPUT_FILE" | awk 'NF'
     ;;
   "haskell")
     ghc -o program $CODE_FILE && ./program < $INPUT_FILE

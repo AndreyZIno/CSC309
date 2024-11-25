@@ -50,7 +50,3 @@ Languages:
     shell
     swift
     typescript
-
-dont work
-- JS? didnt take in input for some reason:
-- typescript
