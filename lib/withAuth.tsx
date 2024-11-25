@@ -12,7 +12,7 @@ export function withOptionalAuth<T>(
     useEffect(() => {
       const token = localStorage.getItem('accessToken');
       if (!token) {
-        setIsGuest(true); // Mark as guest if no token
+        setIsGuest(true);
       }
       setLoading(false);
     }, []);
