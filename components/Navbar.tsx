@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { ThemeToggle } from "../components/ThemeToggle";
+import ThemeToggleButton from "./ThemeToggleButton";
 
 interface NavbarProps {
   user: {
