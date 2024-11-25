@@ -101,6 +101,16 @@ export default function Dashboard() {
                   <option value="c">C</option>
                   <option value="cpp">C++</option>
                   <option value="java">Java</option>
+                  <option value="ruby">Ruby</option>
+                  <option value="php">PHP</option>
+                  <option value="go">Go</option>
+                  <option value="rust">Rust</option>
+                  <option value="swift">Swift</option>
+                  <option value="kotlin">Kotlin</option>
+                  <option value="typescript">TypeScript</option>
+                  <option value="perl">Perl</option>
+                  <option value="shell">Shell</option>
+                  <option value="haskell">Haskell</option>
                 </select>
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Start writing your code below:</p>

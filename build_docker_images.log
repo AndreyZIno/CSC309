@@ -1,0 +1,370 @@
+Building Docker images...
+Building code-executor-python from docker/Dockerfile-python...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/5 : FROM python:3.10-slim
+ ---> 8df9adb5d39d
+Step 2/5 : WORKDIR /code
+ ---> Using cache
+ ---> 1a25b9c3a415
+Step 3/5 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> 820e2469341a
+Step 4/5 : RUN chmod +x /entrypoint.sh
+ ---> Running in 2e86a05a0b8d
+Removing intermediate container 2e86a05a0b8d
+ ---> f9def522a6ac
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in 8169337df861
+Removing intermediate container 8169337df861
+ ---> 090e669e1b8d
+Successfully built 090e669e1b8d
+Successfully tagged code-executor-python:latest
+code-executor-python built successfully.
+Building code-executor-perl from docker/Dockerfile-perl...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/5 : FROM perl:latest
+ ---> 38881b5564f5
+Step 2/5 : WORKDIR /code
+ ---> Using cache
+ ---> c175f5ed710c
+Step 3/5 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> 535a64a2ec89
+Step 4/5 : RUN chmod +x /entrypoint.sh
+ ---> Running in 95e4e25f606a
+Removing intermediate container 95e4e25f606a
+ ---> ab123f65d9d0
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in c6929ab2441d
+Removing intermediate container c6929ab2441d
+ ---> 761e30e7b51a
+Successfully built 761e30e7b51a
+Successfully tagged code-executor-perl:latest
+code-executor-perl built successfully.
+Building code-executor-rust from docker/Dockerfile-rust...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/5 : FROM rust:latest
+ ---> d7ea9ee7bf87
+Step 2/5 : WORKDIR /code
+ ---> Using cache
+ ---> f37ae71f2920
+Step 3/5 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> bf2ce95a650e
+Step 4/5 : RUN chmod +x /entrypoint.sh
+ ---> Running in 09dc4b7ad4ed
+Removing intermediate container 09dc4b7ad4ed
+ ---> 10caf0fe1cee
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in 339ee6dd323e
+Removing intermediate container 339ee6dd323e
+ ---> 393ae00d27a3
+Successfully built 393ae00d27a3
+Successfully tagged code-executor-rust:latest
+code-executor-rust built successfully.
+Building code-executor-php from docker/Dockerfile-php...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/5 : FROM php:cli
+ ---> 343832b257b9
+Step 2/5 : WORKDIR /code
+ ---> Using cache
+ ---> 64c5bc5770aa
+Step 3/5 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> 79c63f9a229e
+Step 4/5 : RUN chmod +x /entrypoint.sh
+ ---> Running in 0b7a2bc5a22c
+Removing intermediate container 0b7a2bc5a22c
+ ---> 5939b4419470
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in e4b41556197d
+Removing intermediate container e4b41556197d
+ ---> b8405d03e76d
+Successfully built b8405d03e76d
+Successfully tagged code-executor-php:latest
+code-executor-php built successfully.
+Building code-executor-cpp from docker/Dockerfile-cpp...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/5 : FROM gcc:latest
+ ---> e5f33926a9ec
+Step 2/5 : WORKDIR /code
+ ---> Using cache
+ ---> b662022c490b
+Step 3/5 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> 71d9e9e4759f
+Step 4/5 : RUN chmod +x /entrypoint.sh
+ ---> Running in 7bd610eed08c
+Removing intermediate container 7bd610eed08c
+ ---> 1b01507dd3f9
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in ab61311ad068
+Removing intermediate container ab61311ad068
+ ---> e471b4817f07
+Successfully built e471b4817f07
+Successfully tagged code-executor-cpp:latest
+code-executor-cpp built successfully.
+Building code-executor-ruby from docker/Dockerfile-ruby...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/5 : FROM ruby:latest
+ ---> 354cff09091a
+Step 2/5 : WORKDIR /code
+ ---> Using cache
+ ---> 8973ce1a749b
+Step 3/5 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> 97bfaa7f349b
+Step 4/5 : RUN chmod +x /entrypoint.sh
+ ---> Running in 614b2f6a5bb8
+Removing intermediate container 614b2f6a5bb8
+ ---> 53aa5d0c5fbf
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in 328df048dec2
+Removing intermediate container 328df048dec2
+ ---> 27f61c45a350
+Successfully built 27f61c45a350
+Successfully tagged code-executor-ruby:latest
+code-executor-ruby built successfully.
+Building code-executor-javascript from docker/Dockerfile-javascript...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/5 : FROM node:latest
+ ---> e15446acc41f
+Step 2/5 : WORKDIR /code
+ ---> Using cache
+ ---> 3791ff9e391b
+Step 3/5 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> 1ccd928de08f
+Step 4/5 : RUN chmod +x /entrypoint.sh
+ ---> Running in 404549fb8cd7
+Removing intermediate container 404549fb8cd7
+ ---> 58d830045ed8
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in ab58e938d776
+Removing intermediate container ab58e938d776
+ ---> 6033bb90d97e
+Successfully built 6033bb90d97e
+Successfully tagged code-executor-javascript:latest
+code-executor-javascript built successfully.
+Building code-executor-typescript from docker/Dockerfile-typescript...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/6 : FROM node:latest
+ ---> e15446acc41f
+Step 2/6 : RUN npm install -g typescript @types/node
+ ---> Using cache
+ ---> 83058c0abf44
+Step 3/6 : WORKDIR /code
+ ---> Using cache
+ ---> 891c108d7700
+Step 4/6 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> 617f6acf8cf6
+Step 5/6 : RUN chmod +x /entrypoint.sh
+ ---> Running in 2e902a421a6f
+Removing intermediate container 2e902a421a6f
+ ---> 3f89a826a597
+Step 6/6 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in b66d8be1ff1c
+Removing intermediate container b66d8be1ff1c
+ ---> df7a6f086684
+Successfully built df7a6f086684
+Successfully tagged code-executor-typescript:latest
+code-executor-typescript built successfully.
+Building code-executor-swift from docker/Dockerfile-swift...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/5 : FROM swift:latest
+ ---> a01e50add4bd
+Step 2/5 : WORKDIR /code
+ ---> Using cache
+ ---> 07a0e7755bfb
+Step 3/5 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> 8f8e82e46f54
+Step 4/5 : RUN chmod +x /entrypoint.sh
+ ---> Running in 9c73f3ad4271
+Removing intermediate container 9c73f3ad4271
+ ---> 29aafda67821
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in 3b5bef8bc294
+Removing intermediate container 3b5bef8bc294
+ ---> ddc00c5688d3
+Successfully built ddc00c5688d3
+Successfully tagged code-executor-swift:latest
+code-executor-swift built successfully.
+Building code-executor-go from docker/Dockerfile-go...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/5 : FROM golang:latest
+ ---> 0457bb691895
+Step 2/5 : WORKDIR /code
+ ---> Using cache
+ ---> 8e9dd4d5ba3e
+Step 3/5 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> 08320ac81436
+Step 4/5 : RUN chmod +x /entrypoint.sh
+ ---> Running in 6fc9359ab667
+Removing intermediate container 6fc9359ab667
+ ---> c25d4658bbf6
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in 1c1c4ffbdc4a
+Removing intermediate container 1c1c4ffbdc4a
+ ---> e5662c58380a
+Successfully built e5662c58380a
+Successfully tagged code-executor-go:latest
+code-executor-go built successfully.
+Building code-executor-haskell from docker/Dockerfile-haskell...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/5 : FROM haskell:latest
+ ---> 4af874785f1f
+Step 2/5 : WORKDIR /code
+ ---> Using cache
+ ---> f010afeca8db
+Step 3/5 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> b2bc568233cd
+Step 4/5 : RUN chmod +x /entrypoint.sh
+ ---> Running in f344496a128f
+Removing intermediate container f344496a128f
+ ---> f35e09a2e287
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in 08b5cdccaa49
+Removing intermediate container 08b5cdccaa49
+ ---> ad2d6f949f01
+Successfully built ad2d6f949f01
+Successfully tagged code-executor-haskell:latest
+code-executor-haskell built successfully.
+Building code-executor-kotlin from docker/Dockerfile-kotlin...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/6 : FROM openjdk:17-slim
+ ---> 37cb44321d04
+Step 2/6 : WORKDIR /code
+ ---> Using cache
+ ---> 3ed1fd298a92
+Step 3/6 : RUN apt-get update &&     apt-get install -y wget unzip &&     wget https://github.com/JetBrains/kotlin/releases/download/v1.9.0/kotlin-compiler-1.9.0.zip &&     unzip kotlin-compiler-1.9.0.zip &&     mv kotlinc /usr/local/bin/kotlinc &&     rm kotlin-compiler-1.9.0.zip
+ ---> Using cache
+ ---> af5cb28b180d
+Step 4/6 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> 8707946637d6
+Step 5/6 : RUN chmod +x /entrypoint.sh
+ ---> Running in f740b3e134d8
+Removing intermediate container f740b3e134d8
+ ---> c42ba1b16764
+Step 6/6 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in fe0b69088ac1
+Removing intermediate container fe0b69088ac1
+ ---> fbdba9f779cb
+Successfully built fbdba9f779cb
+Successfully tagged code-executor-kotlin:latest
+code-executor-kotlin built successfully.
+Building code-executor-shell from docker/Dockerfile-shell...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/6 : FROM debian:latest
+ ---> 63ba939a68fd
+Step 2/6 : RUN apt-get update && apt-get install -y bash
+ ---> Using cache
+ ---> 1ee8d2272b25
+Step 3/6 : WORKDIR /code
+ ---> Using cache
+ ---> c64ee0b60299
+Step 4/6 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> 3baa8b0f3125
+Step 5/6 : RUN chmod +x /entrypoint.sh
+ ---> Running in 42ff9ff08608
+Removing intermediate container 42ff9ff08608
+ ---> d54a634f1ef8
+Step 6/6 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in 1590f7852f26
+Removing intermediate container 1590f7852f26
+ ---> 8bb8a4fd591b
+Successfully built 8bb8a4fd591b
+Successfully tagged code-executor-shell:latest
+code-executor-shell built successfully.
+Building code-executor-c from docker/Dockerfile-c...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/5 : FROM gcc:latest
+ ---> e5f33926a9ec
+Step 2/5 : WORKDIR /code
+ ---> Using cache
+ ---> b662022c490b
+Step 3/5 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> Using cache
+ ---> 71d9e9e4759f
+Step 4/5 : RUN chmod +x /entrypoint.sh
+ ---> Using cache
+ ---> 1b01507dd3f9
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Using cache
+ ---> e471b4817f07
+Successfully built e471b4817f07
+Successfully tagged code-executor-c:latest
+code-executor-c built successfully.
+Building code-executor-java from docker/Dockerfile-java...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  25.08MB
+Step 1/5 : FROM openjdk:17-slim
+ ---> 37cb44321d04
+Step 2/5 : WORKDIR /code
+ ---> Using cache
+ ---> 3ed1fd298a92
+Step 3/5 : COPY docker/entrypoint.sh /entrypoint.sh
+ ---> 310bb8033962
+Step 4/5 : RUN chmod +x /entrypoint.sh
+ ---> Running in 0e61abe65f3f
+Removing intermediate container 0e61abe65f3f
+ ---> 2eb0e89322fc
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in 60a0cf8bfe7a
+Removing intermediate container 60a0cf8bfe7a
+ ---> 5aac3e6ba17f
+Successfully built 5aac3e6ba17f
+Successfully tagged code-executor-java:latest
+code-executor-java built successfully.
+All Docker images built successfully!

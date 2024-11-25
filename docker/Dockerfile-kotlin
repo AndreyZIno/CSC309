@@ -1,0 +1,16 @@
+FROM openjdk:17-slim
+WORKDIR /code
+
+# Install required dependencies
+RUN apt-get update && \
+    apt-get install -y wget unzip && \
+    wget https://github.com/JetBrains/kotlin/releases/download/v1.9.0/kotlin-compiler-1.9.0.zip && \
+    unzip kotlin-compiler-1.9.0.zip && \
+    mv kotlinc /usr/local/bin/kotlinc && \
+    rm kotlin-compiler-1.9.0.zip
+
+# Copy the entrypoint script
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

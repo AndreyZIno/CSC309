@@ -21,11 +21,17 @@ case $LANGUAGE in
   "c")
     gcc $CODE_FILE -o program && ./program < $INPUT_FILE
     ;;
+  "cpp")
+    g++ $CODE_FILE -o program && ./program < $INPUT_FILE
+    ;;
   "java")
     javac $CODE_FILE && java -cp /code Main < $INPUT_FILE
     ;;
   "javascript")
     node $CODE_FILE < $INPUT_FILE
+    ;;
+  "kotlin")
+    /usr/local/bin/kotlinc/bin/kotlinc $CODE_FILE -include-runtime -d program.jar && java -jar program.jar < $INPUT_FILE
     ;;
   "ruby")
     ruby $CODE_FILE < $INPUT_FILE
@@ -33,11 +39,24 @@ case $LANGUAGE in
   "php")
     php $CODE_FILE < $INPUT_FILE
     ;;
+  "perl")
+    perl $CODE_FILE < $INPUT_FILE
+    ;;
   "go")
     go run $CODE_FILE < $INPUT_FILE
     ;;
+  "haskell")
+    ghc -o program $CODE_FILE && ./program < $INPUT_FILE
+    ;;
   "rust")
     rustc $CODE_FILE -o program && ./program < $INPUT_FILE
+    ;;
+  "typescript")
+    tsc $CODE_FILE --outDir /code/dist --module commonjs --target es6 && \
+    node /code/dist/code.js < $INPUT_FILE
+    ;;
+  "shell")
+    /bin/bash $CODE_FILE < $INPUT_FILE
     ;;
   "swift")
     swift $CODE_FILE < $INPUT_FILE
