@@ -6,3 +6,9 @@ declare module 'next' {
     user?: { email: string; role: string };
   }
 }
+
+declare global {
+  interface Window {
+    particlesJS: (tagId: string, params: object) => void;
+  }
+}
