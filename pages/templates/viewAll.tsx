@@ -341,7 +341,7 @@ const ViewAllTemplates: React.FC = () => {
                                         )}
                                     </div>
     
-                                    <p className="text-md mt-2">Description: {template.explanation}</p>
+                                    <p className="text-md mt-2">Explanation: {template.explanation}</p>
                                     <p className="text-sm text-gray-400">Language: {template.language}</p>
                                     <p className="text-sm text-gray-400">
                                         Tags: <span className="italic">{template.tags}</span>
