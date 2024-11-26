@@ -34,12 +34,14 @@ export default function Home() {
 
   return (
     <div
-      className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-b from-blue-400 to-white"
+      className="min-h-screen flex flex-col justify-center items-center"
       style={{
         backgroundImage: "url('/background/index.jpg')",
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center -225px',
+        backgroundPosition: 'center',
+        height: '100vh',
+        overflow: 'hidden',
       }}
     >
       <div className="bg-white/80 backdrop-blur-md text-blue-900 p-10 rounded-lg shadow-lg border border-blue-200">
