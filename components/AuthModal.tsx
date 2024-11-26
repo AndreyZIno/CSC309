@@ -154,7 +154,7 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300 focus:outline-none"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300 focus:outline-none text-black"
                             required
                         />
                     </div>
