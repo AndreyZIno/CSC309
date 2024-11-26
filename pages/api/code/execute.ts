@@ -116,12 +116,6 @@ export default async function handler(req: ExecuteRequest, res: NextApiResponse)
                 PidsLimit: 500, // Increase process limit (From ChatGPT)
                 CpuPeriod: 100000, // Default 100ms, ChatGPT
                 CpuQuota: 50000, // 50% of CPU time, ChatGPT
-                ReadonlyRootfs: true,
-                SecurityOpt: ['no-new-privileges'],
-                Tmpfs: {
-                    '/etc': 'noexec,nosuid,nodev',
-                    '/root': 'noexec,nosuid,nodev',
-                },
             },
             Cmd: cmd,
         });

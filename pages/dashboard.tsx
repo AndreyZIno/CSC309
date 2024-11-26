@@ -18,6 +18,7 @@ export default function Dashboard() {
   const router = useRouter();
   const isGuest = router.query.guest === 'true';
   const { theme } = useTheme();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const { code: queryCode, language: queryLanguage } = router.query;
@@ -65,6 +66,7 @@ export default function Dashboard() {
   const executeCode = async () => {
     setOutput('');
     setError('');
+    setLoading(true);
 
     const timeoutMs = 8000;
 
@@ -102,6 +104,8 @@ export default function Dashboard() {
               setError('An unexpected error occurred.');
               console.error('Unknown error:', err);
           }
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -165,9 +169,12 @@ export default function Dashboard() {
             <div className="flex justify-end mt-4">
               <button
                 onClick={executeCode}
-                className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
+                disabled={loading}
+                className={`${
+                  loading ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'
+                } text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring focus:ring-blue-300`}
               >
-                Run Code
+                {loading ? 'Running...' : 'Run Code'}
               </button>
             </div>
             <div className="mt-4">
