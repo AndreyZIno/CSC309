@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { FaThumbsUp, FaThumbsDown, FaExclamationTriangle } from 'react-icons/fa';
+import { useTheme } from '../../components/ThemeToggle';
 
 interface BlogPost {
     id: number;
@@ -23,14 +24,14 @@ interface BlogPost {
     comments: {
         id: number;
         content: string;
-        hidden: boolean; // Include hidden field
+        hidden: boolean;
         numUpvotes: number;
         numDownvotes: number;
         user: { firstName: string; lastName: string; email: string };
         replies: {
             id: number;
             content: string;
-            hidden: boolean; // Include hidden field for replies
+            hidden: boolean;
             numUpvotes: number;
             numDownvotes: number;
             user: { firstName: string; lastName: string; email: string };
@@ -53,9 +54,12 @@ const BlogDetails: React.FC = () => {
     const [commentsPage, setCommentsPage] = useState(1);
     const [commentsLimit] = useState(5);
     const [hasMoreComments, setHasMoreComments] = useState(true);
+    const [replyPages, setReplyPages] = useState<{ [key: number]: number }>({});
+    const [replyLimits] = useState(3);
     const [reportingCommentId, setReportingCommentId] = useState<number | null>(null);
     const [reportReason, setReportReason] = useState('');
     const isGuest = router.query.guest === 'true';
+    const { theme } = useTheme();
 
     useEffect(() => {
         const fetchCurrentUser = async () => {
@@ -350,6 +354,13 @@ const BlogDetails: React.FC = () => {
         }
     };
 
+    const toggleReplyPage = (commentId: number, increment: boolean) => {
+        setReplyPages((prev) => ({
+            ...prev,
+            [commentId]: Math.max(1, (prev[commentId] || 1) + (increment ? 1 : -1)),
+        }));
+    };
+
     useEffect(() => {
         fetchBlog();
     }, [id, sortByMain, commentsPage]);
@@ -372,35 +383,67 @@ const BlogDetails: React.FC = () => {
     }
 
     return (
-        <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
+        <div
+            className={`max-w-4xl mx-auto mt-10 p-6 rounded-md shadow-md ${
+                theme === 'dark' ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'
+            }`}
+        >
             {error && (
                 <div
-                    className="fixed top-0 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-8 py-4 shadow-lg rounded-lg z-50 text-lg font-bold flex items-center justify-center w-11/12 max-w-4xl"
+                    className={`fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-md shadow-lg ${
+                        theme === 'dark' ? 'bg-red-800 text-red-400' : 'bg-red-100 text-red-600'
+                    }`}
                 >
                     {error}
                 </div>
             )}
-            <h1 className="text-3xl font-semibold text-blue-700 mb-4">{blog.title}</h1>
-            <p className="text-sm text-gray-500">
-                By {blog.user.firstName} {blog.user.lastName} | {new Date(blog.createdAt).toLocaleDateString()}
+            <h1
+                className={`text-3xl font-semibold ${
+                    theme === 'dark' ? 'text-blue-300' : 'text-blue-600'
+                }`}
+            >
+                {blog.title}
+            </h1>
+            <p className="text-sm">
+                By {blog.user.firstName} {blog.user.lastName} |{' '}
+                {new Date(blog.createdAt).toLocaleDateString()}
             </p>
-            <p className="text-gray-700 mt-4">{blog.description}</p>
-            <p className="text-sm text-gray-500 mt-4">
+            <p className="text-base mt-4">
+                Description: {blog.description}
+            </p>
+            <p className="text-sm mt-4">
                 Tags: <span className="italic">{blog.tags}</span>
             </p>
 
             <div className="mt-4 flex items-center gap-4">
-                <p className="text-green-500 font-semibold">Upvotes: {blog.numUpvotes}</p>
-                <p className="text-red-500 font-semibold">Downvotes: {blog.numDownvotes}</p>
+                <p
+                    className={`font-semibold ${
+                        theme === 'dark' ? 'text-green-400' : 'text-green-500'
+                    }`}
+                >
+                    Upvotes: {blog.numUpvotes}
+                </p>
+                <p
+                    className={`font-semibold ${
+                        theme === 'dark' ? 'text-red-400' : 'text-red-500'
+                    }`}
+                >
+                    Downvotes: {blog.numDownvotes}
+                </p>
             </div>
 
             {blog.templates.length > 0 && (
                 <div className="mt-4">
-                    <h3 className="text-lg font-semibold text-black">Templates:</h3>
+                    <h3 className="text-lg font-semibold">Templates:</h3>
                     <ul className="list-disc list-inside">
                         {blog.templates.map((template) => (
                             <li key={template.id}>
-                                <Link href={`/templates/${template.id}`} className="text-blue-500 hover:underline">
+                                <Link
+                                    href={`/templates/${template.id}`}
+                                    className={`hover:underline ${
+                                        theme === 'dark' ? 'text-blue-400' : 'text-blue-500'
+                                    }`}
+                                >
                                     {template.title}
                                 </Link>
                             </li>
@@ -411,9 +454,13 @@ const BlogDetails: React.FC = () => {
 
             <div className="flex gap-4 mt-4">
                 <label>
-                    <span className="font-semibold text-black">Sort Main Comments:</span>
+                    <span className="font-semibold">Sort Main Comments:</span>
                     <select
-                        className="ml-2 border border-gray-300 rounded-md text-black"
+                        className={`ml-2 border rounded-md focus:outline-none ${
+                            theme === 'dark'
+                                ? 'bg-gray-700 border-gray-600 text-gray-200'
+                                : 'bg-gray-50 border-gray-300 text-gray-800'
+                        }`}
                         value={sortByMain}
                         onChange={(e) => setSortByMain(e.target.value as 'mostLiked' | 'mostDisliked' | 'mostRecent')}
                     >
@@ -425,32 +472,52 @@ const BlogDetails: React.FC = () => {
             </div>
 
             <div className="mt-6">
-                <h3 className="text-lg font-semibold text-black">Comments:</h3>
+                <h3 className="text-lg font-semibold">Comments:</h3>
                 {blog.comments.length > 0 ? (
                     <ul className="space-y-4">
-                        {blog.comments.map((comment) => (
-                            <li key={comment.id} className="border border-gray-300 p-4 rounded-md text-black">
+                        {blog.comments.slice(0, commentsPage * commentsLimit).map((comment) => (
+                            <li
+                                key={comment.id}
+                                className={`p-4 rounded-md shadow-md ${
+                                    theme === 'dark'
+                                        ? 'bg-gray-700 border-gray-600'
+                                        : 'bg-gray-50 border-gray-300'
+                                }`}
+                            >
                                 <p>
                                     <strong>
                                         {comment.user.firstName} {comment.user.lastName}:
                                     </strong>{' '}
-                                    {comment.hidden && comment.user.email !== userEmail && !isAdmin
-                                        ? '[HIDDEN BY ADMIN]'
-                                        : `${comment.content} ${comment.hidden ? '[HIDDEN BY ADMIN]' : ''}`}
+                                    {comment.hidden && comment.user.email !== userEmail && !isAdmin ? (
+                                        <span className="text-red-500">(Hidden)</span>
+                                    ) : (
+                                        <>
+                                            {comment.content}{' '}
+                                            {comment.hidden && (
+                                                <span className="text-red-500">(Hidden)</span>
+                                            )}
+                                        </>
+                                    )}
                                 </p>
                                 <div className="flex items-center gap-4 mt-2">
                                     <button
                                         onClick={() => handleVote(comment.id, 'upvote')}
-                                        className="text-green-500 flex items-center gap-1"
-                                        title="Upvote"
+                                        className={`flex items-center gap-1 ${
+                                            theme === 'dark'
+                                                ? 'text-green-400 hover:text-green-500'
+                                                : 'text-green-500 hover:text-green-600'
+                                        }`}
                                     >
                                         <FaThumbsUp size={16} />
                                         {comment.numUpvotes}
                                     </button>
                                     <button
                                         onClick={() => handleVote(comment.id, 'downvote')}
-                                        className="text-red-500 flex items-center gap-1"
-                                        title="Downvote"
+                                        className={`flex items-center gap-1 ${
+                                            theme === 'dark'
+                                                ? 'text-red-400 hover:text-red-500'
+                                                : 'text-red-500 hover:text-red-600'
+                                        }`}
                                     >
                                         <FaThumbsDown size={16} />
                                         {comment.numDownvotes}
@@ -458,24 +525,38 @@ const BlogDetails: React.FC = () => {
                                     {!isAdmin && comment.user.email !== userEmail && !comment.hidden && (
                                         <button
                                             onClick={() => handleReportComment(comment.id)}
-                                            className="text-yellow-500 hover:text-yellow-700"
-                                            title="Report Comment"
+                                            className={`hover:text-yellow-700 ${
+                                                theme === 'dark'
+                                                    ? 'text-yellow-400'
+                                                    : 'text-yellow-500'
+                                            }`}
                                         >
                                             <FaExclamationTriangle size={16} />
                                         </button>
                                     )}
                                 </div>
                                 <textarea
-                                    className="w-full mt-2 p-2 border border-gray-300 rounded-md text-black"
+                                    className={`w-full mt-2 p-2 border rounded-md ${
+                                        theme === 'dark'
+                                            ? 'bg-gray-700 border-gray-600 text-gray-200'
+                                            : 'bg-gray-50 border-gray-300 text-gray-800'
+                                    }`}
                                     placeholder="Reply to this comment"
                                     value={replyComment[comment.id] || ''}
                                     onChange={(e) =>
-                                        setReplyComment((prev) => ({ ...prev, [comment.id]: e.target.value }))
+                                        setReplyComment((prev) => ({
+                                            ...prev,
+                                            [comment.id]: e.target.value,
+                                        }))
                                     }
                                 />
                                 <div className="flex items-center mt-2 gap-2">
                                     <button
-                                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+                                        className={`mt-2 px-4 py-2 rounded-md ${
+                                            theme === 'dark'
+                                                ? 'bg-blue-500 text-white hover:bg-blue-400'
+                                                : 'bg-blue-500 text-white hover:bg-blue-600'
+                                        }`}
                                         onClick={() => handleAddReply(comment.id)}
                                     >
                                         Reply
@@ -483,13 +564,20 @@ const BlogDetails: React.FC = () => {
                                     <label>
                                         <span>Sort Replies:</span>
                                         <select
-                                            className="ml-2 border border-gray-300 rounded-md"
+                                            className={`ml-2 border rounded-md focus:outline-none ${
+                                                theme === 'dark'
+                                                    ? 'bg-gray-700 border-gray-600 text-gray-200'
+                                                    : 'bg-gray-50 border-gray-300 text-gray-800'
+                                            }`}
                                             value={replySortOptions[comment.id] || 'mostRecent'}
                                             onChange={(e) =>
-                                                setReplySortOptions((prev) => ({
-                                                    ...prev,
-                                                    [comment.id]: e.target.value as 'mostLiked' | 'mostDisliked' | 'mostRecent',
-                                                }))
+                                                handleReplySortChange(
+                                                    comment.id,
+                                                    e.target.value as
+                                                        | 'mostLiked'
+                                                        | 'mostDisliked'
+                                                        | 'mostRecent'
+                                                )
                                             }
                                         >
                                             <option value="mostLiked">Most Liked</option>
@@ -500,64 +588,132 @@ const BlogDetails: React.FC = () => {
                                 </div>
                                 {comment.replies.length > 0 && (
                                     <ul className="mt-2 space-y-2 pl-4 border-l border-gray-300">
-                                        {comment.replies.map((reply) => (
-                                            <li key={reply.id}>
-                                                <p>
-                                                    <strong>
-                                                        {reply.user.firstName} {reply.user.lastName}:
-                                                    </strong>{' '}
-                                                    {reply.hidden && reply.user.email !== userEmail && !isAdmin
-                                                        ? '[HIDDEN BY ADMIN]'
-                                                        : `${reply.content} ${reply.hidden ? '[HIDDEN BY ADMIN]' : ''}`}
-                                                </p>
-                                                <div className="flex items-center gap-4 mt-2">
-                                                    <button
-                                                        onClick={() => handleVote(reply.id, 'upvote', true, comment.id)}
-                                                        className="text-green-500 flex items-center gap-1"
-                                                        title="Upvote"
-                                                    >
-                                                        <FaThumbsUp size={16} />
-                                                        {reply.numUpvotes}
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleVote(reply.id, 'downvote', true, comment.id)}
-                                                        className="text-red-500 flex items-center gap-1"
-                                                        title="Downvote"
-                                                    >
-                                                        <FaThumbsDown size={16} />
-                                                        {reply.numDownvotes}
-                                                    </button>
-                                                    {!isAdmin && reply.user.email !== userEmail && !reply.hidden && (
+                                        {comment.replies
+                                            .slice(
+                                                0,
+                                                replyPages[comment.id] * replyLimits || replyLimits
+                                            )
+                                            .map((reply) => (
+                                                <li key={reply.id}>
+                                                    <p>
+                                                        <strong>
+                                                            {reply.user.firstName}{' '}
+                                                            {reply.user.lastName}:
+                                                        </strong>{' '}
+                                                        {reply.hidden &&
+                                                        reply.user.email !== userEmail &&
+                                                        !isAdmin ? (
+                                                            <span className="text-red-500">
+                                                                (Hidden)
+                                                            </span>
+                                                        ) : (
+                                                            <>
+                                                                {reply.content}{' '}
+                                                                {reply.hidden && (
+                                                                    <span className="text-red-500">
+                                                                        (Hidden)
+                                                                    </span>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </p>
+                                                    <div className="flex items-center gap-4 mt-2">
                                                         <button
-                                                            onClick={() => handleReportComment(reply.id)}
-                                                            className="text-yellow-500 hover:text-yellow-700"
-                                                            title="Report Reply"
+                                                            onClick={() =>
+                                                                handleVote(
+                                                                    reply.id,
+                                                                    'upvote',
+                                                                    true,
+                                                                    comment.id
+                                                                )
+                                                            }
+                                                            className="text-green-500 flex items-center gap-1"
+                                                            title="Upvote"
                                                         >
-                                                            <FaExclamationTriangle size={16} />
+                                                            <FaThumbsUp size={16} />
+                                                            {reply.numUpvotes}
                                                         </button>
-                                                    )}
-                                                </div>
-                                            </li>
-                                        ))}
+                                                        <button
+                                                            onClick={() =>
+                                                                handleVote(
+                                                                    reply.id,
+                                                                    'downvote',
+                                                                    true,
+                                                                    comment.id
+                                                                )
+                                                            }
+                                                            className="text-red-500 flex items-center gap-1"
+                                                            title="Downvote"
+                                                        >
+                                                            <FaThumbsDown size={16} />
+                                                            {reply.numDownvotes}
+                                                        </button>
+                                                        {!isAdmin &&
+                                                            reply.user.email !== userEmail &&
+                                                            !reply.hidden && (
+                                                                <button
+                                                                    onClick={() =>
+                                                                        handleReportComment(
+                                                                            reply.id
+                                                                        )
+                                                                    }
+                                                                    className="text-yellow-500 hover:text-yellow-700"
+                                                                    title="Report Reply"
+                                                                >
+                                                                    <FaExclamationTriangle
+                                                                        size={16}
+                                                                    />
+                                                                </button>
+                                                            )}
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        <div className="flex justify-start gap-4 mt-4">
+                                            {comment.replies.length >
+                                                (replyPages[comment.id] || 1) * replyLimits && (
+                                                <button
+                                                    className="text-blue-500 hover:text-blue-600"
+                                                    onClick={() => toggleReplyPage(comment.id, true)}
+                                                >
+                                                    Show More Replies
+                                                </button>
+                                            )}
+                                            {replyPages[comment.id] > 1 && (
+                                                <button
+                                                    className="text-blue-500 hover:text-blue-600"
+                                                    onClick={() => toggleReplyPage(comment.id, false)}
+                                                >
+                                                    Show Less Replies
+                                                </button>
+                                            )}
+                                        </div>
                                     </ul>
                                 )}
                             </li>
                         ))}
                     </ul>
                 ) : (
-                    <p className="text-gray-500">No comments yet. Be the first to add a comment!</p>
+                    <p>No comments yet. Be the first to add a comment!</p>
                 )}
             </div>
 
             <div className="mt-6">
                 <textarea
-                    className="w-full p-2 border border-gray-300 rounded-md text-black"
+                    className={`w-full p-2 rounded-md border ${
+                        theme === 'dark'
+                            ? 'bg-gray-700 border-gray-600 text-gray-200'
+                            : 'bg-gray-50 border-gray-300 text-gray-800'
+                    }`}
                     placeholder="Add a comment"
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                 />
                 <button
-                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+                    className={`mt-2 px-4 py-2 rounded-md ${
+                        theme === 'dark'
+                            ? 'bg-blue-500 text-white hover:bg-blue-400'
+                            : 'bg-blue-500 text-white hover:bg-blue-600'
+                    }`}
                     onClick={handleAddComment}
                 >
                     Post My Comment!
@@ -593,36 +749,22 @@ const BlogDetails: React.FC = () => {
             )}
 
             <div className="flex justify-between mt-6">
-                <button
-                    onClick={() => {
-                        if (commentsPage > 1) {
-                            setCommentsPage((prev) => prev - 1);
-                        }
-                    }}
-                    disabled={commentsPage === 1}
-                    className={`px-4 py-2 rounded-md ${
-                        commentsPage === 1
-                            ? 'bg-gray-300 cursor-not-allowed'
-                            : 'bg-blue-500 text-white hover:bg-blue-600'
-                    }`}
-                >
-                    Show Less
-                </button>
-                <button
-                    onClick={() => {
-                        if (hasMoreComments) {
-                            setCommentsPage((prev) => prev + 1);
-                        }
-                    }}
-                    disabled={!hasMoreComments}
-                    className={`px-4 py-2 rounded-md ${
-                        !hasMoreComments
-                            ? 'bg-gray-300 cursor-not-allowed'
-                            : 'bg-blue-500 text-white hover:bg-blue-600'
-                    }`}
-                >
-                    Show More
-                </button>
+                {commentsPage > 1 && (
+                    <button
+                        className="text-blue-500 hover:text-blue-600"
+                        onClick={() => setCommentsPage((prev) => prev - 1)}
+                    >
+                        Show Less Comments
+                    </button>
+                )}
+                {hasMoreComments && (
+                    <button
+                        className="text-blue-500 hover:text-blue-600"
+                        onClick={() => setCommentsPage((prev) => prev + 1)}
+                    >
+                        Show More Comments
+                    </button>
+                )}
             </div>
         </div>
     );

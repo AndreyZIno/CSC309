@@ -22,9 +22,9 @@ const BlogPostForm: React.FC = () => {
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
         if (!token) {
-          router.push('/'); //non-logged in users shouldnt see this page
+            router.push('/'); //non-logged in users shouldnt see this page
         }
-      }, []);
+    }, []);
     
     useEffect(() => {
         const fetchCurrentUser = async () => {
@@ -55,7 +55,7 @@ const BlogPostForm: React.FC = () => {
         };
 
         fetchCurrentUser();
-      }, []);
+    }, []);
     
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -90,11 +90,10 @@ const BlogPostForm: React.FC = () => {
                     setError('Something went wrong, and we could not parse the server response.');
                 }
                 return;
-            }            
+            }
 
             const data = await response.json();
             setSuccess('Blog post created successfully! Redirecting to all blogs...');
-            console.log('Created blog post:', data);
 
             setTitle('');
             setDescription('');
@@ -134,17 +133,17 @@ const BlogPostForm: React.FC = () => {
         const query = e.target.value.toLowerCase();
         setSearchQuery(query);
         setFilteredTemplates(
-          templates.filter((template) => template.title.toLowerCase().includes(query))
+            templates.filter((template) => template.title.toLowerCase().includes(query))
         );
     };
 
     const handleTemplateSelect = (id: number) => {
         if (templateIds.includes(id)) {
-          // Deselect, written by chatGPT
-          setTemplateIds((prev) => prev.filter((templateId) => templateId !== id));
+            // Deselect, written by chatGPT
+            setTemplateIds((prev) => prev.filter((templateId) => templateId !== id));
         } else {
-          // Add to selected templates
-          setTemplateIds((prev) => [...prev, id]);
+            // Add to selected templates
+            setTemplateIds((prev) => [...prev, id]);
         }
     };
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTheme } from '../../components/ThemeToggle';
 
 interface Report {
   reason: string;
@@ -19,9 +20,13 @@ interface ReportedItem {
 }
 
 const AdminReports: React.FC = () => {
-  const [reportedItems, setReportedItems] = useState<ReportedItem[]>([]);
+  const [reportedBlogs, setReportedBlogs] = useState<ReportedItem[]>([]);
+  const [reportedComments, setReportedComments] = useState<ReportedItem[]>([]);
+  const [blogFilter, setBlogFilter] = useState<'all' | 'hidden' | 'notHidden'>('all');
+  const [commentFilter, setCommentFilter] = useState<'all' | 'hidden' | 'notHidden'>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -57,7 +62,8 @@ const AdminReports: React.FC = () => {
           reports: comment.reports,
         }));
 
-        setReportedItems([...formattedBlogs, ...formattedComments]);
+        setReportedBlogs(formattedBlogs);
+        setReportedComments(formattedComments);
       } catch (err) {
         setError('Failed to fetch reported items.');
       } finally {
@@ -86,62 +92,167 @@ const AdminReports: React.FC = () => {
         throw new Error(`Failed to hide ${type}.`);
       }
 
-      setReportedItems((prev) =>
-        prev.map((item) =>
-          item.id === id
-            ? { ...item, hidden: true }
-            : item
-        )
-      );
+      if (type === 'blog') {
+        setReportedBlogs((prev) =>
+          prev.map((item) => (item.id === id ? { ...item, hidden: true } : item))
+        );
+      } else {
+        setReportedComments((prev) =>
+          prev.map((item) => (item.id === id ? { ...item, hidden: true } : item))
+        );
+      }
     } catch (err) {
       alert(`Error hiding ${type}.`);
       console.error(err);
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  const filterItems = (
+    items: ReportedItem[],
+    filter: 'all' | 'hidden' | 'notHidden'
+  ) => {
+    let filtered = items;
+    if (filter === 'hidden') {
+      filtered = items.filter((item) => item.hidden);
+    } else if (filter === 'notHidden') {
+      filtered = items.filter((item) => !item.hidden);
+    }
+    return filtered.sort((a, b) => b.reportsCount - a.reportsCount);
+  };
+
+  if (loading) return <p className="text-center">Loading...</p>;
+  if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md text-black">
-      <h1 className="text-2xl font-bold mb-4">Reported Items</h1>
-      {reportedItems.length > 0 ? (
-        <ul>
-          {reportedItems.map((item) => (
-            <li key={item.id} className="mb-4 border-b pb-2">
-              <p>
-                <strong>{item.type === 'blog' ? 'Blog Title:' : 'Comment:'}</strong>{' '}
-                {item.title || item.content}
-              </p>
-              <p>
-                <strong>Reports:</strong> {item.reportsCount}
-              </p>
-              {item.hidden && (
-                <p className="text-red-500 font-bold">This content is hidden.</p>
-              )}
-              <button
-                onClick={() => hideContent(item.id, item.type)}
-                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 mt-2"
-                disabled={item.hidden}
+    <div
+      className={`max-w-7xl mx-auto mt-10 p-6 rounded-md shadow-md ${
+        theme === 'dark' ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'
+      }`}
+    >
+      <h1
+        className={`text-2xl font-bold mb-6 ${
+          theme === 'dark' ? 'text-blue-300' : 'text-blue-600'
+        }`}
+      >
+        Reported Items
+      </h1>
+      <div className="grid grid-cols-2 gap-6">
+        {/* Blog Reports */}
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h2
+              className={`text-xl font-semibold ${
+                theme === 'dark' ? 'text-blue-300' : 'text-blue-600'
+              }`}
+            >
+              Blog Reports
+            </h2>
+            <select
+              value={blogFilter}
+              onChange={(e) => setBlogFilter(e.target.value as 'all' | 'hidden' | 'notHidden')}
+              className={`px-4 py-2 rounded-md focus:ring-2 ${
+                theme === 'dark'
+                  ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-400'
+                  : 'bg-gray-50 border-gray-300 text-black focus:ring-blue-500'
+              }`}
+            >
+              <option value="all">All</option>
+              <option value="hidden">Hidden</option>
+              <option value="notHidden">Not Hidden</option>
+            </select>
+          </div>
+          <ul className="space-y-4">
+            {filterItems(reportedBlogs, blogFilter).map((blog) => (
+              <li
+                key={blog.id}
+                className={`p-4 rounded-md border shadow-sm ${
+                  theme === 'dark'
+                    ? 'bg-gray-700 border-gray-600 text-gray-200'
+                    : 'bg-gray-50 border-gray-300 text-gray-800'
+                }`}
               >
-                {item.hidden ? 'Hidden' : `Hide ${item.type === 'blog' ? 'Blog' : 'Comment'}`}
-              </button>
-              <div className="mt-2">
-                <strong>Reasons for Reports:</strong>
-                <ul className="list-disc pl-5">
-                  {item.reports.map((report, index) => (
-                    <li key={index}>
-                      "{report.reason}" - Reported by {report.user.firstName} {report.user.lastName}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No reported items found.</p>
-      )}
+                <p className="font-semibold">
+                  Blog Title: <span className="font-normal">{blog.title}</span>
+                </p>
+                <p>Reports: {blog.reportsCount}</p>
+                {blog.hidden && <p className="text-red-500 font-bold">This content is hidden.</p>}
+                <button
+                  onClick={() => hideContent(blog.id, 'blog')}
+                  className={`px-4 py-2 mt-4 rounded-md ${
+                    blog.hidden
+                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                      : theme === 'dark'
+                      ? 'bg-red-500 hover:bg-red-600 text-white'
+                      : 'bg-red-500 hover:bg-red-600 text-white'
+                  }`}
+                  disabled={blog.hidden}
+                >
+                  {blog.hidden ? 'Hidden' : 'Hide Blog'}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Comment Reports */}
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h2
+              className={`text-xl font-semibold ${
+                theme === 'dark' ? 'text-blue-300' : 'text-blue-600'
+              }`}
+            >
+              Comment Reports
+            </h2>
+            <select
+              value={commentFilter}
+              onChange={(e) => setCommentFilter(e.target.value as 'all' | 'hidden' | 'notHidden')}
+              className={`px-4 py-2 rounded-md focus:ring-2 ${
+                theme === 'dark'
+                  ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-400'
+                  : 'bg-gray-50 border-gray-300 text-black focus:ring-blue-500'
+              }`}
+            >
+              <option value="all">All</option>
+              <option value="hidden">Hidden</option>
+              <option value="notHidden">Not Hidden</option>
+            </select>
+          </div>
+          <ul className="space-y-4">
+            {filterItems(reportedComments, commentFilter).map((comment) => (
+              <li
+                key={comment.id}
+                className={`p-4 rounded-md border shadow-sm ${
+                  theme === 'dark'
+                    ? 'bg-gray-700 border-gray-600 text-gray-200'
+                    : 'bg-gray-50 border-gray-300 text-gray-800'
+                }`}
+              >
+                <p className="font-semibold">
+                  Comment: <span className="font-normal">{comment.content}</span>
+                </p>
+                <p>Reports: {comment.reportsCount}</p>
+                {comment.hidden && (
+                  <p className="text-red-500 font-bold">This content is hidden.</p>
+                )}
+                <button
+                  onClick={() => hideContent(comment.id, 'comment')}
+                  className={`px-4 py-2 mt-4 rounded-md ${
+                    comment.hidden
+                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                      : theme === 'dark'
+                      ? 'bg-red-500 hover:bg-red-600 text-white'
+                      : 'bg-red-500 hover:bg-red-600 text-white'
+                  }`}
+                  disabled={comment.hidden}
+                >
+                  {comment.hidden ? 'Hidden' : 'Hide Comment'}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,103 +1,155 @@
-import React from 'react';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
+import React from "react";
+import { useRouter } from "next/router";
+import Link from "next/link";
 import ThemeToggleButton from "./ThemeToggleButton";
+import { useTheme } from "./ThemeToggle";
 
 interface NavbarProps {
-  user: {
-    avatar: string;
-    firstName: string;
-    isAdmin: boolean;
-  };
-  isGuest: boolean;
-  onLogout: () => void;
+    user: {
+        avatar: string;
+        firstName: string;
+        isAdmin: boolean;
+    };
+    isGuest: boolean;
+    onLogout: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ user, isGuest, onLogout }) => {
-  const router = useRouter();
-  const [menuOpen, setMenuOpen] = React.useState(false);
+    const router = useRouter();
+    const [menuOpen, setMenuOpen] = React.useState(false);
+    const { theme } = useTheme();
 
-  const handleNavigateHome = () => {
-    if (isGuest) {
-      router.push('/dashboard?guest=true');
-    } else {
-      router.push('/dashboard');
-    }
-  };
+    const handleNavigateHome = () => {
+        if (isGuest) {
+            router.push("/dashboard?guest=true");
+        } else {
+            router.push("/dashboard");
+        }
+    };
 
-  return (
-    <nav className="bg-blue-600 text-white p-4 shadow dark:bg-blue-900 dark:text-blue-200">
-      <div className="container mx-auto flex justify-between items-center">
-      <h1
-          className="text-xl font-bold cursor-pointer hover:text-purple-200 dark:hover:text-yellow-500"
-          onClick={handleNavigateHome}
+    return (
+        <nav
+            className={`p-4 shadow-md transition-all ${
+                theme === "dark"
+                    ? "bg-gradient-to-r from-gray-700 via-gray-800 to-gray-700 text-white"
+                    : "bg-gradient-to-r from-blue-300 via-blue-400 to-blue-300 text-black"
+            }`}
         >
-          Scriptorium
-        </h1>
-        <ul className="flex space-x-6">
-            <li>
-                <Link href={isGuest ? "/templates/viewAll?guest=true" : "/templates/viewAll"}
-                  className="hover:underline dark:hover:text-yellow-500"
+            <div className="container mx-auto flex justify-between items-center">
+                {/* Logo */}
+                <h1
+                    className={`text-2xl font-extrabold cursor-pointer transition hover:scale-105 ${
+                        theme === "dark"
+                            ? "hover:text-yellow-400 text-white" // Dark theme: white text with yellow hover
+                            : "hover:text-blue-500 text-blue-800" // Light theme: light blue text with dark blue hover
+                    }`}
+                    onClick={handleNavigateHome}
                 >
-                Templates
-                </Link>
-            </li>
-            <li>
-                <Link href={isGuest ? "/blogs/viewAll?guest=true" : "/blogs/viewAll"}
-                  className="hover:underline dark:hover:text-yellow-500"
-                >
-                Blogs
-                </Link>
-          </li>
-          {user.isAdmin && (
-            <li>
-              <Link href="/admin/reports">
-                Reports
-              </Link>
-            </li>
-          )}
-        </ul>
+                    Scriptorium
+                </h1>
 
-        <ThemeToggleButton />
-        
-        {!isGuest ? (
-          <div className="relative">
-            <img
-              src={user.avatar}
-              alt="User Avatar"
-              className="w-10 h-10 rounded-full cursor-pointer"
-              onClick={() => setMenuOpen(!menuOpen)}
-            />
-            {menuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg dark:bg-gray-700 dark:border-gray-600">
-                <ul>
-                  <li
-                    className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer dark:text-gray-200 dark:hover:bg-gray-600"
-                    onClick={() => router.push('/profile')}
-                  >
-                    Edit Profile
-                  </li>
-                  <li
-                    className="px-4 py-2 text-black hover:bg-gray-100 cursor-pointer dark:text-gray-200 dark:hover:bg-gray-600"
-                    onClick={onLogout}
-                  >
-                    Logout
-                  </li>
+                {/* Navigation Links */}
+                <ul className="flex space-x-6 items-center">
+                    <li>
+                        <Link
+                            href={isGuest ? "/templates/viewAll?guest=true" : "/templates/viewAll"}
+                            className={`px-4 py-2 rounded-lg transition font-semibold shadow-md ${
+                                theme === "dark"
+                                    ? "bg-gray-700 hover:bg-gray-600 text-gray-200 hover:text-yellow-300"
+                                    : "bg-blue-200 hover:bg-blue-300 text-blue-900 hover:text-blue-600"
+                            }`}
+                        >
+                            Templates
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            href={isGuest ? "/blogs/viewAll?guest=true" : "/blogs/viewAll"}
+                            className={`px-4 py-2 rounded-lg transition font-semibold shadow-md ${
+                                theme === "dark"
+                                    ? "bg-gray-700 hover:bg-gray-600 text-gray-200 hover:text-yellow-300"
+                                    : "bg-blue-200 hover:bg-blue-300 text-blue-900 hover:text-blue-600"
+                            }`}
+                        >
+                            Blogs
+                        </Link>
+                    </li>
+                    {user.isAdmin && (
+                        <li>
+                            <Link
+                                href="/admin/reports"
+                                className={`px-4 py-2 rounded-lg transition font-semibold shadow-md ${
+                                    theme === "dark"
+                                        ? "bg-gray-700 hover:bg-gray-600 text-gray-200 hover:text-yellow-300"
+                                        : "bg-blue-200 hover:bg-blue-300 text-blue-900 hover:text-blue-600"
+                                }`}
+                            >
+                                Reports
+                            </Link>
+                        </li>
+                    )}
                 </ul>
-              </div>
-            )}
-          </div>
-        ) : (
-          <button
-            onClick={onLogout}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 dark:bg-red-400 dark:hover:bg-red-500"
-          >
-            Exit
-          </button>
-        )}
-      </div>
-    </nav>
-  );
+
+                {/* Theme Toggle */}
+                <ThemeToggleButton />
+
+                {/* User Section */}
+                {!isGuest ? (
+                    <div className="relative">
+                        <img
+                            src={user.avatar}
+                            alt="User Avatar"
+                            className="w-10 h-10 rounded-full cursor-pointer hover:ring-4 hover:ring-offset-2 hover:ring-blue-500 dark:hover:ring-yellow-400"
+                            onClick={() => setMenuOpen(!menuOpen)}
+                        />
+                        {menuOpen && (
+                            <div
+                                className={`absolute right-0 mt-2 w-48 rounded-lg shadow-lg border ${
+                                    theme === "dark"
+                                        ? "bg-gray-800 text-gray-200 border-gray-700"
+                                        : "bg-white text-gray-800 border-gray-300"
+                                }`}
+                            >
+                                <ul>
+                                    <li
+                                        className={`px-4 py-2 cursor-pointer transition hover:bg-opacity-75 ${
+                                            theme === "dark"
+                                                ? "hover:bg-gray-700"
+                                                : "hover:bg-gray-200"
+                                        }`}
+                                        onClick={() => router.push("/profile")}
+                                    >
+                                        Edit Profile
+                                    </li>
+                                    <li
+                                        className={`px-4 py-2 cursor-pointer transition hover:bg-opacity-75 ${
+                                            theme === "dark"
+                                                ? "hover:bg-gray-700"
+                                                : "hover:bg-gray-200"
+                                        }`}
+                                        onClick={onLogout}
+                                    >
+                                        Logout
+                                    </li>
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <button
+                        onClick={onLogout}
+                        className={`ml-4 px-4 py-2 rounded-lg transition font-semibold ${
+                            theme === "dark"
+                                ? "bg-red-600 text-white hover:bg-red-700"
+                                : "bg-red-500 text-white hover:bg-red-600"
+                        }`}
+                    >
+                        Exit
+                    </button>
+                )}
+            </div>
+        </nav>
+    );
 };
 
 export default Navbar;

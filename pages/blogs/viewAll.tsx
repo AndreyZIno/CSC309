@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaTrash, FaEdit, FaThumbsUp, FaThumbsDown, FaExclamationTriangle } from 'react-icons/fa';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useTheme } from '../../components/ThemeToggle';
 
 interface BlogPost {
     id: number;
@@ -38,6 +39,7 @@ const ViewAllBlogs: React.FC = () => {
     const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
     const [editError, setEditError] = useState<string | null>(null);
     const [deleteNotification, setDeleteNotification] = useState(false);
+    const [updateNotification, setUpdateNotification] = useState(false);
     const [sortBy, setSortBy] = useState<'mostLiked' | 'mostDisliked' | 'mostRecent'>('mostRecent');
     const [reportSuccess, setReportSuccess] = useState<string | null>(null);
     const router = useRouter();
@@ -45,6 +47,7 @@ const ViewAllBlogs: React.FC = () => {
     const [templates, setTemplates] = useState<{ id: number; title: string }[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredTemplates, setFilteredTemplates] = useState<{ id: number; title: string }[]>([]);
+    const { theme } = useTheme(); // Add theme from useTheme
 
     useEffect(() => {
         const fetchCurrentUser = async () => {
@@ -129,9 +132,6 @@ const ViewAllBlogs: React.FC = () => {
                 return;
             }
     
-            const successData = await response.json();
-            console.log(successData.message);
-    
             setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== blogID));
             setError(null);
             fetchBlogs();
@@ -168,6 +168,8 @@ const ViewAllBlogs: React.FC = () => {
                 prevBlogs.map((blog) => (blog.id === data.id ? { ...blog, ...data } : blog))
             );
             setEditingBlog(null);
+            setUpdateNotification(true);
+            setTimeout(() => setUpdateNotification(false), 3000);
             fetchBlogs();
         } catch (err) {
             console.error('Error updating blog:', err);
@@ -304,271 +306,388 @@ const ViewAllBlogs: React.FC = () => {
         fetchBlogs();
       }, [page, search, sortBy, searchField]);
 
-    return (
-        <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
-            {/*ChatGPT code to display the error popup*/}
-            {error && (
-                <div
-                    className="fixed top-0 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-8 py-4 shadow-lg rounded-lg z-50 text-lg font-bold flex items-center justify-center w-11/12 max-w-4xl"
-                    style={{
-                        animation: 'slideDown 0.5s ease-out',
-                    }}
-                >
-                    {error}
-                </div>
-            )}
-            {reportSuccess && <div className="text-green-500 mb-4">{reportSuccess}</div>}
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl text-blue-500 font-semibold">View All Blogs</h1>
-                <button
-                    onClick={() => {
-                        if (!userEmail) {
-                            setError('Only logged-in users can create blog posts.');
-                            return;
-                        }
-                        router.push('/blogs/create');
-                    }}
-                    className="flex items-center bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                    <span className="mr-2 text-lg font-semibold">+</span>
-                    Create
-                </button>
+      return (
+        <div
+          className={`max-w-4xl mx-auto mt-10 p-6 rounded-md shadow-md ${
+            theme === 'dark' ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'
+          }`}
+        >
+          {error && (
+            <div
+              className={`fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-md shadow-lg ${
+                theme === 'dark' ? 'bg-red-800 text-red-400' : 'bg-red-100 text-red-600'
+              }`}
+            >
+              {error}
             </div>
-            <div className="mb-4 flex gap-4">
-                <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search blogs..."
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-                />
-                <select
-                    value={searchField}
-                    onChange={(e) => setSearchField(e.target.value as 'title' | 'description' | 'tags' | 'templates')}
-                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-                >
-                    <option value="title">By Title</option>
-                    <option value="description">By Description</option>
-                    <option value="tags">By Tags</option>
-                    <option value="templates">By Templates</option>
-                </select>
-                <button
-                    onClick={() => setPage(1)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                    Search
-                </button>
+          )}
+          {reportSuccess && (
+            <div
+              className={`fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-md shadow-lg ${
+                theme === 'dark' ? 'bg-green-800 text-green-400' : 'bg-green-100 text-green-600'
+              }`}
+            >
+              {reportSuccess}
             </div>
-
-            <div className="mb-4 flex justify-between items-center">
-                <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as 'mostLiked' | 'mostDisliked' | 'mostRecent')}
-                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-                >
-                    <option value="mostRecent">Most Recent</option>
-                    <option value="mostLiked">Most Liked</option>
-                    <option value="mostDisliked">Most Disliked</option>
-                </select>
-            </div>
-
-            {loading ? (
-                <p className="text-center">Loading blogs...</p>
-            ) : (
-                <div>
-                    {blogs.length > 0 ? (
-                        <div className="space-y-4">
-                            {blogs
-                            .filter(
-                              (blog) =>
-                                !blog.hidden || blog.user.email === userEmail || isAdmin // Only show blogs if not hidden, created by user, or admin
-                            )
-                            .map((blog) => (
-                                <div key={blog.id} className="p-4 border border-gray-300 rounded-md relative">
-                                    {blog.user.email === userEmail && (
-                                        <>
-                                        {!blog.hidden && (
-                                            <button
-                                                onClick={() => setEditingBlog(blog)}
-                                                className="absolute top-2 right-12 text-blue-500 hover:text-blue-700"
-                                                title="Edit this blog"
-                                            >
-                                                <FaEdit size={16} />
-                                            </button>
-                                        )}
-                                        <button
-                                            onClick={() => deleteBlog(blog.id)}
-                                            className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                                            title="Delete this blog"
-                                        >
-                                            <FaTrash size={16} />
-                                        </button>
-                                    </>
-                                    )}
-                                    <h2 className="text-xl font-semibold">
-                                        <Link href={isGuest ? `/blogs/${blog.id}?guest=true` : `/blogs/${blog.id}`} 
-                                            className="text-blue-700 hover:underline"
-                                            >
-                                            {blog.title}
-                                            {blog.hidden && (
-                                                " [HIDDEN BY ADMIN]"
-                                            )}
-                                        </Link>
-                                    </h2>
-                                    <p className="text-gray-700">{blog.description}</p>
-                                    <p className="text-sm text-gray-500">
-                                        Tags: <span className="italic">{blog.tags}</span>
-                                    </p>
-                                    {blog.templates.length > 0 && (
-                                        <div className="mt-4">
-                                            <h3 className="text-sm font-semibold text-gray-600">Templates:</h3>
-                                            <ul className="list-disc list-inside text-gray-700">
-                                                {blog.templates.map((template) => (
-                                                    <li key={template.id}>
-                                                        <Link href={isGuest ? `/templates/${template.id}?guest=true` : `/templates/${template.id}`}
-                                                            className="text-blue-500 hover:underline"
-                                                            >
-                                                            {template.title}
-                                                        </Link>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-                                    <p className="text-sm text-gray-500">
-                                        By: {blog.user.firstName} {blog.user.lastName} |{' '}
-                                        {new Date(blog.createdAt).toLocaleDateString()}
-                                    </p>
-                                    <div className="flex items-center gap-4 mt-4">
-                                        <button
-                                            onClick={() => handleVote(blog.id, 'upvote')}
-                                            className="text-green-500 flex items-center gap-1"
-                                            title="Upvote"
-                                        >
-                                            <FaThumbsUp size={16} />
-                                            {blog.numUpvotes}
-                                        </button>
-                                        <button
-                                            onClick={() => handleVote(blog.id, 'downvote')}
-                                            className="text-red-500 flex items-center gap-1"
-                                            title="Downvote"
-                                        >
-                                            <FaThumbsDown size={16} />
-                                            {blog.numDownvotes}
-                                        </button>
-                                        {!isAdmin && blog.user.email !== userEmail && (
-                                          <button
-                                            onClick={() => handleReportBlog(blog.id)}
-                                            className="text-yellow-500 hover:text-yellow-700"
-                                            title="Report this blog"
-                                          >
-                                            <FaExclamationTriangle size={16} />
-                                          </button>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-center text-gray-500">No blogs found.</p>
+          )}
+          <div className="flex justify-between items-center mb-6">
+            <h1
+              className={`text-3xl font-bold ${
+                theme === 'dark' ? 'text-blue-300' : 'text-blue-600'
+              }`}
+            >
+              View All Blogs
+            </h1>
+            <button
+              onClick={() => {
+                if (!userEmail) {
+                  setError('Only logged-in users can create blog posts.');
+                  return;
+                }
+                router.push('/blogs/create');
+              }}
+              className={`px-4 py-2 rounded-md transition ${
+                theme === 'dark'
+                  ? 'bg-green-500 text-white hover:bg-green-400'
+                  : 'bg-green-600 text-white hover:bg-green-700'
+              }`}
+            >
+              + Create Blog
+            </button>
+          </div>
+          <div className="flex gap-4 mb-6">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search blogs..."
+              className={`flex-grow px-4 py-2 rounded-md border focus:outline-none focus:ring-2 ${
+                theme === 'dark'
+                  ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-400'
+                  : 'bg-gray-50 border-gray-300 text-black focus:ring-blue-500'
+              }`}
+            />
+            <select
+              value={searchField}
+              onChange={(e) => setSearchField(e.target.value as 'title' | 'description' | 'tags' | 'templates')}
+              className={`px-4 py-2 rounded-md border focus:outline-none focus:ring-2 ${
+                theme === 'dark'
+                  ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-400'
+                  : 'bg-gray-50 border-gray-300 text-black focus:ring-blue-500'
+              }`}
+            >
+              <option value="title">By Title</option>
+              <option value="description">By Description</option>
+              <option value="tags">By Tags</option>
+              <option value="templates">By Templates</option>
+            </select>
+          </div>
+          <div className="flex justify-between items-center mb-6">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'mostLiked' | 'mostDisliked' | 'mostRecent')}
+              className={`px-4 py-2 rounded-md border focus:outline-none focus:ring-2 ${
+                theme === 'dark'
+                  ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-400'
+                  : 'bg-gray-50 border-gray-300 text-black focus:ring-blue-500'
+              }`}
+            >
+              <option value="mostRecent">Most Recent</option>
+              <option value="mostLiked">Most Liked</option>
+              <option value="mostDisliked">Most Disliked</option>
+            </select>
+          </div>
+          {loading ? (
+            <p className="text-center">Loading blogs...</p>
+          ) : blogs.length > 0 ? (
+            <div className="space-y-4">
+              {blogs
+                .filter((blog) => !blog.hidden || blog.user.email === userEmail || isAdmin)
+                .map((blog) => (
+                  <div
+                    key={blog.id}
+                    className={`relative p-4 rounded-md shadow-md border ${
+                      theme === 'dark'
+                        ? 'bg-gray-700 border-gray-600 text-gray-200'
+                        : 'bg-gray-50 border-gray-300 text-gray-800'
+                    }`}
+                  >
+                    <h2
+                      className={`text-2xl font-semibold ${
+                        theme === 'dark' ? 'text-blue-300' : 'text-blue-600'
+                      }`}
+                    >
+                      <Link
+                        href={isGuest ? `/blogs/${blog.id}?guest=true` : `/blogs/${blog.id}`}
+                        className={`text-3xl font-semibold hover:underline ${
+                          theme === 'dark' ? 'text-blue-300' : 'text-blue-500'
+                        }`}
+                      >
+                        {blog.title}
+                      </Link>
+                      {blog.hidden && <span className="ml-2 text-red-500">(Hidden)</span>}
+                    </h2>
+      
+                    {/* Edit and Delete Buttons */}
+                    {blog.user.email === userEmail && (
+                      <div className="absolute top-4 right-4 flex gap-2">
+                        {!blog.hidden && (
+                          <button
+                            onClick={() => setEditingBlog(blog)}
+                            className={`flex items-center gap-1 ${
+                              theme === 'dark'
+                                ? 'text-blue-300 hover:text-blue-400'
+                                : 'text-blue-500 hover:text-blue-700'
+                            }`}
+                            title="Edit"
+                          >
+                            <FaEdit />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => deleteBlog(blog.id)}
+                          className={`flex items-center gap-1 ${
+                            theme === 'dark'
+                              ? 'text-red-400 hover:text-red-500'
+                              : 'text-red-500 hover:text-red-700'
+                          }`}
+                          title="Delete"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
                     )}
-                    <div className="flex justify-between mt-6">
+      
+                    <p className="text-sm text-gray-400">
+                      By: {blog.user.firstName} {blog.user.lastName} |{' '}
+                      {new Date(blog.createdAt).toLocaleDateString()}
+                    </p>
+                    <p className="text-base mt-2">Description: {blog.description}</p>
+                    <p className="text-sm text-gray-400">
+                      Tags: <span className="italic">{blog.tags}</span>
+                    </p>
+                    <div className="flex items-center gap-4 mt-4">
+                      <button
+                        onClick={() => handleVote(blog.id, 'upvote')}
+                        className={`flex items-center gap-1 ${
+                          theme === 'dark'
+                            ? 'text-green-400 hover:text-green-500'
+                            : 'text-green-500 hover:text-green-600'
+                        }`}
+                      >
+                        <FaThumbsUp /> {blog.numUpvotes}
+                      </button>
+                      <button
+                        onClick={() => handleVote(blog.id, 'downvote')}
+                        className={`flex items-center gap-1 ${
+                          theme === 'dark'
+                            ? 'text-red-400 hover:text-red-500'
+                            : 'text-red-500 hover:text-red-600'
+                        }`}
+                      >
+                        <FaThumbsDown /> {blog.numDownvotes}
+                      </button>
+                      {!isAdmin && blog.user.email !== userEmail && (
                         <button
-                            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                            disabled={page === 1}
-                            className={`px-4 py-2 rounded-md ${
-                                page === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
-                            }`}
+                          onClick={() => handleReportBlog(blog.id)}
+                          className={`flex items-center gap-1 ${
+                            theme === 'dark'
+                              ? 'text-yellow-400 hover:text-yellow-500'
+                              : 'text-yellow-500 hover:text-yellow-600'
+                          }`}
                         >
-                            Previous
+                          <FaExclamationTriangle />
                         </button>
-                        <button
-                            onClick={() => setPage((prev) => prev + 1)}
-                            disabled={!hasMore}
-                            className={`px-4 py-2 rounded-md ${
-                                !hasMore
-                                    ? 'bg-gray-300 cursor-not-allowed'
-                                    : 'bg-blue-500 text-white hover:bg-blue-600'
-                            }`}
-                        >
-                            Next
-                        </button>
+                      )}
                     </div>
-                </div>
-            )}
+                  </div>
+                ))}
+            </div>
+          ) : (
+            <p className="text-center">No blogs found.</p>
+          )}
+          <div className="flex justify-between mt-6">
+            <button
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              disabled={page === 1}
+              className={`px-4 py-2 rounded-md ${
+                page === 1
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : theme === 'dark'
+                  ? 'bg-blue-500 hover:bg-blue-400 text-white'
+                  : 'bg-blue-500 hover:bg-blue-600 text-white'
+              }`}
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setPage((prev) => prev + 1)}
+              disabled={!hasMore}
+              className={`px-4 py-2 rounded-md ${
+                !hasMore
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : theme === 'dark'
+                  ? 'bg-blue-500 hover:bg-blue-400 text-white'
+                  : 'bg-blue-500 hover:bg-blue-600 text-white'
+              }`}
+            >
+              Next
+            </button>
+        </div>
             {editingBlog && (
                 <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center">
-                    <div className="bg-white p-6 rounded-md max-w-md w-full">
-                        <h2 className="text-xl font-semibold text-blue-500 mb-4">Edit Blog</h2>
-                        {editError && <div className="text-red-500 mb-4">{editError}</div>}
-                        <div className="mb-4">
-                            <label className="block font-medium text-gray-700">Edit Title</label>
-                            <input
-                                type="text"
-                                value={editingBlog.title}
-                                onChange={(e) =>
-                                    setEditingBlog({ ...editingBlog, title: e.target.value })
-                                }
-                                placeholder="Title"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-md text-black"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block font-medium text-gray-700">Edit Description</label>
-                            <textarea
-                                value={editingBlog.description}
-                                onChange={(e) =>
-                                    setEditingBlog({ ...editingBlog, description: e.target.value })
-                                }
-                                placeholder="Description"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-md text-black"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block font-medium text-gray-700">Edit Tags</label>
-                            <input
-                                type="text"
-                                value={editingBlog.tags}
-                                onChange={(e) =>
-                                    setEditingBlog({ ...editingBlog, tags: e.target.value })
-                                }
-                                placeholder="Tags"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-md text-black"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block font-medium text-gray-700">Search Templates</label>
-                            <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search templates..."
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md mb-2 text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-md">
-                            {filteredTemplates.map((template) => (
-                                <div key={template.id} className="flex items-center p-2">
-                                <input
-                                    type="checkbox"
-                                    checked={editingBlog?.templates.some((t) => t.id === template.id) || false}
-                                    onChange={() => handleTemplateSelect(template)}
-                                    className="mr-2"
-                                />
-                                <label className="text-black">{template.title}</label>
+                    <div
+                        className={`p-8 rounded-md max-w-2xl w-full ${
+                            theme === 'dark' ? 'bg-gray-900 text-gray-200' : 'bg-white text-gray-800'
+                        }`}
+                    >
+                        <h2
+                            className={`text-2xl font-bold mb-6 ${
+                                theme === 'dark' ? 'text-blue-300' : 'text-blue-500'
+                            }`}
+                        >
+                            Edit Blog
+                        </h2>
+                        <div className="space-y-4">
+                            {editError && (
+                                <div
+                                    className={`p-2 rounded-md ${
+                                        theme === 'dark' ? 'bg-red-800 text-red-400' : 'bg-red-100 text-red-600'
+                                    }`}
+                                >
+                                    {editError}
                                 </div>
-                            ))}
+                            )}
+                            <div>
+                                <label
+                                    className={`block font-semibold mb-1 ${
+                                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                                    }`}
+                                >
+                                    Title
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editingBlog.title}
+                                    onChange={(e) =>
+                                        setEditingBlog({ ...editingBlog, title: e.target.value })
+                                    }
+                                    className={`w-full px-4 py-2 border rounded-md focus:ring-2 ${
+                                        theme === 'dark'
+                                            ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-400'
+                                            : 'bg-gray-50 border-gray-300 text-black focus:ring-blue-500'
+                                    }`}
+                                />
+                            </div>
+                            <div>
+                                <label
+                                    className={`block font-semibold mb-1 ${
+                                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                                    }`}
+                                >
+                                    Description
+                                </label>
+                                <textarea
+                                    value={editingBlog.description}
+                                    onChange={(e) =>
+                                        setEditingBlog({ ...editingBlog, description: e.target.value })
+                                    }
+                                    className={`w-full px-4 py-2 border rounded-md focus:ring-2 ${
+                                        theme === 'dark'
+                                            ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-400'
+                                            : 'bg-gray-50 border-gray-300 text-black focus:ring-blue-500'
+                                    }`}
+                                    rows={4}
+                                />
+                            </div>
+                            <div>
+                                <label
+                                    className={`block font-semibold mb-1 ${
+                                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                                    }`}
+                                >
+                                    Tags (comma-separated)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editingBlog.tags}
+                                    onChange={(e) =>
+                                        setEditingBlog({ ...editingBlog, tags: e.target.value })
+                                    }
+                                    className={`w-full px-4 py-2 border rounded-md focus:ring-2 ${
+                                        theme === 'dark'
+                                            ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-400'
+                                            : 'bg-gray-50 border-gray-300 text-black focus:ring-blue-500'
+                                    }`}
+                                />
+                            </div>
+                            <div>
+                                <label
+                                    className={`block font-semibold mb-1 ${
+                                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                                    }`}
+                                >
+                                    Search Templates
+                                </label>
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className={`w-full px-4 py-2 border rounded-md focus:ring-2 ${
+                                        theme === 'dark'
+                                            ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-400'
+                                            : 'bg-gray-50 border-gray-300 text-black focus:ring-blue-500'
+                                    }`}
+                                    placeholder="Search templates..."
+                                />
+                                <div
+                                    className={`max-h-40 overflow-y-auto border rounded-md ${
+                                        theme === 'dark'
+                                            ? 'border-gray-600 bg-gray-700'
+                                            : 'border-gray-300 bg-gray-50'
+                                    }`}
+                                >
+                                    {filteredTemplates.map((template) => (
+                                        <div
+                                            key={template.id}
+                                            className="flex items-center p-2"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={editingBlog?.templates.some((t) => t.id === template.id) || false}
+                                                onChange={() => handleTemplateSelect(template)}
+                                                className="mr-2"
+                                            />
+                                            <label
+                                                className={`${
+                                                    theme === 'dark' ? 'text-gray-200' : 'text-gray-800'
+                                                }`}
+                                            >
+                                                {template.title}
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                        <div className="flex justify-end gap-4">
+                        <div className="flex justify-end gap-4 mt-6">
                             <button
                                 onClick={() => setEditingBlog(null)}
-                                className="px-4 py-2 bg-gray-300 rounded-md text-black"
+                                className={`px-6 py-2 rounded-md ${
+                                    theme === 'dark'
+                                        ? 'bg-gray-600 text-white hover:bg-gray-500'
+                                        : 'bg-gray-300 text-black hover:bg-gray-400'
+                                }`}
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={() => updateBlog(editingBlog)}
-                                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                                className={`px-6 py-2 rounded-md ${
+                                    theme === 'dark'
+                                        ? 'bg-blue-500 text-white hover:bg-blue-400'
+                                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                                }`}
                             >
                                 Save
                             </button>
@@ -579,6 +698,11 @@ const ViewAllBlogs: React.FC = () => {
             {deleteNotification && (
                 <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md shadow-md transition-opacity duration-300">
                     Blog post deleted!
+                </div>
+            )}
+            {updateNotification && (
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md shadow-md transition-opacity duration-300">
+                        Blog Updated!
                 </div>
             )}
         </div>
