@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import ThemeToggleButton from "./ThemeToggleButton";
@@ -18,12 +18,22 @@ const Navbar: React.FC<NavbarProps> = ({ user, isGuest, onLogout }) => {
     const router = useRouter();
     const [menuOpen, setMenuOpen] = React.useState(false);
     const { theme } = useTheme();
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
     const handleNavigateHome = () => {
         if (isGuest) {
             router.push("/dashboard?guest=true");
         } else {
             router.push("/dashboard");
+        }
+    };
+
+    const handleDropdownBlur = (event: React.FocusEvent<HTMLDivElement>) => {
+        if (
+            dropdownRef.current &&
+            !dropdownRef.current.contains(event.relatedTarget as Node)
+        ) {
+            setMenuOpen(false);
         }
     };
 
@@ -95,7 +105,12 @@ const Navbar: React.FC<NavbarProps> = ({ user, isGuest, onLogout }) => {
 
                 {/* User Section */}
                 {!isGuest ? (
-                    <div className="relative">
+                     <div
+                        className="relative"
+                        ref={dropdownRef}
+                        tabIndex={0}
+                        onBlur={handleDropdownBlur}
+                    >
                         <img
                             src={user.avatar}
                             alt="User Avatar"
