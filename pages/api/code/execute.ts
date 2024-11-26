@@ -128,6 +128,11 @@ export default async function handler(req: ExecuteRequest, res: NextApiResponse)
                     `${codeFilePath}:${finalLanguage === 'java' ? '/code/Main.java' : `/code/code.${fileExtension}`}:ro`,
                     `${inputFilePath}:/code/input.txt:ro`,
                 ],
+                Memory: 1536 * 1024 * 1024, // 1.5 GB (From ChatGPT)
+                MemorySwap: 2048 * 1024 * 1024, // 2 GB (From ChatGPT)
+                CpuShares: 1024, // Full CPU (From ChatGPT)
+                NanoCpus: 1000000000, // 100% of one CPU (From ChatGPT)
+                PidsLimit: 500, // Increase process limit (From ChatGPT)
             },
             Cmd: cmd,
         });
@@ -157,6 +162,16 @@ export default async function handler(req: ExecuteRequest, res: NextApiResponse)
 
         container.start();
 
+        const timeout = setTimeout(async () => {
+            console.log('Execution timeout reached');
+            try {
+                await container.kill();
+            } catch (err) {
+                console.error('Failed to stop container after timeout:', err);
+            }
+            res.status(408).json({ error: 'Code execution timed out.' });
+        }, 9000);
+
         stream.on('end', async () => {
             try {
                 const containerData = await container.wait();
@@ -172,9 +187,16 @@ export default async function handler(req: ExecuteRequest, res: NextApiResponse)
                 console.error('Docker execution error:', err);
                 res.status(500).json({ error: 'Error during code execution' });
             } finally {
+                await new Promise(resolve => setTimeout(resolve, 1000)); // for auto container cleanup
                 try {
-                    if (fs.existsSync(codeFilePath)) fs.unlinkSync(codeFilePath);
-                    if (fs.existsSync(inputFilePath)) fs.unlinkSync(inputFilePath);
+                    if (fs.existsSync(codeFilePath)) {
+                        fs.unlinkSync(codeFilePath);
+                        console.log(`Deleted code file: ${codeFilePath}`);
+                    }
+                    if (fs.existsSync(inputFilePath)) {
+                        fs.unlinkSync(inputFilePath);
+                        console.log(`Deleted input file: ${inputFilePath}`);
+                    }
                 } catch (cleanupErr) {
                     console.error('Failed to delete temporary files:', cleanupErr);
                 }

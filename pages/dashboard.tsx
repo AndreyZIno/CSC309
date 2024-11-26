@@ -65,25 +65,47 @@ export default function Dashboard() {
   const executeCode = async () => {
     setOutput('');
     setError('');
-    try {
-      const response = await fetch('/api/code/execute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, language, input }),
-      });
 
-      const result = await response.json();
-      if (response.ok) {
-        setOutput(result.stdout || '');
-        setError(result.stderr || '');
-      } else {
-        setOutput(result.stdout || '');
-        setError(result.stderr || result.error || 'Execution error.');
+    const timeoutMs = 8650;
+
+    const fetchWithTimeout = async () => {
+        const controller = new AbortController(); // Create an AbortController
+        const timeout = setTimeout(() => controller.abort(), timeoutMs); // Schedule abort
+
+        try {
+            const response = await fetch('/api/code/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, language, input }),
+                signal: controller.signal, // Pass the AbortController signal
+            });
+
+            clearTimeout(timeout); // Clear the timeout if fetch completes
+
+            const result = await response.json();
+            if (response.ok) {
+                setOutput(result.stdout || '');
+                setError(result.stderr || '');
+            } else {
+                setOutput(result.stdout || '');
+                setError(result.stderr || result.error || 'Execution error.');
+            }
+        } catch (err) {
+          if (err instanceof Error) { // Type narrowing for Error objects
+              if (err.name === 'AbortError') {
+                  setError('Request timed out. Please look for any potential infinite loops, fork bombs, etc.');
+              } else {
+                  setError('Failed to execute code.');
+                  console.error('Execution error:', err);
+              }
+          } else {
+              setError('An unexpected error occurred.');
+              console.error('Unknown error:', err);
+          }
       }
-    } catch (err) {
-      setError('Failed to execute code.');
-      console.error('Execution error:', err);
-    }
+    };
+
+    await fetchWithTimeout();
   };
 
   return (
