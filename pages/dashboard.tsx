@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useTheme } from "../components/ThemeToggle";
+import Editor from "@monaco-editor/react";
+import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { useTheme } from '../components/ThemeToggle';
 
 export default function Dashboard() {
-    const [user, setUser] = useState({
-        avatar: '/avatars/default_avatar.png',
-        firstName: 'Guest',
-        isAdmin: false,
-    });
-    const [language, setLanguage] = useState('javascript');
-    const [code, setCode] = useState('');
-    const router = useRouter();
-    const isGuest = router.query.guest === 'true';
-    const { theme } = useTheme(); // Get the current theme
+  const [user, setUser] = useState({
+    avatar: '/avatars/default_avatar.png',
+    firstName: 'Guest',
+    isAdmin: false,
+  });
+  const [language, setLanguage] = useState('javascript');
+  const [code, setCode] = useState('');
+  const [input, setInput] = useState('');
+  const [output, setOutput] = useState('');
+  const [error, setError] = useState('');
+  const router = useRouter();
+  const isGuest = router.query.guest === 'true';
+  const { theme } = useTheme();
 
     useEffect(() => {
         const { code: queryCode, language: queryLanguage } = router.query;
@@ -48,75 +54,165 @@ export default function Dashboard() {
             }
         };
 
-        fetchUser();
-    }, [isGuest]);
+    fetchUser();
+  }, [isGuest]);
 
-    return (
-        <div className="relative min-h-screen flex flex-col overflow-auto">
-            {/* Particle Background */}
-            <div id="particles-js" className="fixed top-0 left-0 w-full h-full -z-10"></div>
+  const handleLogout = () => {
+    if (!isGuest) {
+      localStorage.removeItem('accessToken');
+    }
+    router.push('/');
+  };
 
-            <div className="flex flex-grow items-center justify-center py-8">
-                <main
-                    className={`w-11/12 max-w-5xl shadow-lg rounded-lg p-6 border transition-colors ${
-                        theme === "dark"
-                            ? "bg-gray-800 border-gray-700 text-yellow-200"
-                            : "bg-white border-gray-200 text-gray-700"
-                    }`}
+  const executeCode = async () => {
+    setOutput('');
+    setError('');
+
+    const timeoutMs = 8650;
+
+    const fetchWithTimeout = async () => {
+        const controller = new AbortController(); // Create an AbortController
+        const timeout = setTimeout(() => controller.abort(), timeoutMs); // Schedule abort
+
+        try {
+            const response = await fetch('/api/code/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, language, input }),
+                signal: controller.signal, // Pass the AbortController signal
+            });
+
+            clearTimeout(timeout); // Clear the timeout if fetch completes
+
+            const result = await response.json();
+            if (response.ok) {
+                setOutput(result.stdout || '');
+                setError(result.stderr || '');
+            } else {
+                setOutput(result.stdout || '');
+                setError(result.stderr || result.error || 'Execution error.');
+            }
+        } catch (err) {
+          if (err instanceof Error) { // Type narrowing for Error objects
+              if (err.name === 'AbortError') {
+                  setError('Request timed out. Please look for any potential infinite loops, fork bombs, etc.');
+              } else {
+                  setError('Failed to execute code.');
+                  console.error('Execution error:', err);
+              }
+          } else {
+              setError('An unexpected error occurred.');
+              console.error('Unknown error:', err);
+          }
+      }
+    };
+
+    await fetchWithTimeout();
+  };
+
+  return (
+    <div className="relative min-h-screen flex flex-col overflow-auto">
+      <div id="particles-js" className="fixed top-0 left-0 w-full h-full -z-10"></div>
+      <div className="flex flex-grow items-center justify-center py-8">
+        <main 
+          className={`w-11/12 max-w-5xl shadow-lg rounded-lg p-6 border transition-colors ${
+              theme === "dark"
+                  ? "bg-gray-800 border-gray-700 text-yellow-200"
+                  : "bg-white border-gray-200 text-gray-700"
+          }`}
+        >
+          {/* Code editor content */}
+          <div
+            className={`border-b pb-4 mb-6 rounded-lg p-4 shadow-sm transition-colors ${
+                theme === "dark"
+                    ? "bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
+                    : "bg-gradient-to-r from-blue-50 via-white to-blue-50"
+            }`}
+          >
+            <div className="border-b pb-2 mb-4">
+              <div className="flex justify-between items-center">
+              <h2
+                className={`text-2xl font-bold shadow-sm ${
+                    theme === "dark" ? "text-yellow-300" : "text-sky-700"
+                }`}
                 >
-                    {/* Code editor content */}
-                    <div
-                        className={`border-b pb-4 mb-6 rounded-lg p-4 shadow-sm transition-colors ${
-                            theme === "dark"
-                                ? "bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
-                                : "bg-gradient-to-r from-blue-50 via-white to-blue-50"
-                        }`}
-                    >
-                        <div className="flex justify-between items-center">
-                            <h2
-                                className={`text-2xl font-bold shadow-sm ${
-                                    theme === "dark" ? "text-yellow-300" : "text-sky-700"
-                                }`}
-                            >
-                                Code Editor
-                            </h2>
-                            <select
-                                value={language}
-                                onChange={(e) => setLanguage(e.target.value)}
-                                className={`border rounded-lg p-2 shadow-md focus:ring focus:outline-none transition-colors ${
-                                    theme === "dark"
-                                        ? "bg-gray-700 border-gray-600 text-yellow-200 focus:ring-yellow-400"
-                                        : "bg-white border-gray-300 text-sky-700 focus:ring-blue-300"
-                                }`}
-                            >
-                                <option value="javascript">JavaScript</option>
-                                <option value="python">Python</option>
-                                <option value="c">C</option>
-                                <option value="cpp">C++</option>
-                                <option value="java">Java</option>
-                            </select>
-                        </div>
-                        <p
-                            className={`text-sm mt-2 transition-colors ${
-                                theme === "dark" ? "text-gray-400" : "text-gray-500"
-                            }`}
-                        >
-                            Start writing your code below:
-                        </p>
-                    </div>
-                    <textarea
-                        value={code}
-                        onChange={(e) => setCode(e.target.value)}
-                        placeholder="Write your code here..."
-                        className={`w-full h-64 rounded-lg p-4 text-sm font-mono shadow-inner focus:outline-none focus:ring transition-colors ${
-                            theme === "dark"
-                                ? "bg-gray-700 border-gray-600 text-yellow-200 focus:ring-yellow-400"
-                                : "bg-sky-50 border-sky-200 text-gray-700 focus:ring-blue-300"
-                        }`}
-                    />
-                </main>
+                Code Editor
+              </h2>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className={`border rounded-lg p-2 shadow-md focus:ring focus:outline-none transition-colors ${
+                    theme === "dark"
+                        ? "bg-gray-700 border-gray-600 text-yellow-200 focus:ring-yellow-400"
+                        : "bg-white border-gray-300 text-sky-700 focus:ring-blue-300"
+                }`}
+                >
+                  <option value="c">C</option>
+                  <option value="cpp">C++</option>
+                  <option value="go">Go</option>
+                  <option value="haskell">Haskell</option>
+                  <option value="java">Java</option>
+                  <option value="javascript">JavaScript</option>
+                  <option value="kotlin">Kotlin</option>
+                  <option value="perl">Perl</option>
+                  <option value="php">PHP</option>
+                  <option value="python">Python</option>
+                  <option value="ruby">Ruby</option>
+                  <option value="rust">Rust</option>
+                  <option value="shell">Shell</option>
+                  <option value="swift">Swift</option>
+                  <option value="typescript">TypeScript</option>
+                </select>
+              </div>
+              <p
+                className={`text-sm mt-2 transition-colors ${
+                    theme === "dark" ? "text-gray-400" : "text-gray-500"
+                }`}
+              >
+                Start writing your code below:
+              </p>
             </div>
-        </div>
-
-    );
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={executeCode}
+                className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
+              >
+                Run Code
+              </button>
+            </div>
+            <div className="mt-4">
+              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">Output</h3>
+              <div className="mt-2 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg text-sm overflow-x-auto">
+              {output && !error && (
+                <div className="mb-4">
+                  <h4 className="font-bold text-gray-800 dark:text-gray-200">Stdout:</h4>
+                  <SyntaxHighlighter language={language} style={docco}>
+                    {output}
+                  </SyntaxHighlighter>
+                </div>
+              )}
+              {error && (
+                <>
+                    <div className="mb-4">
+                      <h4 className="font-bold text-gray-800 dark:text-gray-200">Stdout:</h4>
+                      <SyntaxHighlighter language={language} style={docco}>
+                        {output}
+                      </SyntaxHighlighter>
+                    </div>
+                  <div>
+                    <h4 className="font-bold text-gray-800 dark:text-gray-200">Stderr:</h4>
+                    <SyntaxHighlighter language="text" style={docco}>
+                      {error}
+                    </SyntaxHighlighter>
+                  </div>
+                </>
+              )}
+              {!output && !error && <p>No output yet.</p>}
+            </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
 }
