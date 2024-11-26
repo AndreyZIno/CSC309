@@ -7,8 +7,7 @@ const prisma = new PrismaClient();
 export default authenticate(async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     const userEmail = req.user?.email;
-
-    const { page = '1', limit = '10' } = req.query;
+    const { page = '1', limit = '10', search = '', searchField = 'title' } = req.query;
 
     const pageNumber = parseInt(page as string, 10);
     const limitNumber = parseInt(limit as string, 10);
@@ -23,8 +22,20 @@ export default authenticate(async function handler(req: NextApiRequest, res: Nex
         return res.status(404).json({ error: 'User not found' });
       }
 
+      const searchConditions = search
+        ? {
+            [searchField as string]: {
+              contains: search as string,
+              mode: 'insensitive',
+            },
+          }
+        : {};
+
       const templates = await prisma.template.findMany({
-        where: { userId: user.id },
+        where: {
+          userId: user.id,
+          ...searchConditions, // Apply search filters if provided
+        },
         skip,
         take: limitNumber,
         include: {
@@ -55,7 +66,10 @@ export default authenticate(async function handler(req: NextApiRequest, res: Nex
       }));
 
       const totalTemplates = await prisma.template.count({
-        where: { userId: user.id },
+        where: {
+          userId: user.id,
+          ...searchConditions, // Count filtered results
+        },
       });
 
       return res.status(200).json({

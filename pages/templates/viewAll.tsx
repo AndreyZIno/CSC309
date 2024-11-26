@@ -4,9 +4,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTheme } from '../../components/ThemeToggle';
 
-
-// <FaTrash size={16} /> Delete
-
 interface Template {
     id: number;
     title: string;
@@ -42,6 +39,7 @@ const ViewAllTemplates: React.FC = () => {
     const router = useRouter();
     const [templates, setTemplates] = useState<Template[]>([]);
     const [search, setSearch] = useState('');
+    const [searchField, setSearchField] = useState<'title' | 'tags' | 'explanation'>('title'); // Added
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
@@ -79,31 +77,28 @@ const ViewAllTemplates: React.FC = () => {
         fetchCurrentUser();
     }, []);
 
-    // Fetch templates based on the filter (all or own)
     const fetchTemplates = async () => {
         setLoading(true);
         setError(null);
 
-        try {
-            const token = localStorage.getItem('accessToken');
+        const token = localStorage.getItem('accessToken');
 
-            // Determine the endpoint based on the selected filter
+        try {
+            // const token = localStorage.getItem('accessToken');
+            
             const endpoint =
                 filter === 'own'
-                    ? `/api/templates/viewOwn?page=${page}&limit=${limit}&search=${search}`
-                    : `/api/templates/viewAll?page=${page}&limit=${limit}&search=${search}`;
-
-            const headers: HeadersInit = {};
-
-            // Include Authorization header if fetching own templates
-            if (filter === 'own' && token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
+                    ? `/api/templates/viewOwn?page=${page}&limit=${limit}&search=${search}&searchField=${searchField}`
+                    : `/api/templates/viewAll?page=${page}&limit=${limit}&search=${search}&searchField=${searchField}`;
 
             const response = await fetch(endpoint, {
-                headers,
-            });
-
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+             
             if (!response.ok) {
                 const errorData = await response.json();
                 setError(errorData.error || 'Something went wrong while fetching templates.');
@@ -112,13 +107,12 @@ const ViewAllTemplates: React.FC = () => {
 
             const data = await response.json();
 
-            // Adjust data handling based on the API response structure
             if (filter === 'own') {
-                setHasMore(data.templates.length === limit); // Assuming pagination limit of 10
+                setHasMore(data.templates.length === limit);
                 setTemplates(data.templates);
             } else {
                 console.log(data.length)
-                setHasMore(data.length === limit); // Assuming pagination limit of 10
+                setHasMore(data.length === limit);
                 setTemplates(data);
             }
         } catch (err) {
@@ -220,7 +214,13 @@ const ViewAllTemplates: React.FC = () => {
                     View Templates
                 </h1>
                 <button
-                    onClick={() => router.push('/templates/create')}
+                    onClick={() => {
+                        if (isGuest) {
+                            setError('Only logged-in users can create templates.');
+                            return;
+                        }
+                        router.push('/templates/create');
+                    }}
                     className={`mb-4 px-4 py-2 rounded-md ${
                         theme === 'dark'
                             ? 'bg-green-500 text-white hover:bg-green-400'
@@ -241,17 +241,7 @@ const ViewAllTemplates: React.FC = () => {
                 </div>
             )}
             <div className="mb-4 flex gap-4">
-                <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search templates..."
-                    className={`w-full px-4 py-2 border rounded-md focus:ring-2 ${
-                        theme === 'dark'
-                            ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-400'
-                            : 'bg-gray-50 border-gray-300 text-black focus:ring-blue-500'
-                    }`}
-                />
+
                 <select
                     value={filter}
                     onChange={(e) => {
@@ -266,6 +256,33 @@ const ViewAllTemplates: React.FC = () => {
                 >
                     <option value="all">All Templates</option>
                     <option value="own">My Templates</option>
+                </select>
+            </div>
+
+            <div className="mb-4 flex gap-4">
+                <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search templates..."
+                    className={`w-full px-4 py-2 border rounded-md focus:ring-2 ${
+                        theme === 'dark'
+                            ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-400'
+                            : 'bg-gray-50 border-gray-300 text-black focus:ring-blue-500'
+                    }`}
+                />
+                <select
+                    value={searchField}
+                    onChange={(e) => setSearchField(e.target.value as 'title' | 'tags' | 'explanation')}
+                    className={`px-4 py-2 border rounded-md focus:ring-2 ${
+                        theme === 'dark'
+                            ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-400'
+                            : 'bg-gray-50 border-gray-300 text-black focus:ring-blue-500'
+                    }`}
+                >
+                    <option value="title">Search by Title</option>
+                    <option value="tags">Search by Tags</option>
+                    <option value="explanation">Search by Explanation</option>
                 </select>
             </div>
     

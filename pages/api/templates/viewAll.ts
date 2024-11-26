@@ -9,20 +9,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { page = '1', limit = '10', search = '' } = req.query;
+    const { page = '1', limit = '10', search = '', searchField = "title" } = req.query;
 
     const pageNumber = parseInt(page as string, 10);
     const limitNumber = parseInt(limit as string, 10);
 
-    const searchCondition = search
-      ? {
-          OR: [
-            { title: { contains: search as string } },
-            { tags: { contains: search as string } },
-            { explanation: { contains: search as string } },
-          ],
+    let searchCondition = {};
+    if (search) {
+        switch (searchField) {
+            case 'tags':
+                searchCondition = { tags: { contains: search as string } };
+                break;
+            case 'explanation':
+                searchCondition = { explanation: { contains: search as string } };
+                break;
+            default: // Default to 'title'
+                searchCondition = { title: { contains: search as string } };
+                break;
         }
-      : {};
+    }
 
     const templates = await prisma.template.findMany({
       skip: (pageNumber - 1) * limitNumber,
