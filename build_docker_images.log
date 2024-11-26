@@ -4,22 +4,36 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
-Step 1/5 : FROM python:3.10-slim
+Sending build context to Docker daemon  64.01MB
+Step 1/7 : FROM python:3.10-slim
  ---> 8df9adb5d39d
-Step 2/5 : WORKDIR /code
+Step 2/7 : WORKDIR /code
  ---> Using cache
  ---> 1a25b9c3a415
-Step 3/5 : COPY docker/entrypoint.sh /entrypoint.sh
+Step 3/7 : COPY docker/entrypoint.sh /entrypoint.sh
  ---> Using cache
  ---> a2d6b2f3c2b5
-Step 4/5 : RUN chmod +x /entrypoint.sh
+Step 4/7 : RUN chmod +x /entrypoint.sh
  ---> Using cache
  ---> 8f7c4acaea72
-Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
- ---> Using cache
- ---> 345dd3ef2afa
-Successfully built 345dd3ef2afa
+Step 5/7 : RUN addgroup --system appgroup && adduser --system appuser --ingroup appgroup
+ ---> Running in 04b10c731f9b
+Adding group `appgroup' (GID 101) ...
+Done.
+Adding system user `appuser' (UID 100) ...
+Adding new user `appuser' (UID 100) with group `appgroup' ...
+Not creating `/nonexistent'.
+Removing intermediate container 04b10c731f9b
+ ---> bd9ef109b33a
+Step 6/7 : USER appuser
+ ---> Running in ffd24aebe1d2
+Removing intermediate container ffd24aebe1d2
+ ---> b472c77c19ef
+Step 7/7 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Running in 79c5a5e51ef7
+Removing intermediate container 79c5a5e51ef7
+ ---> 09a8a2f669c0
+Successfully built 09a8a2f669c0
 Successfully tagged code-executor-python:latest
 code-executor-python built successfully.
 Building code-executor-perl from docker/Dockerfile-perl...
@@ -27,7 +41,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
+Sending build context to Docker daemon  64.01MB
 Step 1/5 : FROM perl:latest
  ---> 38881b5564f5
 Step 2/5 : WORKDIR /code
@@ -50,7 +64,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
+Sending build context to Docker daemon  64.01MB
 Step 1/5 : FROM rust:latest
  ---> d7ea9ee7bf87
 Step 2/5 : WORKDIR /code
@@ -73,7 +87,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
+Sending build context to Docker daemon  64.01MB
 Step 1/6 : FROM debian:bullseye-slim
  ---> 5d941b17065a
 Step 2/6 : RUN apt-get update && apt-get install -y mono-mcs
@@ -99,7 +113,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
+Sending build context to Docker daemon  64.01MB
 Step 1/5 : FROM php:cli
  ---> 343832b257b9
 Step 2/5 : WORKDIR /code
@@ -122,7 +136,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
+Sending build context to Docker daemon  64.01MB
 Step 1/5 : FROM gcc:latest
  ---> e5f33926a9ec
 Step 2/5 : WORKDIR /code
@@ -145,7 +159,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
+Sending build context to Docker daemon  64.01MB
 Step 1/5 : FROM ruby:latest
  ---> 354cff09091a
 Step 2/5 : WORKDIR /code
@@ -168,7 +182,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
+Sending build context to Docker daemon  64.01MB
 Step 1/5 : FROM node:latest
  ---> e15446acc41f
 Step 2/5 : WORKDIR /code
@@ -191,7 +205,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
+Sending build context to Docker daemon  64.01MB
 Step 1/6 : FROM debian:latest
  ---> 63ba939a68fd
 Step 2/6 : RUN apt-get update && apt-get install -y fp-compiler
@@ -217,7 +231,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
+Sending build context to Docker daemon  64.01MB
 Step 1/5 : FROM swift:latest
  ---> a01e50add4bd
 Step 2/5 : WORKDIR /code
@@ -240,7 +254,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
+Sending build context to Docker daemon  64.01MB
 Step 1/7 : FROM alpine:latest
  ---> 63b790fccc90
 Step 2/7 : RUN apk add --no-cache lua5.3
@@ -269,7 +283,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
+Sending build context to Docker daemon  64.01MB
 Step 1/5 : FROM haskell:latest
  ---> 4af874785f1f
 Step 2/5 : WORKDIR /code
@@ -292,7 +306,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
+Sending build context to Docker daemon  64.01MB
 Step 1/6 : FROM debian:latest
  ---> 63ba939a68fd
 Step 2/6 : RUN apt-get update && apt-get install -y bash
@@ -318,7 +332,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
+Sending build context to Docker daemon  64.01MB
 Step 1/5 : FROM gcc:latest
  ---> e5f33926a9ec
 Step 2/5 : WORKDIR /code
@@ -341,7 +355,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  74.59MB
+Sending build context to Docker daemon  64.01MB
 Step 1/5 : FROM openjdk:17-slim
  ---> 37cb44321d04
 Step 2/5 : WORKDIR /code
