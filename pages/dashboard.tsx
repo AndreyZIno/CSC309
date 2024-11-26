@@ -172,6 +172,26 @@ export default function Dashboard() {
                 Start writing your code below:
               </p>
             </div>
+            <Editor
+              height="300px"
+              language={language}
+              value={code}
+              onChange={(value: string | undefined) => setCode(value || "")}
+              theme={theme === 'dark' ? 'vs-dark' : 'light'}
+              options={{
+                fontSize: 14,
+                minimap: { enabled: false },
+                automaticLayout: true,
+              }}
+            />
+            <div className="mt-4">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Provide input here (if needed)..."
+                className="w-full h-24 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 rounded-lg p-4 text-sm font-mono text-gray-800 dark:text-gray-200 focus:outline-none focus:ring focus:ring-blue-300"
+              />
+            </div>
             <div className="flex justify-end mt-4">
               <button
                 onClick={executeCode}
