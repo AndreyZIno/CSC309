@@ -109,6 +109,9 @@ const Navbar: React.FC<NavbarProps> = ({ user, isGuest, onLogout }) => {
                                         ? "bg-gray-800 text-gray-200 border-gray-700"
                                         : "bg-white text-gray-800 border-gray-300"
                                 }`}
+                                style={{
+                                    zIndex: 50, // Ensures it appears above other elements, from ChatGPT
+                                }}
                             >
                                 <ul>
                                     <li

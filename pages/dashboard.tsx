@@ -122,7 +122,7 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="relative min-h-screen flex flex-col overflow-auto">
+        <div className="relative min-h-screen flex flex-col overflow-visible">
             <div id="particles-js" className="fixed top-0 left-0 w-full h-full -z-10"></div>
             <div className="flex flex-grow items-center justify-center py-8">
                 <main 
@@ -131,6 +131,7 @@ export default function Dashboard() {
                             ? "bg-gray-800 border-gray-700 text-yellow-200"
                             : "bg-white border-gray-200 text-gray-700"
                     }`}
+                    style={{ position: 'relative', overflow: 'visible' }} // Allow dropdown to overflow
                 >
                     {/* Code editor content */}
                     <div

@@ -118,11 +118,32 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
                                     name="firstName"
                                     value={formData.firstName}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300 focus:outline-none"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300 focus:outline-none text-black"
                                     required
                                 />
                             </div>
-                            {/* Additional registration fields */}
+                            <div className="mb-4">
+                                <label className="block text-blue-700 font-medium mb-2">Last Name</label>
+                                <input
+                                    type="text"
+                                    name="lastName"
+                                    value={formData.lastName}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300 focus:outline-none text-black"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-blue-700 font-medium mb-2">Phone</label>
+                                <input
+                                    type="tel"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-300 focus:outline-none text-black"
+                                    required
+                                />
+                            </div>
                         </>
                     )}
                     {/* Shared form fields */}
