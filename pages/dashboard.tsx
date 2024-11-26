@@ -66,7 +66,7 @@ export default function Dashboard() {
     setOutput('');
     setError('');
 
-    const timeoutMs = 8650;
+    const timeoutMs = 8000;
 
     const fetchWithTimeout = async () => {
         const controller = new AbortController(); // Create an AbortController
@@ -124,12 +124,13 @@ export default function Dashboard() {
                   className="border border-gray-300 dark:border-gray-700 rounded-lg p-2 text-black dark:text-white bg-white dark:bg-gray-700"
                 >
                   <option value="c">C</option>
+                  <option value="cs">C#</option>
                   <option value="cpp">C++</option>
-                  <option value="go">Go</option>
                   <option value="haskell">Haskell</option>
                   <option value="java">Java</option>
                   <option value="javascript">JavaScript</option>
-                  <option value="kotlin">Kotlin</option>
+                  <option value="lua">Lua</option>
+                  <option value="pascal">Pascal</option>
                   <option value="perl">Perl</option>
                   <option value="php">PHP</option>
                   <option value="python">Python</option>
@@ -137,19 +138,18 @@ export default function Dashboard() {
                   <option value="rust">Rust</option>
                   <option value="shell">Shell</option>
                   <option value="swift">Swift</option>
-                  <option value="typescript">TypeScript</option>
                 </select>
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Start writing your code below:</p>
             </div>
             <Editor
               height="300px"
-              language={language}
+              language={language === "cs" ? "csharp" : language}
               value={code}
               onChange={(value: string | undefined) => setCode(value || "")}
               theme={theme === 'dark' ? 'vs-dark' : 'light'}
               options={{
-                fontSize: 14,
+                fontSize: 13,
                 minimap: { enabled: false },
                 automaticLayout: true,
               }}
@@ -176,7 +176,7 @@ export default function Dashboard() {
               {output && !error && (
                 <div className="mb-4">
                   <h4 className="font-bold text-gray-800 dark:text-gray-200">Stdout:</h4>
-                  <SyntaxHighlighter language={language} style={docco}>
+                  <SyntaxHighlighter language={language === "cs" ? "csharp" : language} style={docco}>
                     {output}
                   </SyntaxHighlighter>
                 </div>
@@ -185,7 +185,7 @@ export default function Dashboard() {
                 <>
                     <div className="mb-4">
                       <h4 className="font-bold text-gray-800 dark:text-gray-200">Stdout:</h4>
-                      <SyntaxHighlighter language={language} style={docco}>
+                      <SyntaxHighlighter language={language === "cs" ? "csharp" : language} style={docco}>
                         {output}
                       </SyntaxHighlighter>
                     </div>

@@ -18,17 +18,14 @@ Build:
     docker build -f docker/Dockerfile-c -t code-executor-c .
     docker build -f docker/Dockerfile-java -t code-executor-java .
     docker build -f docker/Dockerfile-cpp -t code-executor-cpp .
-    docker build -f docker/Dockerfile-go -t code-executor-go .
     docker build -f docker/Dockerfile-haskell -t code-executor-haskell .
     docker build -f docker/Dockerfile-javascript -t code-executor-javascript .
-    docker build -f docker/Dockerfile-kotlin -t code-executor-kotlin .
     docker build -f docker/Dockerfile-perl -t code-executor-perl .
     docker build -f docker/Dockerfile-php -t code-executor-php .
     docker build -f docker/Dockerfile-ruby -t code-executor-ruby .
     docker build -f docker/Dockerfile-rust -t code-executor-rust .
     docker build -f docker/Dockerfile-shell -t code-executor-shell .
     docker build -f docker/Dockerfile-swift -t code-executor-swift .
-    docker build -f docker/Dockerfile-typescript -t code-executor-typescript .
 
 chmod +x buildDockerImages.sh
 ./buildDockerImages.sh
@@ -39,14 +36,14 @@ Languages:
     c    
     java
     cpp
-    go
+    c#
     haskell
     javascript
-    kotlin
+    lua
+    pascal
     perl
     php
     ruby
     rust
     shell
     swift
-    typescript

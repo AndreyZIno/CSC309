@@ -9,17 +9,17 @@ declare -A DOCKERFILES=(
     ["docker/Dockerfile-c"]="code-executor-c"
     ["docker/Dockerfile-java"]="code-executor-java"
     ["docker/Dockerfile-cpp"]="code-executor-cpp"
-    ["docker/Dockerfile-go"]="code-executor-go"
     ["docker/Dockerfile-haskell"]="code-executor-haskell"
     ["docker/Dockerfile-javascript"]="code-executor-javascript"
-    ["docker/Dockerfile-kotlin"]="code-executor-kotlin"
     ["docker/Dockerfile-perl"]="code-executor-perl"
     ["docker/Dockerfile-php"]="code-executor-php"
     ["docker/Dockerfile-ruby"]="code-executor-ruby"
     ["docker/Dockerfile-rust"]="code-executor-rust"
     ["docker/Dockerfile-shell"]="code-executor-shell"
     ["docker/Dockerfile-swift"]="code-executor-swift"
-    ["docker/Dockerfile-typescript"]="code-executor-typescript"
+    ["docker/Dockerfile-cs"]="code-executor-cs"
+    ["docker/Dockerfile-lua"]="code-executor-lua"
+    ["docker/Dockerfile-pascal"]="code-executor-pascal"
 )
 
 for DOCKERFILE in "${!DOCKERFILES[@]}"; do

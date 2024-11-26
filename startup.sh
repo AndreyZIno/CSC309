@@ -76,3 +76,7 @@ echo "Startup script completed successfully."
 
 # Set executable permission
 chmod +x run.sh
+
+# Build docker images
+chmod +x buildDockerImages.sh
+./buildDockerImages.sh
