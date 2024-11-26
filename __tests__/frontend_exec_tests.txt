@@ -116,3 +116,217 @@ class Program
         }
     }
 }
+
+
+                                        WITH INPUT:
+
+# code.py
+name = input("Enter your name: ")
+for i in range(1, 6):
+    print(f"Python says: Hello, {name}! Iteration {i}")
+
+
+
+// code.c
+#include <stdio.h>
+
+int main() {
+    char name[50];
+    printf("Enter your name: ");
+    scanf("%49s", name);
+
+    for (int i = 1; i <= 5; i++) {
+        printf("C says: Hello, %s! Iteration %d\n", name, i);
+    }
+    return 0;
+}
+
+
+
+
+// code.cpp
+#include <iostream>
+#include <string>
+
+int main() {
+    std::string name;
+    std::cout << "Enter your name: ";
+    std::cin >> name;
+
+    for (int i = 1; i <= 5; i++) {
+        std::cout << "C++ says: Hello, " << name << "! Iteration " << i << std::endl;
+    }
+    return 0;
+}
+
+
+
+-- code.hs
+main :: IO ()
+main = do
+    putStrLn "Enter your name: "
+    name <- getLine
+    mapM_ (putStrLn . (\i -> "Haskell says: Hello, " ++ name ++ "! Iteration " ++ show i)) [1..5]
+
+
+
+
+// Main.java
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter your name: ");
+        String name = scanner.nextLine();
+
+        for (int i = 1; i <= 5; i++) {
+            System.out.println("Java says: Hello, " + name + "! Iteration " + i);
+        }
+    }
+}
+
+
+# code.pl
+print "Enter your name: ";
+my $name = <STDIN>;
+chomp($name);
+
+for my $i (1..5) {
+    print "Perl says: Hello, $name! Iteration $i\n";
+}
+
+
+
+
+# code.rb
+puts "Enter your name: "
+name = gets.chomp
+
+5.times do |i|
+  puts "Ruby says: Hello, #{name}! Iteration #{i + 1}"
+end
+
+
+
+
+
+// code.rs
+use std::io;
+
+fn main() {
+    let mut name = String::new();
+    println!("Enter your name: ");
+    io::stdin().read_line(&mut name).unwrap();
+    let name = name.trim();
+
+    for i in 1..=5 {
+        println!("Rust says: Hello, {}! Iteration {}", name, i);
+    }
+}
+
+
+
+
+# code.sh
+echo "Enter your name: "
+read name
+
+for i in {1..5}; do
+    echo "Shell says: Hello, $name! Iteration $i"
+done
+
+
+
+
+
+// code.swift
+import Foundation
+
+print("Enter your name: ", terminator: "")
+if let name = readLine() {
+    for i in 1...5 {
+        print("Swift says: Hello, \(name)! Iteration \(i)")
+    }
+}
+
+
+
+
+// code.pas
+program HelloWorld;
+var
+    i: integer;
+    name: string;
+begin
+    writeln('Enter your name: ');
+    readln(name);
+    for i := 1 to 5 do
+        writeln('Pascal says: Hello, ', name, '! Iteration ', i, '!');
+end.
+
+
+
+-- code.lua
+io.write("Enter your name: ")
+local name = io.read()
+
+for i = 1, 5 do
+    print("Lua says: Hello, " .. name .. "! Iteration " .. i)
+end
+
+
+
+
+// code.cs
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        Console.Write("Enter your name: ");
+        string name = Console.ReadLine();
+
+        for (int i = 1; i <= 5; i++)
+        {
+            Console.WriteLine($"C# says: Hello, {name}! Iteration {i}");
+        }
+    }
+}
+
+
+
+
+<?php
+echo "Enter your name: ";
+
+// Open stdin explicitly
+$handle = fopen("php://stdin", "r");
+$name = trim(fgets($handle)); // Read input from the handle
+fclose($handle); // Close the handle after use
+
+for ($i = 1; $i <= 5; $i++) {
+    echo "PHP says: Hello, $name! Iteration $i\n";
+}
+
+
+
+
+
+const readline = require('readline');
+
+// Create an interface to read from stdin
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+// Prompt for input
+console.log("Enter your name:");
+rl.on('line', (name) => {
+  for (let i = 1; i <= 5; i++) {
+    console.log(`JavaScript says: Hello, ${name}! Iteration ${i}`);
+  }
+  rl.close(); // Close the input stream
+});

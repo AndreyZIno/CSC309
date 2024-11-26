@@ -4,7 +4,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/5 : FROM python:3.10-slim
  ---> 8df9adb5d39d
 Step 2/5 : WORKDIR /code
@@ -27,7 +27,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/5 : FROM perl:latest
  ---> 38881b5564f5
 Step 2/5 : WORKDIR /code
@@ -50,7 +50,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/5 : FROM rust:latest
  ---> d7ea9ee7bf87
 Step 2/5 : WORKDIR /code
@@ -73,7 +73,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/6 : FROM debian:bullseye-slim
  ---> 5d941b17065a
 Step 2/6 : RUN apt-get update && apt-get install -y mono-mcs
@@ -99,7 +99,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/5 : FROM php:cli
  ---> 343832b257b9
 Step 2/5 : WORKDIR /code
@@ -122,7 +122,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/5 : FROM gcc:latest
  ---> e5f33926a9ec
 Step 2/5 : WORKDIR /code
@@ -145,7 +145,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/5 : FROM ruby:latest
  ---> 354cff09091a
 Step 2/5 : WORKDIR /code
@@ -168,7 +168,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/5 : FROM node:latest
  ---> e15446acc41f
 Step 2/5 : WORKDIR /code
@@ -191,7 +191,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/6 : FROM debian:latest
  ---> 63ba939a68fd
 Step 2/6 : RUN apt-get update && apt-get install -y fp-compiler
@@ -217,7 +217,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/5 : FROM swift:latest
  ---> a01e50add4bd
 Step 2/5 : WORKDIR /code
@@ -240,7 +240,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/7 : FROM alpine:latest
  ---> 63b790fccc90
 Step 2/7 : RUN apk add --no-cache lua5.3
@@ -269,7 +269,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/5 : FROM haskell:latest
  ---> 4af874785f1f
 Step 2/5 : WORKDIR /code
@@ -292,7 +292,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/6 : FROM debian:latest
  ---> 63ba939a68fd
 Step 2/6 : RUN apt-get update && apt-get install -y bash
@@ -318,7 +318,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/5 : FROM gcc:latest
  ---> e5f33926a9ec
 Step 2/5 : WORKDIR /code
@@ -341,7 +341,7 @@ DEPRECATED: The legacy builder is deprecated and will be removed in a future rel
             Install the buildx component to build images with BuildKit:
             https://docs.docker.com/go/buildx/
 
-Sending build context to Docker daemon  46.95MB
+Sending build context to Docker daemon  49.34MB
 Step 1/5 : FROM openjdk:17-slim
  ---> 37cb44321d04
 Step 2/5 : WORKDIR /code
