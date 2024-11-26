@@ -68,7 +68,7 @@ export default function Dashboard() {
     setError('');
     setLoading(true);
 
-    const timeoutMs = 8000;
+    const timeoutMs = 6000;
 
     const fetchWithTimeout = async () => {
         const controller = new AbortController(); // Create an AbortController

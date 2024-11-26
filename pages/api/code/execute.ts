@@ -148,7 +148,7 @@ export default async function handler(req: ExecuteRequest, res: NextApiResponse)
         const timeout = setTimeout(() => {
             console.log('Execution timeout reached');
             res.status(408).json({ error: 'Code execution timed out.' });
-        }, 8000);
+        }, 6000);
 
         stream.on('end', async () => {
             clearTimeout(timeout);
