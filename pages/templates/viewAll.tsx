@@ -47,7 +47,7 @@ const ViewAllTemplates: React.FC = () => {
     const [hasMore, setHasMore] = useState(true);
     const [deleteNotification, setDeleteNotification] = useState(false);
     const [updateNotification, setUpdateNotification] = useState(false);
-    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+    const [userEmail, setUserEmail] = useState<string | null>(null);
     const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
     const [filter, setFilter] = useState<'all' | 'own'>('all'); // Added for filtering
     const isGuest = router.query.guest === 'true';
@@ -56,71 +56,87 @@ const ViewAllTemplates: React.FC = () => {
     // Fetch current user ID
     useEffect(() => {
         const fetchCurrentUser = async () => {
-            const token = localStorage.getItem('accessToken');
-            if (!token) return;
-
+            if (isGuest) {
+                setUserEmail(null);
+                return;
+            }
+            
             try {
+                const token = localStorage.getItem('accessToken');
+                if (!token) return;
+
                 const response = await fetch('/api/users/me', {
                     method: 'GET',
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 });
+                
                 if (response.ok) {
                     const data = await response.json();
-                    setCurrentUserId(data.id);
+                    setUserEmail(data.email);
                 }
             } catch (err) {
                 console.error('Error fetching current user:', err);
             }
         };
         fetchCurrentUser();
+        fetchTemplates();
     }, []);
 
     const fetchTemplates = async () => {
         setLoading(true);
         setError(null);
-
-        const token = localStorage.getItem('accessToken');
-
+    
         try {
-            // const token = localStorage.getItem('accessToken');
+            const token = localStorage.getItem('accessToken');
             
             const endpoint =
                 filter === 'own'
                     ? `/api/templates/viewOwn?page=${page}&limit=${limit}&search=${search}&searchField=${searchField}`
                     : `/api/templates/viewAll?page=${page}&limit=${limit}&search=${search}&searchField=${searchField}`;
-
+    
+            const headers: HeadersInit = {
+                'Content-Type': 'application/json',
+            };
+    
+            if (filter === 'own') {
+                if (!token) {
+                    setError('You must be logged in to view your templates.');
+                    setLoading(false);
+                    return;
+                }
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+    
             const response = await fetch(endpoint, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-             
+                headers,
+            });
+    
             if (!response.ok) {
                 const errorData = await response.json();
                 setError(errorData.error || 'Something went wrong while fetching templates.');
                 return;
             }
-
+    
             const data = await response.json();
-
+    
             if (filter === 'own') {
                 setHasMore(data.templates.length === limit);
                 setTemplates(data.templates);
             } else {
-                console.log(data.length)
                 setHasMore(data.length === limit);
                 setTemplates(data);
             }
         } catch (err) {
+            console.error('Error fetching templates:', err);
             setError('An unexpected error occurred.');
         } finally {
             setLoading(false);
         }
     };
+    
 
     useEffect(() => {
         fetchTemplates();
@@ -315,7 +331,7 @@ const ViewAllTemplates: React.FC = () => {
                                         >
                                             {template.title}
                                         </Link>
-                                        {currentUserId === template.user.id && (
+                                        {userEmail === template.user.email && (
                                             <div className="flex gap-2">
                                                 <button
                                                     onClick={() => setEditingTemplate(template)}

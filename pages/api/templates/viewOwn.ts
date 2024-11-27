@@ -57,6 +57,7 @@ export default authenticate(async function handler(req: NextApiRequest, res: Nex
           },
           user: true, // Include user information
         },
+        orderBy: { createdAt: 'desc' },
       });
 
       const processedTemplates = templates.map((template) => ({
