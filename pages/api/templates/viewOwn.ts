@@ -62,8 +62,7 @@ export default authenticate(async function handler(req: NextApiRequest, res: Nex
 
       const processedTemplates = templates.map((template) => ({
         ...template,
-        tags: template.tags.split(','),
-        blogs: template.blogPosts,
+        tags: template.tags ? template.tags.split(', ') : [], // Ensure tags are an array
       }));
 
       const totalTemplates = await prisma.template.count({
