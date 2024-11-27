@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       const tokenData = { email: user.email, role: user.role };
-      const accessToken = jwt.sign(tokenData, ACCESS_SECRET, { expiresIn: '20m' });
+      const accessToken = jwt.sign(tokenData, ACCESS_SECRET, { expiresIn: '60m' });
       const refreshToken = jwt.sign(tokenData, REFRESH_SECRET, { expiresIn: '1d' });
 
       return res.status(200).json({ accessToken, refreshToken });

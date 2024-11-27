@@ -20,7 +20,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const accessToken = jwt.sign(
       { username: decoded.username, role: decoded.role },
       ACCESS_SECRET,
-      { expiresIn: '20m' }
+      { expiresIn: '60m' }
     );
 
     return res.status(200).json({ accessToken });
