@@ -82,11 +82,12 @@ const TemplateForm: React.FC<TemplateFormProps> = ({ code, language ='JavaScript
             <button
                 className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 onClick={() => {
-                    if (router.pathname === "/templates/create") {
+                    if (onClose) {
+                        onClose(); // close passed from dashboard
+                    } else if (router.pathname === "/templates/create") {
                         router.push('/templates/viewAll');
-                    }
-                    else {
-                        router.push('/dashboard')
+                    } else {
+                        router.push('/dashboard');
                     }
                 }}
             >
