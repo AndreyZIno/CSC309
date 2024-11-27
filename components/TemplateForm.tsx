@@ -93,17 +93,21 @@ const TemplateForm: React.FC = () => {
             onChange={(e) => setLanguage(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400"
           >
-            <option value="JavaScript">JavaScript</option>
-            <option value="Python">Python</option>
-            <option value="Java">Java</option>
+            <option value="C">C</option>
             <option value="C++">C++</option>
             <option value="C#">C#</option>
-            <option value="Ruby">Ruby</option>
-            <option value="Go">Go</option>
+            <option value="Haskell">Haskell</option>
+            <option value="Java">Java</option>
+            <option value="JavaScript">JavaScript</option>
+            <option value="Lua">Lua</option>
+            <option value="Pascal">Pascal</option>
+            <option value="Perl">Perl</option>
             <option value="PHP">PHP</option>
-            <option value="Swift">Swift</option>
-            <option value="TypeScript">TypeScript</option>
+            <option value="Python">Python</option>
+            <option value="Ruby">Ruby</option>
             <option value="Rust">Rust</option>
+            <option value="Shell">Shell</option>
+            <option value="Swift">Swift</option>
           </select>
         </div>
         <div>
