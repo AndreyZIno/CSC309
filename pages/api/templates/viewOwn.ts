@@ -73,6 +73,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
           user: true, // Include user information
         },
+        orderBy: { createdAt: 'desc' },
       });
 
       const processedTemplates = templates.map((template) => ({

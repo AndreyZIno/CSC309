@@ -6,8 +6,12 @@ const prisma = new PrismaClient();
 
 export default authenticate(async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'DELETE') {
-    const { id }: { id: number } = req.body;
+    const { templateID  } = req.query;
     const userEmail = req.user?.email;
+
+    if (!templateID  || Array.isArray(templateID )) {
+      return res.status(404).json({ error: 'Please indicate which template id should be deleted' });
+    }
 
     try {
       const user = await prisma.user.findUnique({
@@ -20,7 +24,7 @@ export default authenticate(async function handler(req: NextApiRequest, res: Nex
 
       const template = await prisma.template.findFirst({
         where: {
-          id,
+          id: parseInt(templateID),
           userId: user.id,
         },
       });
