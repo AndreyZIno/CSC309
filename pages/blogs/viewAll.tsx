@@ -437,13 +437,13 @@ const ViewAllBlogs: React.FC = () => {
                     }`}
                   >
                     <h2
-                      className={`text-2xl font-semibold ${
-                        theme === 'dark' ? 'text-blue-300' : 'text-blue-600'
-                      }`}
-                    >
+                        className={`text-2xl font-semibold break-words pr-12 ${
+                          theme === 'dark' ? 'text-blue-300' : 'text-blue-600'
+                        }`}
+                      >
                       <Link
                         href={isGuest ? `/blogs/${blog.id}?guest=true` : `/blogs/${blog.id}`}
-                        className={`text-3xl font-semibold hover:underline ${
+                        className={`text-2xl font-semibold hover:underline ${
                           theme === 'dark' ? 'text-blue-300' : 'text-blue-500'
                         }`}
                       >
