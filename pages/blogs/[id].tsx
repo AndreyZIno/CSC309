@@ -62,9 +62,11 @@ const BlogDetails: React.FC = () => {
     const { theme } = useTheme();
 
     useEffect(() => {
+        if (!id) return;
+
+        const token = localStorage.getItem('accessToken');
+
         const fetchCurrentUser = async () => {
-            const token = localStorage.getItem('accessToken');
-            console.log('token:', token)
             if (isGuest || !token) {
                 setUserEmail(null);
                 return;
@@ -95,6 +97,12 @@ const BlogDetails: React.FC = () => {
 
     const fetchBlog = async () => {
         if (!id) return;
+        const token = localStorage.getItem('accessToken');
+
+        if (!token && !(router.pathname === `/templates/${id}?guest=true`)) {
+            router.push(`/blogs/${id}?guest=true`);
+        }
+
         setLoading(true);
         setError(null);
 
