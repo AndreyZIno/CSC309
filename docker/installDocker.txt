@@ -47,3 +47,8 @@ Languages:
     rust
     shell
     swift
+
+Prisma notes:
+    npx prisma migrate dev --name rerun
+    npx prisma generate
+        then restart ts server
