@@ -52,12 +52,18 @@ const ViewAllTemplates: React.FC = () => {
     const [filter, setFilter] = useState<'all' | 'own'>('all'); // Added for filtering
     const isGuest = router.query.guest === 'true';
     const { theme } = useTheme();
+    const [userEmail, setUserEmail] = useState<string | null>(null);
 
     // Fetch current user ID
     useEffect(() => {
         const fetchCurrentUser = async () => {
             const token = localStorage.getItem('accessToken');
             if (!token) return;
+
+            if (isGuest) {
+                setUserEmail(null);
+                return;
+              }
 
             try {
                 const response = await fetch('/api/users/me', {
@@ -69,6 +75,7 @@ const ViewAllTemplates: React.FC = () => {
                 if (response.ok) {
                     const data = await response.json();
                     setCurrentUserId(data.id);
+                    setUserEmail(data.email);
                 }
             } catch (err) {
                 console.error('Error fetching current user:', err);
@@ -83,21 +90,30 @@ const ViewAllTemplates: React.FC = () => {
 
         const token = localStorage.getItem('accessToken');
 
-        try {
-            // const token = localStorage.getItem('accessToken');
-            
+        try {            
             const endpoint =
                 filter === 'own'
                     ? `/api/templates/viewOwn?page=${page}&limit=${limit}&search=${search}&searchField=${searchField}`
                     : `/api/templates/viewAll?page=${page}&limit=${limit}&search=${search}&searchField=${searchField}`;
-
-            const response = await fetch(endpoint, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-            })
+            
+            let response;
+            if (filter === 'own') {
+                response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userEmail,
+                    }),
+                });
+            } else {
+                response = await fetch(endpoint, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+            }
              
             if (!response.ok) {
                 const errorData = await response.json();
@@ -116,7 +132,7 @@ const ViewAllTemplates: React.FC = () => {
                 setTemplates(data);
             }
         } catch (err) {
-            setError('An unexpected error occurred.');
+            setError('An unexpected error occurred in view templates.');
         } finally {
             setLoading(false);
         }

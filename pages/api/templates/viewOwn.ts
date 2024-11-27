@@ -1,17 +1,19 @@
 import { PrismaClient } from '@prisma/client';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { authenticate } from '../../../lib/authentication';
 
 const prisma = new PrismaClient();
 
-export default authenticate(async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'GET') {
-    const userEmail = req.user?.email;
-    const { page = '1', limit = '10', search = '', searchField = 'title' } = req.query;
-
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === 'POST') {
+    const { userEmail } = req.body;
+    const { page = '1', limit = '10', search = '', searchField } = req.query;
     const pageNumber = parseInt(page as string, 10);
     const limitNumber = parseInt(limit as string, 10);
     const skip = (pageNumber - 1) * limitNumber;
+
+  if (!userEmail) {
+      return res.status(400).json({ error: 'userEmail is required in the request body.' });
+  }
 
     try {
       const user = await prisma.user.findUnique({
@@ -22,19 +24,33 @@ export default authenticate(async function handler(req: NextApiRequest, res: Nex
         return res.status(404).json({ error: 'User not found' });
       }
 
-      const searchConditions = search
-        ? {
-            [searchField as string]: {
-              contains: search as string,
-              mode: 'insensitive',
-            },
-          }
-        : {};
+      let searchCondition = {};
+        if (searchField === 'title') {
+             searchCondition = search ? {
+                OR: [
+                    { title: { contains: search } },
+                ],
+            } : {};
+        }
+        else if (searchField === 'explanation') {
+            searchCondition = search ? {
+                OR: [
+                    { explanation: { contains: search } },
+                ],
+            } : {};
+        }
+        else if (searchField === 'tags') {
+            searchCondition = search ? {
+                OR: [
+                    { tags: { contains: search } },
+                ],
+            } : {};
+        }
 
       const templates = await prisma.template.findMany({
         where: {
           userId: user.id,
-          ...searchConditions, // Apply search filters if provided
+          ...searchCondition, // Apply search filters if provided
         },
         skip,
         take: limitNumber,
@@ -68,7 +84,7 @@ export default authenticate(async function handler(req: NextApiRequest, res: Nex
       const totalTemplates = await prisma.template.count({
         where: {
           userId: user.id,
-          ...searchConditions, // Count filtered results
+          ...searchCondition, // Count filtered results
         },
       });
 
@@ -85,4 +101,4 @@ export default authenticate(async function handler(req: NextApiRequest, res: Nex
   } else {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-});
+}
