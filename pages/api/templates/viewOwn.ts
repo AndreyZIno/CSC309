@@ -12,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const skip = (pageNumber - 1) * limitNumber;
 
   if (!userEmail) {
-      return res.status(400).json({ error: 'userEmail is required in the request body.' });
+      return res.status(400).json({ error: 'You need to be logged in to view your own templates.' });
   }
 
     try {

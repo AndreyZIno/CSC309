@@ -256,7 +256,7 @@ const ViewAllTemplates: React.FC = () => {
             {error && (
                 <div
                     className={`p-4 mb-4 rounded-lg ${
-                        theme === 'dark' ? 'bg-red-800 text-red-400' : 'bg-red-100 text-red-500'
+                        theme === 'dark' ? 'bg-red-800 text-white' : 'bg-red-100 text-red-500'
                     }`}
                 >
                     {error}
