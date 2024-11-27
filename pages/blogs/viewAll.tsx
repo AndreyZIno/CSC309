@@ -145,13 +145,14 @@ const ViewAllBlogs: React.FC = () => {
 
     const updateBlog = async (updatedBlog: BlogPost) => {
         try {
+            const validatedTags = validateTags(updatedBlog.tags);
             const response = await fetch(`/api/blogs/edit?blogID=${updatedBlog.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     title: updatedBlog.title,
                     description: updatedBlog.description,
-                    tags: updatedBlog.tags,
+                    tags: validatedTags,
                     templateIds: updatedBlog.templates.map((template) => template.id),
                     userEmail,
                 }),
@@ -218,6 +219,22 @@ const ViewAllBlogs: React.FC = () => {
             templates: updatedTemplates,
         }));
     };
+
+    const validateTags = (tags: string): string => {
+        const formattedTags = tags
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter((tag) => tag !== '');
+    
+        return formattedTags.join(',');
+    };
+
+    const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const rawTags = e.target.value;
+      setEditingBlog((prevBlog) =>
+          prevBlog ? { ...prevBlog, tags: rawTags } : null
+      );
+  };
       
     const handleVote = async (blogPostId: number, voteType: 'upvote' | 'downvote') => {
         try {
@@ -315,7 +332,7 @@ const ViewAllBlogs: React.FC = () => {
           {error && (
             <div
               className={`fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-md shadow-lg ${
-                theme === 'dark' ? 'bg-red-800 text-red-400' : 'bg-red-100 text-red-600'
+                theme === 'dark' ? 'bg-red-800 text-white' : 'bg-red-100 text-red-600'
               }`}
             >
               {error}
@@ -610,10 +627,9 @@ const ViewAllBlogs: React.FC = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    value={editingBlog.tags}
-                                    onChange={(e) =>
-                                        setEditingBlog({ ...editingBlog, tags: e.target.value })
-                                    }
+                                    value={editingBlog?.tags || ''}
+                                    onChange={handleTagsChange}
+                                    placeholder="e.g., tag1,tag2,tag3"
                                     className={`w-full px-4 py-2 border rounded-md focus:ring-2 ${
                                         theme === 'dark'
                                             ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-400'

@@ -45,6 +45,16 @@ export default async function handler(req: EditBlogRequest, res: NextApiResponse
             return res.status(403).json({ message: 'You cannot edit a hidden blog post.' });
         }
 
+        let sanitizedTags = [];
+        let formattedTags = '';
+        if (tags) {
+            sanitizedTags = tags
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter((tag) => tag !== '');
+            formattedTags = sanitizedTags.join(',');
+        }
+        
         const data: {
             title?: string;
             description?: string;
