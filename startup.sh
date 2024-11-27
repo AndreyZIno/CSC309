@@ -80,3 +80,5 @@ chmod +x run.sh
 # Build docker images
 chmod +x buildDockerImages.sh
 ./buildDockerImages.sh
+
+echo "Ready to start the server!"
