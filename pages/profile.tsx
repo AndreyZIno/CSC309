@@ -10,7 +10,7 @@ function Profile({ isGuest }: { isGuest: boolean }) {
     if (!token) {
         router.push('/');
     }
-}, []);
+  }, []);
 
   if (isGuest) {
     // Guest users see this restricted access message

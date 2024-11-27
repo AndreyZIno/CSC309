@@ -50,6 +50,13 @@ const ViewAllBlogs: React.FC = () => {
     const { theme } = useTheme(); // Add theme from useTheme
 
     useEffect(() => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+          router.push('/blogs/viewAll?guest=true');
+      }
+    }, []);
+
+    useEffect(() => {
         const fetchCurrentUser = async () => {
           if (isGuest) {
             setUserEmail(null);
