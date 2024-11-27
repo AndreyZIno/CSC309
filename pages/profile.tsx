@@ -1,7 +1,17 @@
 import { useEffect, useState } from 'react';
 import { withOptionalAuth } from '../lib/withAuth';
+import { useRouter } from 'next/router';
 
 function Profile({ isGuest }: { isGuest: boolean }) {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+        router.push('/');
+    }
+}, []);
+
   if (isGuest) {
     // Guest users see this restricted access message
     return (
