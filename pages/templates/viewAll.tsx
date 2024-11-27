@@ -366,7 +366,13 @@ const ViewAllTemplates: React.FC = () => {
                                     <p className="text-md mt-2">Explanation: {template.explanation}</p>
                                     <p className="text-sm text-gray-400">Language: {template.language}</p>
                                     <p className="text-sm text-gray-400">
-                                        Tags: <span className="italic">{template.tags.join(', ')}</span>
+                                    <p className="text-sm text-gray-400">
+                                        Tags: <span className="italic">
+                                            {Array.isArray(template.tags)
+                                                ? template.tags.join(', ')
+                                                : template.tags || 'No tags'}
+                                        </span>
+                                    </p>
                                     </p>
                                     <p className="text-sm text-gray-400">
                                         By: {template.user.firstName} {template.user.lastName}
@@ -465,9 +471,14 @@ const ViewAllTemplates: React.FC = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    value={editingTemplate.title}
+                                    value={Array.isArray(editingTemplate?.tags) 
+                                        ? editingTemplate.tags.join(', ') 
+                                        : editingTemplate?.tags || ''}
                                     onChange={(e) =>
-                                        setEditingTemplate({ ...editingTemplate, title: e.target.value })
+                                        setEditingTemplate({
+                                            ...editingTemplate,
+                                            tags: e.target.value.split(',').map((tag) => tag.trim()),
+                                        })
                                     }
                                     className={`w-full px-4 py-2 border rounded-md focus:ring-2 ${
                                         theme === 'dark'
