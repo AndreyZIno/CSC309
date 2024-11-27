@@ -57,14 +57,14 @@ export default async function handler(req: ExecuteRequest, res: NextApiResponse)
         javascript: 'js',
         ruby: 'rb',
         php: 'php',
-        go: 'go',
         rust: 'rs',
         swift: 'swift',
-        kotlin: 'kt',
-        typescript: 'ts',
         perl: 'pl',
         shell: 'sh',
         haskell: 'hs',
+        cs: 'cs',
+        lua: 'lua',
+        pascal: 'pas',
     };
 
     const fileExtension = fileExtensionMap[finalLanguage];
@@ -72,25 +72,7 @@ export default async function handler(req: ExecuteRequest, res: NextApiResponse)
         return res.status(400).json({ error: `Unsupported language: ${finalLanguage}` });
     }
 
-    const dockerImageMap: Record<string, string> = {
-        python: 'code-executor-python',
-        c: 'code-executor-c',
-        cpp: 'code-executor-cpp',
-        java: 'code-executor-java',
-        javascript: 'code-executor-javascript',
-        ruby: 'code-executor-ruby',
-        php: 'code-executor-php',
-        go: 'code-executor-go',
-        rust: 'code-executor-rust',
-        swift: 'code-executor-swift',
-        kotlin: 'code-executor-kotlin',
-        typescript: 'code-executor-typescript',
-        perl: 'code-executor-perl',
-        shell: 'code-executor-shell',
-        haskell: 'code-executor-haskell',
-    };
-
-    const dockerImage = dockerImageMap[finalLanguage];
+    const dockerImage = `code-executor-${finalLanguage}:latest`;
     if (!dockerImage) {
         return res.status(400).json({ error: `Unsupported language: ${finalLanguage}` });
     }
@@ -131,8 +113,9 @@ export default async function handler(req: ExecuteRequest, res: NextApiResponse)
                 Memory: 1536 * 1024 * 1024, // 1.5 GB (From ChatGPT)
                 MemorySwap: 2048 * 1024 * 1024, // 2 GB (From ChatGPT)
                 CpuShares: 1024, // Full CPU (From ChatGPT)
-                NanoCpus: 1000000000, // 100% of one CPU (From ChatGPT)
                 PidsLimit: 500, // Increase process limit (From ChatGPT)
+                CpuPeriod: 100000, // Default 100ms, ChatGPT
+                CpuQuota: 50000, // 50% of CPU time, ChatGPT
             },
             Cmd: cmd,
         });
@@ -162,26 +145,19 @@ export default async function handler(req: ExecuteRequest, res: NextApiResponse)
 
         container.start();
 
-        const timeout = setTimeout(async () => {
+        const timeout = setTimeout(() => {
             console.log('Execution timeout reached');
-            try {
-                await container.kill();
-            } catch (err) {
-                console.error('Failed to stop container after timeout:', err);
-            }
             res.status(408).json({ error: 'Code execution timed out.' });
-        }, 9000);
+        }, 6000);
 
         stream.on('end', async () => {
+            clearTimeout(timeout);
             try {
                 const containerData = await container.wait();
 
-                const sanitizedStdout = stdout.replace(/[^\x20-\x7E\n]/g, '').trim();
-                const sanitizedStderr = stderr.replace(/[^\x20-\x7E\n]/g, '').trim();
-        
                 res.status(containerData.StatusCode === 0 ? 200 : 400).json({
-                    stdout: sanitizedStdout,
-                    stderr: sanitizedStderr,
+                    stdout: stdout,
+                    stderr: stderr,
                 });
             } catch (err) {
                 console.error('Docker execution error:', err);

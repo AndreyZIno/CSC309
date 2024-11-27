@@ -133,17 +133,21 @@ const TemplateForm: React.FC<TemplateFormProps> = ({ code, language ='JavaScript
                             onChange={(e) => setTemplateLanguage(e.target.value)}
                             className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-black"
                         >
-                            <option value="JavaScript" className="text-black dark:text-white">JavaScript</option>
-                            <option value="Python" className="text-black dark:text-white">Python</option>
-                            <option value="Java" className="text-black dark:text-white">Java</option>
+                            <option value="C" className="text-black dark:text-white">C</option>
                             <option value="C++" className="text-black dark:text-white">C++</option>
                             <option value="C#" className="text-black dark:text-white">C#</option>
-                            <option value="Ruby" className="text-black dark:text-white">Ruby</option>
-                            <option value="Go" className="text-black dark:text-white">Go</option>
+                            <option value="Haskell" className="text-black dark:text-white">Haskell</option>
+                            <option value="Java" className="text-black dark:text-white">Java</option>
+                            <option value="JavaScript" className="text-black dark:text-white">JavaScript</option>
+                            <option value="Lua" className="text-black dark:text-white">Lua</option>
+                            <option value="Pascal" className="text-black dark:text-white">Pascal</option>
+                            <option value="Perl" className="text-black dark:text-white">Perl</option>
                             <option value="PHP" className="text-black dark:text-white">PHP</option>
-                            <option value="Swift" className="text-black dark:text-white">Swift</option>
-                            <option value="TypeScript" className="text-black dark:text-white">TypeScript</option>
+                            <option value="Python" className="text-black dark:text-white">Python</option>
+                            <option value="Ruby" className="text-black dark:text-white">Ruby</option>
                             <option value="Rust" className="text-black dark:text-white">Rust</option>
+                            <option value="Shell" className="text-black dark:text-white">Shell</option>
+                            <option value="Swift" className="text-black dark:text-white">Swift</option>
                         </select>
                     </div>
                     <div>

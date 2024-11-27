@@ -21,6 +21,7 @@ export default function Dashboard() {
     const router = useRouter();
     const isGuest = router.query.guest === 'true';
     const { theme } = useTheme();
+  const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const { code: queryCode, language: queryLanguage } = router.query;
@@ -66,11 +67,12 @@ export default function Dashboard() {
         router.push('/');
     };
 
-    const executeCode = async () => {
-        setOutput('');
-        setError('');
+  const executeCode = async () => {
+    setOutput('');
+    setError('');
+    setLoading(true);
 
-        const timeoutMs = 8650;
+    const timeoutMs = 6000;
 
         const fetchWithTimeout = async () => {
             const controller = new AbortController(); // Create an AbortController
@@ -86,31 +88,34 @@ export default function Dashboard() {
 
                 clearTimeout(timeout); // Clear the timeout if fetch completes
 
-                const result = await response.json();
-                if (response.ok) {
-                    setOutput(result.stdout || '');
-                    setError(result.stderr || '');
-                } else {
-                    setOutput(result.stdout || '');
-                    setError(result.stderr || result.error || 'Execution error.');
-                }
-            } catch (err) {
-                if (err instanceof Error) { // Type narrowing for Error objects
-                    if (err.name === 'AbortError') {
-                        setError('Request timed out. Please look for any potential infinite loops, fork bombs, etc.');
-                    } else {
-                        setError('Failed to execute code.');
-                        console.error('Execution error:', err);
-                    }
-                } else {
-                    setError('An unexpected error occurred.');
-                    console.error('Unknown error:', err);
-                }
+            const result = await response.json();
+            if (response.ok) {
+                setOutput(result.stdout || '');
+                setError(result.stderr || '');
+            } else {
+                setOutput(result.stdout || '');
+                setError(result.stderr || result.error || 'Execution error.');
             }
-        };
+        } catch (err) {
+          if (err instanceof Error) { // Type narrowing for Error objects
+              if (err.name === 'AbortError') {
+                  setError('Request timed out. Please look for any potential infinite loops, fork bombs, etc.');
+              } else {
+                  setError('Failed to execute code.');
+                  console.error('Execution error:', err);
+              }
+          } else {
+              setError('An unexpected error occurred.');
+              console.error('Unknown error:', err);
+          }
+      } finally {
+        setLoading(false);
+      }
+    };
 
         await fetchWithTimeout();
     };
+
 
     const handleSaveTemplate = () => {
         const token = localStorage.getItem('accessToken');
