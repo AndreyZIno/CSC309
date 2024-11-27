@@ -8,7 +8,7 @@ export ADMIN_FIRST_NAME="Test"
 export ADMIN_LAST_NAME="Admin"
 export ADMIN_EMAIL="adminUser@gmail.com"
 export ADMIN_PASSWORD="123"
-export ADMIN_AVATAR="Test Avatar"
+export ADMIN_AVATAR="\avatars\admin.jpg"
 export ADMIN_PHONE="1234567890"
 export ADMIN_ROLE="ADMIN"
 
