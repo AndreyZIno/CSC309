@@ -57,6 +57,10 @@ const ViewAllTemplates: React.FC = () => {
     // Fetch current user ID
     useEffect(() => {
         const fetchCurrentUser = async () => {
+            if (isGuest) {
+                setUserEmail(null);
+                return;
+            }
             const token = localStorage.getItem('accessToken');
             if (!token) return;
 
@@ -72,6 +76,7 @@ const ViewAllTemplates: React.FC = () => {
                         Authorization: `Bearer ${token}`,
                     },
                 });
+                
                 if (response.ok) {
                     const data = await response.json();
                     setCurrentUserId(data.id);
@@ -82,6 +87,7 @@ const ViewAllTemplates: React.FC = () => {
             }
         };
         fetchCurrentUser();
+        fetchTemplates();
     }, []);
 
     const fetchTemplates = async () => {
@@ -120,14 +126,13 @@ const ViewAllTemplates: React.FC = () => {
                 setError(errorData.error || 'Something went wrong while fetching templates.');
                 return;
             }
-
+    
             const data = await response.json();
-
+    
             if (filter === 'own') {
                 setHasMore(data.templates.length === limit);
                 setTemplates(data.templates);
             } else {
-                console.log(data.length)
                 setHasMore(data.length === limit);
                 setTemplates(data);
             }
@@ -137,6 +142,7 @@ const ViewAllTemplates: React.FC = () => {
             setLoading(false);
         }
     };
+    
 
     useEffect(() => {
         fetchTemplates();
@@ -331,7 +337,7 @@ const ViewAllTemplates: React.FC = () => {
                                         >
                                             {template.title}
                                         </Link>
-                                        {currentUserId === template.user.id && (
+                                        {userEmail === template.user.email && (
                                             <div className="flex gap-2">
                                                 <button
                                                     onClick={() => setEditingTemplate(template)}
@@ -360,7 +366,7 @@ const ViewAllTemplates: React.FC = () => {
                                     <p className="text-md mt-2">Explanation: {template.explanation}</p>
                                     <p className="text-sm text-gray-400">Language: {template.language}</p>
                                     <p className="text-sm text-gray-400">
-                                        Tags: <span className="italic">{template.tags}</span>
+                                        Tags: <span className="italic">{template.tags.join(', ')}</span>
                                     </p>
                                     <p className="text-sm text-gray-400">
                                         By: {template.user.firstName} {template.user.lastName}
