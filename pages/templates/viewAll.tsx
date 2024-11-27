@@ -360,7 +360,7 @@ const ViewAllTemplates: React.FC = () => {
                                     <p className="text-md mt-2">Explanation: {template.explanation}</p>
                                     <p className="text-sm text-gray-400">Language: {template.language}</p>
                                     <p className="text-sm text-gray-400">
-                                        Tags: <span className="italic">{template.tags}</span>
+                                        Tags: <span className="italic">{template.tags.join(', ')}</span>
                                     </p>
                                     <p className="text-sm text-gray-400">
                                         By: {template.user.firstName} {template.user.lastName}
