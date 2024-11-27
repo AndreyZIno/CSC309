@@ -48,6 +48,20 @@ const ViewAllBlogs: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredTemplates, setFilteredTemplates] = useState<{ id: number; title: string }[]>([]);
     const { theme } = useTheme(); // Add theme from useTheme
+    const [reportModal, setReportModal] = useState<{ isOpen: boolean; blogId: number | null }>({
+      isOpen: false,
+      blogId: null,
+    });
+    const [reportReason, setReportReason] = useState<string>('');
+
+    const handleOpenReportModal = (blogId: number) => {
+      setReportModal({ isOpen: true, blogId });
+    };
+
+    const handleCloseReportModal = () => {
+        setReportModal({ isOpen: false, blogId: null });
+        setReportReason('');
+    };
 
     useEffect(() => {
       const token = localStorage.getItem('accessToken');
@@ -270,40 +284,39 @@ const ViewAllBlogs: React.FC = () => {
             setError(`An unexpected error occurred while trying to ${voteType}.`);
         }
     };
-    const handleReportBlog = async (blogId: number) => {
-        if (!userEmail) {
-            setError('Only logged-in users can report blog posts.');
+    const handleSubmitReport = async () => {
+        if (!reportReason || reportReason.trim().length < 3) {
+            setError('Reason must be at least 3 characters long.');
             return;
         }
-        const reason = prompt("Please provide a reason for reporting this blog:");
-
-        if (!reason || reason.trim().length < 3) {
-          alert("Reason must be at least 3 characters long.");
-          return;
-        }
-
+    
+        if (reportModal.blogId === null) return;
+    
         try {
-          const response = await fetch("/api/reporting/create", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ blogPostId: blogId, reason, userEmail }),
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            setError(errorData.error || "Failed to report the blog.");
-            return;
-          }
-
-          setReportSuccess("Blog reported successfully!");
-          setTimeout(() => setReportSuccess(null), 3000);
+            const response = await fetch("/api/reporting/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ blogPostId: reportModal.blogId, reason: reportReason.trim(), userEmail }),
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.error || "Failed to report the blog.");
+                return;
+            }
+    
+            setReportSuccess("Blog reported successfully!");
+            setTimeout(() => setReportSuccess(null), 3000);
         } catch (err) {
-          console.error("Error reporting blog:", err);
-          setError("An unexpected error occurred while reporting the blog.");
+            console.error("Error reporting blog:", err);
+            setError("An unexpected error occurred while reporting the blog.");
+        } finally {
+            handleCloseReportModal();
         }
-      };
+    };
+  
 
       useEffect(() => {
         const fetchUserInfo = async () => {
@@ -513,11 +526,9 @@ const ViewAllBlogs: React.FC = () => {
                       </button>
                       {!isAdmin && blog.user.email !== userEmail && (
                         <button
-                          onClick={() => handleReportBlog(blog.id)}
+                          onClick={() => handleOpenReportModal(blog.id)}
                           className={`flex items-center gap-1 ${
-                            theme === 'dark'
-                              ? 'text-yellow-400 hover:text-yellow-500'
-                              : 'text-yellow-500 hover:text-yellow-600'
+                              theme === 'dark' ? 'text-yellow-400 hover:text-yellow-500' : 'text-yellow-500 hover:text-yellow-600'
                           }`}
                         >
                           <FaExclamationTriangle />
@@ -530,6 +541,55 @@ const ViewAllBlogs: React.FC = () => {
           ) : (
             <p className="text-center">No blogs found.</p>
           )}
+          {reportModal.isOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
+                <div
+                    className={`p-6 rounded-lg shadow-lg w-full max-w-md ${
+                        theme === 'dark' ? 'bg-gray-900 text-gray-200' : 'bg-white text-gray-800'
+                    }`}
+                >
+                    <h2 className="text-2xl font-bold mb-4">Report Blog</h2>
+                    <textarea
+                        value={reportReason}
+                        onChange={(e) => setReportReason(e.target.value)}
+                        placeholder="Provide a reason for reporting this blog..."
+                        className={`w-full p-4 rounded-md border focus:ring-2 ${
+                            theme === 'dark'
+                                ? 'bg-gray-700 border-gray-600 text-white focus:ring-blue-400'
+                                : 'bg-gray-50 border-gray-300 text-black focus:ring-blue-500'
+                        }`}
+                        rows={4}
+                    />
+                    <div className="flex justify-end mt-4 space-x-4">
+                        <button
+                            onClick={handleCloseReportModal}
+                            className={`px-4 py-2 rounded-md ${
+                                theme === 'dark'
+                                    ? 'bg-gray-600 text-white hover:bg-gray-500'
+                                    : 'bg-gray-300 text-black hover:bg-gray-400'
+                            }`}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className={`px-4 py-2 rounded-md ${
+                                reportReason.trim().length < 3
+                                    ? 'bg-blue-300 text-white cursor-not-allowed'
+                                    : theme === 'dark'
+                                    ? 'bg-blue-500 text-white hover:bg-blue-400'
+                                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                            }`}
+                            onClick={handleSubmitReport}
+                            disabled={reportReason.trim().length < 3}
+                        >
+                            {loading ? 'Submitting...' : 'Submit'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+
+            
           <div className="flex justify-between mt-6">
             <button
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
@@ -725,7 +785,7 @@ const ViewAllBlogs: React.FC = () => {
             )}
             {updateNotification && (
                 <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md shadow-md transition-opacity duration-300">
-                        Blog Updated!
+                    Blog Updated!
                 </div>
             )}
         </div>

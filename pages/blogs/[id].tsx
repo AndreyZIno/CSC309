@@ -60,6 +60,7 @@ const BlogDetails: React.FC = () => {
     const [reportReason, setReportReason] = useState('');
     const isGuest = router.query.guest === 'true';
     const { theme } = useTheme();
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     useEffect(() => {
         if (!id) return;
@@ -355,10 +356,15 @@ const BlogDetails: React.FC = () => {
 
             setReportingCommentId(null);
             setReportReason('');
-            alert('Comment reported successfully!');
+            setSuccessMessage('Comment reported successfully!');
+            setTimeout(() => setSuccessMessage(null), 3000);
         } catch (err) {
             console.error('Error reporting comment:', err);
             setError('An unexpected error occurred while reporting the comment.');
+        } finally {
+            setLoading(false);
+            setReportingCommentId(null);
+            setReportReason('');
         }
     };
 
@@ -728,7 +734,7 @@ const BlogDetails: React.FC = () => {
                 </button>
             </div>
 
-            {reportingCommentId && (
+            {/* {reportingCommentId && (
                 <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
                     <div className="bg-white p-6 rounded-md w-80">
                         <h3 className="text-lg font-bold text-gray-700">Report Comment</h3>
@@ -754,7 +760,7 @@ const BlogDetails: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
 
             <div className="flex justify-between mt-6">
                 {commentsPage > 1 && (
@@ -774,6 +780,67 @@ const BlogDetails: React.FC = () => {
                     </button>
                 )}
             </div>
+            {reportingCommentId && (
+                <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50">
+                    <div
+                        className={`p-6 rounded-md shadow-md w-96 ${
+                            theme === 'dark' ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'
+                        }`}
+                    >
+                        <h3 className="text-lg font-semibold mb-4">
+                            Report Comment or Reply
+                        </h3>
+                        <textarea
+                            className={`w-full p-3 rounded-md border focus:outline-none focus:ring-2 ${
+                                theme === 'dark'
+                                    ? 'bg-gray-700 border-gray-600 text-gray-200 focus:ring-blue-400'
+                                    : 'bg-gray-50 border-gray-300 text-gray-800 focus:ring-blue-500'
+                            }`}
+                            placeholder="Enter your reason for reporting..."
+                            value={reportReason}
+                            onChange={(e) => setReportReason(e.target.value)}
+                        />
+                        <div className="flex justify-end mt-4 gap-2">
+                            <button
+                                className={`px-4 py-2 rounded-md ${
+                                    theme === 'dark'
+                                        ? 'bg-gray-600 text-gray-200 hover:bg-gray-500'
+                                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                }`}
+                                onClick={() => {
+                                    setReportingCommentId(null);
+                                    setReportReason('');
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className={`px-4 py-2 rounded-md ${
+                                    reportReason.trim().length < 3
+                                        ? 'bg-blue-300 text-white cursor-not-allowed'
+                                        : theme === 'dark'
+                                        ? 'bg-blue-500 text-white hover:bg-blue-400'
+                                        : 'bg-blue-500 text-white hover:bg-blue-600'
+                                }`}
+                                onClick={submitReport}
+                                disabled={reportReason.trim().length < 3}
+                            >
+                                {loading ? 'Submitting...' : 'Submit'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {successMessage && (
+                <div
+                className={`fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-md shadow-lg ${
+                    theme === 'dark' ? 'bg-green-800 text-green-400' : 'bg-green-100 text-green-600'
+                }`}
+                >
+                {successMessage}
+                </div>
+            )}
         </div>
     );
 };

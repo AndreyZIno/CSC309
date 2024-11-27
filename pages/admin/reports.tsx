@@ -175,6 +175,13 @@ const AdminReports: React.FC = () => {
                   Blog Title: <span className="font-normal">{blog.title}</span>
                 </p>
                 <p>Reports: {blog.reportsCount}</p>
+                <ul className="mt-2 space-y-2">
+                  {blog.reports.map((report, index) => (
+                    <li key={index} className="text-sm">
+                      <span className="font-semibold">{report.user.firstName} {report.user.lastName}:</span> {report.reason}
+                    </li>
+                  ))}
+                </ul>
                 {blog.hidden && <p className="text-red-500 font-bold">This content is hidden.</p>}
                 <button
                   onClick={() => hideContent(blog.id, 'blog')}
@@ -232,6 +239,13 @@ const AdminReports: React.FC = () => {
                   Comment: <span className="font-normal">{comment.content}</span>
                 </p>
                 <p>Reports: {comment.reportsCount}</p>
+                <ul className="mt-2 space-y-2">
+                  {comment.reports.map((report, index) => (
+                    <li key={index} className="text-sm">
+                      <span className="font-semibold">{report.user.firstName} {report.user.lastName}:</span> {report.reason}
+                    </li>
+                  ))}
+                </ul>
                 {comment.hidden && (
                   <p className="text-red-500 font-bold">This content is hidden.</p>
                 )}
