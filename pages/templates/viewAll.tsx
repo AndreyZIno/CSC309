@@ -47,11 +47,12 @@ const ViewAllTemplates: React.FC = () => {
     const [hasMore, setHasMore] = useState(true);
     const [deleteNotification, setDeleteNotification] = useState(false);
     const [updateNotification, setUpdateNotification] = useState(false);
-    const [userEmail, setUserEmail] = useState<string | null>(null);
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
     const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
     const [filter, setFilter] = useState<'all' | 'own'>('all'); // Added for filtering
     const isGuest = router.query.guest === 'true';
     const { theme } = useTheme();
+    const [userEmail, setUserEmail] = useState<string | null>(null);
 
     // Fetch current user ID
     useEffect(() => {
@@ -60,11 +61,15 @@ const ViewAllTemplates: React.FC = () => {
                 setUserEmail(null);
                 return;
             }
-            
-            try {
-                const token = localStorage.getItem('accessToken');
-                if (!token) return;
+            const token = localStorage.getItem('accessToken');
+            if (!token) return;
 
+            if (isGuest) {
+                setUserEmail(null);
+                return;
+              }
+
+            try {
                 const response = await fetch('/api/users/me', {
                     method: 'GET',
                     headers: {
@@ -74,6 +79,7 @@ const ViewAllTemplates: React.FC = () => {
                 
                 if (response.ok) {
                     const data = await response.json();
+                    setCurrentUserId(data.id);
                     setUserEmail(data.email);
                 }
             } catch (err) {
@@ -87,33 +93,34 @@ const ViewAllTemplates: React.FC = () => {
     const fetchTemplates = async () => {
         setLoading(true);
         setError(null);
-    
-        try {
-            const token = localStorage.getItem('accessToken');
-            
+
+        const token = localStorage.getItem('accessToken');
+
+        try {            
             const endpoint =
                 filter === 'own'
                     ? `/api/templates/viewOwn?page=${page}&limit=${limit}&search=${search}&searchField=${searchField}`
                     : `/api/templates/viewAll?page=${page}&limit=${limit}&search=${search}&searchField=${searchField}`;
-    
-            const headers: HeadersInit = {
-                'Content-Type': 'application/json',
-            };
-    
+            
+            let response;
             if (filter === 'own') {
-                if (!token) {
-                    setError('You must be logged in to view your templates.');
-                    setLoading(false);
-                    return;
-                }
-                headers['Authorization'] = `Bearer ${token}`;
+                response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userEmail,
+                    }),
+                });
+            } else {
+                response = await fetch(endpoint, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
             }
-    
-            const response = await fetch(endpoint, {
-                method: 'GET',
-                headers,
-            });
-    
+             
             if (!response.ok) {
                 const errorData = await response.json();
                 setError(errorData.error || 'Something went wrong while fetching templates.');
@@ -130,8 +137,7 @@ const ViewAllTemplates: React.FC = () => {
                 setTemplates(data);
             }
         } catch (err) {
-            console.error('Error fetching templates:', err);
-            setError('An unexpected error occurred.');
+            setError('An unexpected error occurred in view templates.');
         } finally {
             setLoading(false);
         }
@@ -250,7 +256,7 @@ const ViewAllTemplates: React.FC = () => {
             {error && (
                 <div
                     className={`p-4 mb-4 rounded-lg ${
-                        theme === 'dark' ? 'bg-red-800 text-red-400' : 'bg-red-100 text-red-500'
+                        theme === 'dark' ? 'bg-red-800 text-white' : 'bg-red-100 text-red-500'
                     }`}
                 >
                     {error}
