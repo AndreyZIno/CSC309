@@ -164,21 +164,21 @@ export default function Dashboard() {
                                 : "bg-white border-gray-300 text-sky-700 focus:ring-blue-300"
                             }`}
                         >
-                            <option value="C" className="text-black dark:text-white">C</option>
-                            <option value="C++" className="text-black dark:text-white">C++</option>
-                            <option value="C#" className="text-black dark:text-white">C#</option>
-                            <option value="Haskell" className="text-black dark:text-white">Haskell</option>
-                            <option value="Java" className="text-black dark:text-white">Java</option>
-                            <option value="JavaScript" className="text-black dark:text-white">JavaScript</option>
-                            <option value="Lua" className="text-black dark:text-white">Lua</option>
-                            <option value="Pascal" className="text-black dark:text-white">Pascal</option>
-                            <option value="Perl" className="text-black dark:text-white">Perl</option>
-                            <option value="PHP" className="text-black dark:text-white">PHP</option>
-                            <option value="Python" className="text-black dark:text-white">Python</option>
-                            <option value="Ruby" className="text-black dark:text-white">Ruby</option>
-                            <option value="Rust" className="text-black dark:text-white">Rust</option>
-                            <option value="Shell" className="text-black dark:text-white">Shell</option>
-                            <option value="Swift" className="text-black dark:text-white">Swift</option>
+                            <option value="c" className="text-black dark:text-white">C</option>
+                            <option value="cpp" className="text-black dark:text-white">C++</option>
+                            <option value="cs" className="text-black dark:text-white">C#</option>
+                            <option value="haskell" className="text-black dark:text-white">Haskell</option>
+                            <option value="java" className="text-black dark:text-white">Java</option>
+                            <option value="javascript" className="text-black dark:text-white">JavaScript</option>
+                            <option value="lua" className="text-black dark:text-white">Lua</option>
+                            <option value="pascal" className="text-black dark:text-white">Pascal</option>
+                            <option value="perl" className="text-black dark:text-white">Perl</option>
+                            <option value="php" className="text-black dark:text-white">PHP</option>
+                            <option value="python" className="text-black dark:text-white">Python</option>
+                            <option value="ruby" className="text-black dark:text-white">Ruby</option>
+                            <option value="rust" className="text-black dark:text-white">Rust</option>
+                            <option value="shell" className="text-black dark:text-white">Shell</option>
+                            <option value="swift" className="text-black dark:text-white">Swift</option>
                         </select>
                     </div>
                     <p

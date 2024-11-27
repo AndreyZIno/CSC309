@@ -133,21 +133,21 @@ const TemplateForm: React.FC<TemplateFormProps> = ({ code, language ='JavaScript
                             onChange={(e) => setTemplateLanguage(e.target.value)}
                             className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-black"
                         >
-                            <option value="C" className="text-black dark:text-white">C</option>
-                            <option value="C++" className="text-black dark:text-white">C++</option>
-                            <option value="C#" className="text-black dark:text-white">C#</option>
-                            <option value="Haskell" className="text-black dark:text-white">Haskell</option>
-                            <option value="Java" className="text-black dark:text-white">Java</option>
-                            <option value="JavaScript" className="text-black dark:text-white">JavaScript</option>
-                            <option value="Lua" className="text-black dark:text-white">Lua</option>
-                            <option value="Pascal" className="text-black dark:text-white">Pascal</option>
-                            <option value="Perl" className="text-black dark:text-white">Perl</option>
-                            <option value="PHP" className="text-black dark:text-white">PHP</option>
-                            <option value="Python" className="text-black dark:text-white">Python</option>
-                            <option value="Ruby" className="text-black dark:text-white">Ruby</option>
-                            <option value="Rust" className="text-black dark:text-white">Rust</option>
-                            <option value="Shell" className="text-black dark:text-white">Shell</option>
-                            <option value="Swift" className="text-black dark:text-white">Swift</option>
+                            <option value="c" className="text-black dark:text-white">C</option>
+                            <option value="cpp" className="text-black dark:text-white">C++</option>
+                            <option value="cs" className="text-black dark:text-white">C#</option>
+                            <option value="haskell" className="text-black dark:text-white">Haskell</option>
+                            <option value="java" className="text-black dark:text-white">Java</option>
+                            <option value="javascript" className="text-black dark:text-white">JavaScript</option>
+                            <option value="lua" className="text-black dark:text-white">Lua</option>
+                            <option value="pascal" className="text-black dark:text-white">Pascal</option>
+                            <option value="perl" className="text-black dark:text-white">Perl</option>
+                            <option value="php" className="text-black dark:text-white">PHP</option>
+                            <option value="python" className="text-black dark:text-white">Python</option>
+                            <option value="ruby" className="text-black dark:text-white">Ruby</option>
+                            <option value="rust" className="text-black dark:text-white">Rust</option>
+                            <option value="shell" className="text-black dark:text-white">Shell</option>
+                            <option value="swift" className="text-black dark:text-white">Swift</option>
                         </select>
                     </div>
                     <div>
