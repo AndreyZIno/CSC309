@@ -44,7 +44,7 @@ export default authenticate(async function handler(req: NextApiRequest, res: Nex
       } = { title, explanation, code };
 
       if (tags && Array.isArray(tags)) {
-        updateData.tags = tags.join(',');
+        updateData.tags = tags.join(', ');
       }
 
       const updatedTemplate = await prisma.template.update({

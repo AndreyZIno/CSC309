@@ -78,7 +78,7 @@ const TemplateForm: React.FC<TemplateFormProps> = ({ code, language ='JavaScript
 
     return (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
-            <div className="relative max-w-lg w-full p-6 bg-white shadow-lg rounded-lg dark:bg-gray-800 dark:shadow-lg">
+            <div className="relative max-w-3xl w-full p-6 bg-white shadow-lg rounded-lg dark:bg-gray-800 dark:shadow-lg">
             <button
                 className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 onClick={() => {

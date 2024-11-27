@@ -43,7 +43,7 @@ export default authenticate(async function handler(req: NextApiRequest, res: Nex
           explanation,
           language,
           code,
-          tags: tags.join(','), // Ensure this is an array
+          tags: tags.join(', '), // Ensure this is an array
           userId: user.id, // Use the user's ID from the database
         },
       });
