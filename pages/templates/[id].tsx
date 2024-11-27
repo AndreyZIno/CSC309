@@ -28,6 +28,12 @@ const ViewTemplate = () => {
     useEffect(() => {
         if (!id) return;
 
+        const token = localStorage.getItem('accessToken');
+
+        if (!token && !(router.pathname === `/templates/${id}?guest=true`)) {
+            router.push(`/templates/${id}?guest=true`);
+        }
+
         const fetchTemplate = async () => {
             setLoading(true);
             setError(null);
@@ -51,7 +57,7 @@ const ViewTemplate = () => {
         };
 
         fetchTemplate();
-    }, [id]);
+    }, [id, isGuest]);
 
     const handleForkTemplate = async () => {
         const token = localStorage.getItem('accessToken');
