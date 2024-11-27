@@ -24,6 +24,13 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+        router.push('/dashboard?guest=true');
+    }
+  }, []);
+
+  useEffect(() => {
     const { code: queryCode, language: queryLanguage } = router.query;
     if (queryCode) setCode(queryCode as string);
     if (queryLanguage) setLanguage(queryLanguage as string);

@@ -54,6 +54,13 @@ const ViewAllTemplates: React.FC = () => {
     const { theme } = useTheme();
     const [userEmail, setUserEmail] = useState<string | null>(null);
 
+    useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            router.push('/templates/viewAll?guest=true');
+        }
+      }, []);
+    
     // Fetch current user ID
     useEffect(() => {
         const fetchCurrentUser = async () => {
