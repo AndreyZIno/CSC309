@@ -64,6 +64,7 @@ const BlogPostForm: React.FC = () => {
             setError('Title, description, and tags are required');
             return;
         }
+        const validatedTags = validateTags(tags);
 
         setError(null);
         setSuccess(null);
@@ -75,9 +76,9 @@ const BlogPostForm: React.FC = () => {
                 body: JSON.stringify({
                     title,
                     description,
-                    tags,
+                    tags: validatedTags,
                     templateIds,
-                    userEmail
+                    userEmail,
                 }),
             });
             if (!response.ok) {
@@ -145,6 +146,15 @@ const BlogPostForm: React.FC = () => {
             // Add to selected templates
             setTemplateIds((prev) => [...prev, id]);
         }
+    };
+
+    const validateTags = (tags: string): string => {
+        const formattedTags = tags
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter((tag) => tag !== '');
+    
+        return formattedTags.join(',');
     };
 
     return (
