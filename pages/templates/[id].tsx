@@ -114,18 +114,6 @@ const ViewTemplate = () => {
         return <p className="text-center">Loading template...</p>;
     }
 
-    if (error) {
-        return (
-            <div
-                className={`text-center p-4 rounded-md ${
-                    theme === 'dark' ? 'bg-red-800 text-red-400' : 'bg-red-100 text-red-600'
-                }`}
-            >
-                {error}
-            </div>
-        );
-    }
-
     if (!template) {
         return <p className="text-center text-gray-500">Template not found.</p>;
     }
@@ -136,6 +124,16 @@ const ViewTemplate = () => {
                 theme === 'dark' ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'
             }`}
         >
+          {error && (
+            <div
+              className={`fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-md shadow-lg ${
+                theme === 'dark' ? 'bg-red-800 text-white' : 'bg-red-100 text-red-600'
+              }`}
+            >
+              {error}
+            </div>
+          )}
+
             {success && (
                 <div
                     className={`absolute top-4 left-1/2 transform -translate-x-1/2 p-3 rounded-lg ${
